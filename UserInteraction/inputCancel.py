@@ -1,0 +1,2 @@
+class InputCancel(Exception):
+    pass

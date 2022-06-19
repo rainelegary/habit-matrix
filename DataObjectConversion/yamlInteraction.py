@@ -9,9 +9,14 @@ class YAMLInteraction:
 
     @staticmethod
     def YAMLtoDict(fileName: str) -> dict:
-        with open(fileName, "r") as stream:
+        with open(fileName, "r") as file:
             try:
-                dictionary = yaml.safe_load(stream)
+                dictionary = yaml.safe_load(file)
             except yaml.YAMLError as exc:
                 print(exc)
         return dictionary
+
+
+class YAMLFiles:
+    HABITS = "StoredData/habits.yml"
+    
