@@ -4,12 +4,13 @@ from DataObjectConversion.dictionaryEquivalent import DictionaryEquivalent
 from DataObjectConversion.textEquivalent import TextEquivalent
 
 
-class Habit(TextEquivalent, DictionaryEquivalent):
-    def __init__(self, required: bool, upcomingBuffer: int, recurrence: Recurrence, doneByTime: dt.time):
+class Habit(TextEquivalent):
+    def __init__(self, title: str, required: bool, upcomingBuffer: int, recurrence: Recurrence, doneByTimes: list[dt.time]):
+        self.title = title
         self.required = required
         self.upcomingBuffer = upcomingBuffer
         self.recurrence = recurrence
-        self.doneByTime = doneByTime
+        self.doneByTimes = doneByTimes
 
 
     @staticmethod
@@ -27,16 +28,12 @@ class Habit(TextEquivalent, DictionaryEquivalent):
         return referenceTime + dt.timedelta(days=self.upcomingBuffer) >= nextOcc
 
 
-    def toText(self):
-        pass
-
-
-    def toDict(self):
-        pass
-
-
-    def fromDict(self, dictionary):
-        pass
+    def toText(self, indent: int=0):
+        text = f"habit: {self.title}\n"
+        text += f"  required: {self.required}\n"
+        text += f"  upcoming buffer: {self.upcomingBuffer} days\n"
+        text += self.recurrence.toText(indent=1)
+        return super().indentText(text, indent)
 
 
     

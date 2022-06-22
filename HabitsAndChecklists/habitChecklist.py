@@ -1,5 +1,5 @@
-from DataObjectConversion import dictionaryEquivalent
-from DataObjectConversion import textEquivalent
+from DataObjectConversion.dictionaryEquivalent import DictionaryEquivalent
+from DataObjectConversion.textEquivalent import TextEquivalent
 
-class HabitChecklist(dictionaryEquivalent, textEquivalent):
+class HabitChecklist(DictionaryEquivalent, TextEquivalent):
     pass

@@ -3,34 +3,62 @@ from abc import ABC, abstractmethod
 import time
 import datetime as dt
 import calendar as cal
+import textwrap
+from UserInteraction.userIO import UserIO
+from DateAndTime.calendar import Calendar
+
+from DataObjectConversion.textEquivalent import TextEquivalent
 
 
 
 class RecurrencePeriod(Enum):
-    DAILY = 1
+    DAILY = "daily"
 
-    WEEKLY = 2
-    MONTHLY = 3
-    YEARLY = 4
+    WEEKLY = "weekly"
+    MONTHLY = "monthly"
+    YEARLY = "yearly"
 
-    DAYS_OF_MONTH_K = 5
-    NTH_WEEKDAY_M_OF_MONTH_K = 6
+    DAYS_OF_MONTH_K = "days of month k"
+    NTH_WEEKDAY_M_OF_MONTH_K = "nth weekday m of month k"
 
-    ONCE = 7
+    ONCE = "once"
 
-    AGGREGATE = 8
+    AGGREGATE = "aggregate"
 
 
 
-class Recurrence(ABC):
+class Recurrence(TextEquivalent, ABC):
+    # recurrenceTypes = [
+    #     "daily",
+    #     "weekly",
+    #     "monthly",
+    #     "yearly",
+    #     "once",
+    #     "days of month k",
+    #     "nth weekday m of month k",
+    #     "aggregate",
+    # ]
+
     def __init__(self, period: RecurrencePeriod):
         self.period: RecurrencePeriod = period
 
 
     @staticmethod
-    @abstractmethod
-    def setupPrompt() -> None:
-        raise NotImplementedError("method not yet implemented in subclass")
+    def setupPrompt():
+        # choose type of recurrence
+        prompt = "what kind of recurrence?\n"
+        options = [rp.value for rp in RecurrencePeriod]
+        recurrencePeriod = UserIO.singleSelectString(prompt=prompt, options=options)
+        
+        recurrence = None
+
+        # call appropriate subclass method
+        if recurrencePeriod == RecurrencePeriod.WEEKLY.value: recurrence = WeeklyRecurrence.setupPrompt()
+
+        if recurrence == None: raise NotImplementedError("recurrence type not handled")
+
+        # ask if user wants to save recurrence
+        return recurrence
 
 
     @abstractmethod
@@ -43,6 +71,12 @@ class Recurrence(ABC):
         return nextOcc == referenceTime
 
 
+    def toText(self, indent=0) -> str:
+        text = f"recurrence: {self.period.value}\n"
+        return super().indentText(text, indent)
+
+
+
 
 class DailyRecurrence(Recurrence):
     def __init__(self):
@@ -50,14 +84,25 @@ class DailyRecurrence(Recurrence):
 
 
     @staticmethod
-    def setupPrompt() -> None:
-        # generate a never recurrence if needed
-        # generate an aggregate recurrence if needed
+    def setupPrompt() -> Recurrence:
+
+        # choose type of recurrence
+
+        # configure settings
+
+        # ask if user wants to save this recurrence
+
         pass
 
 
     def nextOccurrence(self, referenceTime=dt.datetime.now()) -> dt.datetime:
         return referenceTime
+
+    
+    def toText(self, indent: int=0) -> str:
+        text = super().toText()
+        
+        return super().indentText(text, indent)
 
 
 
@@ -68,8 +113,13 @@ class WeeklyRecurrence(Recurrence):
 
 
     @staticmethod
-    def setupPrompt() -> None:
-        pass
+    def setupPrompt() -> Recurrence:
+        weekdayDict = Calendar.WEEKDAYS
+        prompt = "which days of the week?"
+        options = list(weekdayDict.keys())
+        dayNames = UserIO.multiSelectString(prompt=prompt, options=options)
+        dayNums = [weekdayDict[dayName] for dayName in dayNames]
+        return WeeklyRecurrence(days=dayNums)
 
 
     def nextOccurrence(self, referenceTime=dt.datetime.now()) -> dt.datetime:
@@ -85,6 +135,12 @@ class WeeklyRecurrence(Recurrence):
     #     return daysLeft == 0
 
 
+    def toText(self, indent: int=0) -> str:
+        text = super().toText()
+        text += f"  days: {self.days}"
+        return super().indentText(text, indent)
+
+
 
 class MonthlyRecurrence(Recurrence):
     def __init__(self, days: list[int]):
@@ -93,7 +149,12 @@ class MonthlyRecurrence(Recurrence):
 
 
     @staticmethod
-    def setupPrompt() -> None:
+    def setupPrompt() -> Recurrence:
+        # choose type of recurrence
+
+        # configure settings
+
+        # ask if user wants to save this recurrence
         pass
 
 
@@ -111,6 +172,12 @@ class MonthlyRecurrence(Recurrence):
     #     return referenceTime.day in self.days
 
 
+    def toText(self, indent: int=0) -> str:
+        text = super().toText()
+        text += f"  days: {self.days}"
+        return super().indentText(text, indent)
+
+
 
 class YearlyRecurrence(Recurrence):
     def __init__(self, days: list[int]):
@@ -119,7 +186,7 @@ class YearlyRecurrence(Recurrence):
 
     
     @staticmethod
-    def setupPrompt() -> None:
+    def setupPrompt() -> Recurrence:
         pass
 
 
@@ -136,32 +203,10 @@ class YearlyRecurrence(Recurrence):
     # def isToday(self, referenceTime=dt.datetime.now()) -> bool:
     #     return referenceTime.timetuple().tm_yday in self.days
 
-
-
-class OnceRecurrence(Recurrence):
-    def __init__(self, month: str, day: int, year: int):
-        super().__init__(RecurrencePeriod.ONCE)
-        self.year = year
-        self.month = month
-        self.day = day
-        self.yearDay = dt.datetime(year, month, day).timetuple().tm_yday
-
-
-    @staticmethod
-    def setupPrompt() -> None:
-        pass
-
-
-    def nextOccurrence(self, referenceTime=dt.datetime.now()) -> dt.datetime:
-        year = referenceTime.year
-        yearDay = referenceTime.timetuple().tm_yday
-        hasOccurred = (year > self.year) or (year == self.year and yearDay > self.yearDay)
-        if hasOccurred: return None
-        else: return dt.datetime(self.year, self.month, self.day)
-
-
-    # def isToday(self, referenceTime=dt.datetime.now()) -> bool:
-    #     return referenceTime.timetuple().tm_yday == self.yearDay and referenceTime.year == self.year
+    def toText(self, indent: int=0) -> str:
+        text = super().toText()
+        
+        return super().indentText(text, indent)
 
 
 
@@ -173,7 +218,7 @@ class DaysOfMonthKRecurrence(Recurrence):
 
 
     @staticmethod
-    def setupPrompt() -> None:
+    def setupPrompt() -> Recurrence:
         pass
 
 
@@ -199,6 +244,12 @@ class DaysOfMonthKRecurrence(Recurrence):
     #     return (month == self.month) and (day in self.days)
 
 
+    def toText(self, indent: int=0) -> str:
+        text = super().toText()
+        
+        return super().indentText(text, indent)
+
+
 
 class NthWeekdayMOfMonthKRecurrence(Recurrence):
     def __init__(self, month: str, weekday: int, n: int):
@@ -209,7 +260,7 @@ class NthWeekdayMOfMonthKRecurrence(Recurrence):
     
 
     @staticmethod
-    def setupPrompt() -> None:
+    def setupPrompt() -> Recurrence:
         pass
 
 
@@ -234,6 +285,45 @@ class NthWeekdayMOfMonthKRecurrence(Recurrence):
         return theFirst + dt.timedelta(days=daysFromFirstToNthWeekdayM)
 
 
+    def toText(self, indent: int=0) -> str:
+        text = super().toText()
+        
+        return super().indentText(text, indent)
+
+
+
+class OnceRecurrence(Recurrence):
+    def __init__(self, month: str, day: int, year: int):
+        super().__init__(RecurrencePeriod.ONCE)
+        self.year = year
+        self.month = month
+        self.day = day
+        self.yearDay = dt.datetime(year, month, day).timetuple().tm_yday
+
+
+    @staticmethod
+    def setupPrompt() -> Recurrence:
+        pass
+
+
+    def nextOccurrence(self, referenceTime=dt.datetime.now()) -> dt.datetime:
+        year = referenceTime.year
+        yearDay = referenceTime.timetuple().tm_yday
+        hasOccurred = (year > self.year) or (year == self.year and yearDay > self.yearDay)
+        if hasOccurred: return None
+        else: return dt.datetime(self.year, self.month, self.day)
+
+
+    # def isToday(self, referenceTime=dt.datetime.now()) -> bool:
+    #     return referenceTime.timetuple().tm_yday == self.yearDay and referenceTime.year == self.year
+
+
+    def toText(self, indent: int=0) -> str:
+        text = super().toText()
+        
+        return super().indentText(text, indent)
+
+
 
 class AggregateRecurrence(Recurrence):
     def __init__(self, recurrences: list[Recurrence]):
@@ -242,7 +332,7 @@ class AggregateRecurrence(Recurrence):
     
 
     @staticmethod
-    def setupPrompt() -> None:
+    def setupPrompt() -> Recurrence:
         pass
 
 
@@ -251,6 +341,12 @@ class AggregateRecurrence(Recurrence):
         soonestOccurrences = [recurrence.nextOccurrence(referenceTime=referenceTime) for recurrence in self.recurrences]
         filteredOccurrences = list(filter(lambda nextOcc: nextOcc != None, soonestOccurrences))
         return min(filteredOccurrences)
+
+    
+    def toText(self, indent: int=0) -> str:
+        text = super().toText()
+        
+        return super().indentText(text, indent)
 
 
 
