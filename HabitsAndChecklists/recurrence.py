@@ -6,6 +6,8 @@ import calendar as cal
 import textwrap
 from UserInteraction.userIO import UserIO
 from DateAndTime.calendar import Calendar
+from DateAndTime.calendarObjects import CalendarObjects, WeekdayEnum
+
 
 from DataObjectConversion.textEquivalent import TextEquivalent
 
@@ -13,32 +15,17 @@ from DataObjectConversion.textEquivalent import TextEquivalent
 
 class RecurrencePeriod(Enum):
     DAILY = "daily"
-
     WEEKLY = "weekly"
     MONTHLY = "monthly"
     YEARLY = "yearly"
-
     DAYS_OF_MONTH_K = "days of month k"
     NTH_WEEKDAY_M_OF_MONTH_K = "nth weekday m of month k"
-
     ONCE = "once"
-
     AGGREGATE = "aggregate"
 
 
 
 class Recurrence(TextEquivalent, ABC):
-    # recurrenceTypes = [
-    #     "daily",
-    #     "weekly",
-    #     "monthly",
-    #     "yearly",
-    #     "once",
-    #     "days of month k",
-    #     "nth weekday m of month k",
-    #     "aggregate",
-    # ]
-
     def __init__(self, period: RecurrencePeriod):
         self.period: RecurrencePeriod = period
 
@@ -46,16 +33,23 @@ class Recurrence(TextEquivalent, ABC):
     @staticmethod
     def setupPrompt():
         # choose type of recurrence
-        prompt = "what kind of recurrence?\n"
+        prompt = "what kind of recurrence?"
         options = [rp.value for rp in RecurrencePeriod]
         recurrencePeriod = UserIO.singleSelectString(prompt=prompt, options=options)
         
         recurrence = None
 
         # call appropriate subclass method
+        if recurrencePeriod == RecurrencePeriod.DAILY.value: recurrence = DailyRecurrence.setupPrompt()
         if recurrencePeriod == RecurrencePeriod.WEEKLY.value: recurrence = WeeklyRecurrence.setupPrompt()
+        if recurrencePeriod == RecurrencePeriod.MONTHLY.value: recurrence = MonthlyRecurrence.setupPrompt()
+        if recurrencePeriod == RecurrencePeriod.YEARLY.value: recurrence = YearlyRecurrence.setupPrompt()
+        if recurrencePeriod == RecurrencePeriod.DAYS_OF_MONTH_K.value: recurrence = DaysOfMonthKRecurrence.setupPrompt()
+        if recurrencePeriod == RecurrencePeriod.NTH_WEEKDAY_M_OF_MONTH_K.value: recurrence = NthWeekdayMOfMonthKRecurrence.setupPrompt()
+        if recurrencePeriod == RecurrencePeriod.ONCE.value: recurrence = OnceRecurrence.setupPrompt()
+        if recurrencePeriod == RecurrencePeriod.AGGREGATE.value: recurrence = AggregateRecurrence.setupPrompt()
 
-        if recurrence == None: raise NotImplementedError("recurrence type not handled")
+        if recurrence == None: raise NotImplementedError(f"recurrence type {recurrencePeriod} not handled")
 
         # ask if user wants to save recurrence
         return recurrence
@@ -74,7 +68,6 @@ class Recurrence(TextEquivalent, ABC):
     def toText(self, indent=0) -> str:
         text = f"recurrence: {self.period.value}\n"
         return super().indentText(text, indent)
-
 
 
 
@@ -107,25 +100,26 @@ class DailyRecurrence(Recurrence):
 
 
 class WeeklyRecurrence(Recurrence):
-    def __init__(self, days: list[int]):
+    def __init__(self, weekdays: list[WeekdayEnum]):
         super().__init__(RecurrencePeriod.WEEKLY)
-        self.days = days
+        self.weekdays = weekdays
 
 
     @staticmethod
     def setupPrompt() -> Recurrence:
-        weekdayDict = Calendar.WEEKDAYS
+        weekdayDict = CalendarObjects.WEEKDAY_NAME_TO_ID
         prompt = "which days of the week?"
         options = list(weekdayDict.keys())
         dayNames = UserIO.multiSelectString(prompt=prompt, options=options)
-        dayNums = [weekdayDict[dayName] for dayName in dayNames]
-        return WeeklyRecurrence(days=dayNums)
+        weekdays = [weekdayDict[dayName] for dayName in dayNames]
+        return WeeklyRecurrence(weekdays=weekdays)
 
 
     def nextOccurrence(self, referenceTime=dt.datetime.now()) -> dt.datetime:
-        if not self.days: return None
+        if not self.weekdays: return None
         weekday = referenceTime.weekday()
-        daysLeft = min((wday - weekday) % 7 for wday in self.days)
+        weekdayNums = [CalendarObjects.WEEKDAY_ID_TO_OBJ[wday].num for wday in self.weekdays]
+        daysLeft = min((wday - weekday) % 7 for wday in weekdayNums)
         return referenceTime + dt.timedelta(days=daysLeft)
 
 
@@ -252,7 +246,7 @@ class DaysOfMonthKRecurrence(Recurrence):
 
 
 class NthWeekdayMOfMonthKRecurrence(Recurrence):
-    def __init__(self, month: str, weekday: int, n: int):
+    def __init__(self, month: str, weekday: WeekdayEnum, n: int):
         super().__init__(RecurrencePeriod.NTH_WEEKDAY_M_OF_MONTH_K)
         self.month = month
         self.weekday = weekday
@@ -275,12 +269,13 @@ class NthWeekdayMOfMonthKRecurrence(Recurrence):
             theFirst = dt.datetime(year, month, 1)
 
         weekdayOfFirst = theFirst.weekday()
-        daysFromFirstToNthWeekdayM = ((self.weekday - weekdayOfFirst) % 7) + (7 * (self.n - 1))
+        weekdayNum = CalendarObjects.WEEKDAY_ID_TO_OBJ[self.weekday].num
+        daysFromFirstToNthWeekdayM = ((weekdayNum - weekdayOfFirst) % 7) + (7 * (self.n - 1))
 
         if month == self.month and day > 1 + daysFromFirstToNthWeekdayM:
             theFirst = dt.datetime(year + 1, month, 1)
             weekdayOfFirst = theFirst.weekday()
-            daysFromFirstToNthWeekdayM = ((self.weekday - weekdayOfFirst) % 7) + (7 * (self.n - 1))
+            daysFromFirstToNthWeekdayM = ((weekdayNum - weekdayOfFirst) % 7) + (7 * (self.n - 1))
 
         return theFirst + dt.timedelta(days=daysFromFirstToNthWeekdayM)
 

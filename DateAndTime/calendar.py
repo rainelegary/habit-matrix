@@ -1,23 +1,6 @@
 from DataObjectConversion.textEquivalent import TextEquivalent
 from enum import Enum
 
-
-
-class Weekday:
-    def __init__(self, name: str, num: int):
-        self.name = name
-        self.num = num
-
-
-
-class Weekdays(Enum):
-    MONDAY = Weekday("monday", 0)
-    TUESDAY = Weekday("tuesday", 1)
-
-
-
-
-
 class Calendar(TextEquivalent):
     WEEKDAYS: dict[str, int] = {
         "monday": 0,

@@ -22,24 +22,31 @@ class UserIO:
         return selected
 
 
-
     @staticmethod
     def singleSelectString(prompt: str, options: list) -> str:
-        print(prompt)
-        print(UserIO.optionsString(options))
         optionsDict = UserIO.stringOptionsDict(options)
-        choice = UserIO.getStringInput()
-        selected = UserIO.extractStringChoices([choice], optionsDict)[0]
-        return selected
+        prompting = True
+        while prompting:
+            print(prompt)
+            print(UserIO.optionsString(options))
+            choice = UserIO.getStringInput()
+            selected = UserIO.extractStringChoices([choice], optionsDict)
+            if len(selected) > 0: prompting = False
+            else: print("invalid input, please try again.")
+        return selected[0]
 
 
     def singleSelectInt(prompt: str, options: list[int]) -> int:
-        print(prompt)
-        print(UserIO.optionsString(options))
         optionsDict = UserIO.intOptionsDict(options)
-        choice = UserIO.getIntInput()
-        selected = UserIO.extractIntChoices([choice], optionsDict)[0]
-        return selected
+        prompting = True
+        while prompting:
+            print(prompt)
+            print(UserIO.optionsString(options))
+            choice = UserIO.getIntInput()
+            selected = UserIO.extractIntChoices([choice], optionsDict)
+            if len(selected) > 0: prompting = False
+            else: print("invalid input, please try again.")
+        return selected[0]
 
     
     @staticmethod
@@ -48,12 +55,44 @@ class UserIO:
         menu = ""
         for option in optionsDict:
             menu += f"{option}. {optionsDict[option]}\n"
-        return menu
+        return menu.strip()
+
+    
+    @staticmethod
+    def getStringInput(prompt: str="") -> str:
+        return input(prompt)
+
+    
+    @staticmethod
+    def getIntInput(prompt: str="") -> int:
+        prompting = True
+        while prompting:
+            choice = input(prompt)
+            try:
+                choice = int(choice)
+                prompting = False
+            except ValueError:
+                print("invalid integer, please try again.")
+        return choice
 
 
     @staticmethod
-    def getStringListInput() -> list[str]:
-        userIn = input().strip()
+    def getBoolInput(prompt: str="", true="yes", false="no") -> bool:
+        answerDict = {true: True, false: False}
+        prompting = True
+        while prompting:
+            choice = UserIO.singleSelectString(prompt, [true, false])
+            try:
+                choice = answerDict[choice]
+                prompting = False
+            except KeyError:
+                print("invalid answer, please try again.")
+        return choice
+
+
+    @staticmethod
+    def getStringListInput(prompt: str="") -> list[str]:
+        userIn = input(prompt).strip()
         # regex represents:
         # - any amount of commas and spaces (at least one of either)
         regExp = "[, ]+" 
@@ -62,8 +101,8 @@ class UserIO:
 
     
     @staticmethod
-    def getIntListInput() -> list[int]:
-        userIn = input().strip()
+    def getIntListInput(prompt: str="") -> list[int]:
+        userIn = input(prompt).strip()
         # regex represents:
         # - any amount of commas and spaces (at least one of either)
         regExp = "[, ]+"
@@ -71,23 +110,6 @@ class UserIO:
         return items
 
     
-    @staticmethod
-    def getStringInput() -> str:
-        return input()
-
-    
-    @staticmethod
-    def getIntInput() -> int:
-        while prompting:
-            choice = input()
-            try:
-                choice = int(choice)
-                prompting = False
-            except ValueError:
-                print("invalid integer, please try again.")
-    
-
-
     @staticmethod
     def stringOptionsDict(options: list[str]) -> dict[str, str]:
         optionsDict = {}

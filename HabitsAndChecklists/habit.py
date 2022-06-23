@@ -2,6 +2,8 @@ from HabitsAndChecklists.recurrence import Recurrence, RecurrencePeriod, DailyRe
 import datetime as dt
 from DataObjectConversion.dictionaryEquivalent import DictionaryEquivalent
 from DataObjectConversion.textEquivalent import TextEquivalent
+from UserInteraction.userIO import UserIO
+
 
 
 class Habit(TextEquivalent):
@@ -15,14 +17,19 @@ class Habit(TextEquivalent):
 
     @staticmethod
     def setupPrompt():
-        pass
+        title = UserIO.getStringInput("habit title? ")
+        required = UserIO.getBoolInput("required? ")
+        upcomingBuffer = UserIO.getIntInput("notify how many days in advance? ")
+        recurrence = Recurrence.setupPrompt()
+        doneByTimes = None
+        return Habit(title, required, upcomingBuffer, recurrence, doneByTimes)
 
 
     def nextOccurrence(self, referenceTime=dt.datetime.now()):
         return self.recurrence.nextOccurrence(referenceTime=referenceTime)
 
 
-    def isUpcoming(self, referenceTime=dt.datetime.now()):
+    def isUpcoming(self, referenceTime=dt.datetime.now()) -> bool:
         nextOcc = self.nextOccurrence(referenceTime=referenceTime)
         if nextOcc == None: return False
         return referenceTime + dt.timedelta(days=self.upcomingBuffer) >= nextOcc
