@@ -4,6 +4,8 @@ import time
 import datetime as dt
 import calendar as cal
 import textwrap
+
+from sympy import O
 from UserInteraction.userIO import UserIO
 from DateAndTime.calendar import Calendar
 from DateAndTime.calendarObjects import CalendarObjects, MonthEnum, WeekdayEnum
@@ -56,13 +58,13 @@ class Recurrence(TextEquivalent, ABC):
 
 
     @abstractmethod
-    def nextOccurrence(self, referenceTime=dt.datetime.now()) -> dt.datetime:
+    def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.datetime:
         raise NotImplementedError("method not yet implemented in subclass")
 
 
-    def isToday(self, referenceTime=dt.datetime.now()) -> bool:
-        nextOcc = self.nextOccurrence(referenceTime=referenceTime)
-        return nextOcc == referenceTime
+    def isToday(self, referenceDate: dt.date=dt.date.today()) -> bool:
+        nextOcc = self.nextOccurrence(referenceDate=referenceDate)
+        return nextOcc == referenceDate
 
 
     def toText(self, indent=0) -> str:
@@ -81,8 +83,8 @@ class DailyRecurrence(Recurrence):
         return DailyRecurrence()
 
 
-    def nextOccurrence(self, referenceTime=dt.datetime.now()) -> dt.datetime:
-        return referenceTime
+    def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.datetime:
+        return referenceDate
 
     
     def toText(self, indent: int=0) -> str:
@@ -100,16 +102,17 @@ class WeeklyRecurrence(Recurrence):
     @staticmethod
     def setupPrompt() -> Recurrence:
         dayNames = UserIO.multiSelectString("which weekdays? ", CalendarObjects.WEEKDAY_NAMES)
-        weekdays = [CalendarObjects.WEEKDAY_NAME_TO_ID[dayName] for dayName in dayNames]
+        dayNums = sorted([CalendarObjects.WEEKDAY_NAME_TO_NUM[dayName] for dayName in dayNames])
+        weekdays = [CalendarObjects.WEEKDAY_NUM_TO_ID[dayNum] for dayNum in dayNums]
         return WeeklyRecurrence(weekdays)
 
 
-    def nextOccurrence(self, referenceTime=dt.datetime.now()) -> dt.datetime:
+    def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.datetime:
         if not self.weekdays: return None
-        weekday = referenceTime.weekday()
+        weekday = referenceDate.weekday()
         weekdayNums = [CalendarObjects.WEEKDAY_ID_TO_OBJ[wday].num for wday in self.weekdays]
         daysLeft = min((wday - weekday) % 7 for wday in weekdayNums)
-        return referenceTime + dt.timedelta(days=daysLeft)
+        return referenceDate + dt.timedelta(days=daysLeft)
 
 
     def toText(self, indent: int=0) -> str:
@@ -131,14 +134,14 @@ class MonthlyRecurrence(Recurrence):
         return MonthlyRecurrence(days)
 
 
-    def nextOccurrence(self, referenceTime=dt.datetime.now()) -> dt.datetime:
+    def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.datetime:
         if self.days == None: return None
-        year = referenceTime.year
-        month = referenceTime.month
-        monthDay = referenceTime.day
+        year = referenceDate.year
+        month = referenceDate.month
+        monthDay = referenceDate.day
         daysInMonth = cal.monthrange(year, month)[1]
         daysLeft = min((mday - monthDay) % daysInMonth for mday in self.days)
-        return referenceTime + dt.timedelta(days=daysLeft)
+        return referenceDate + dt.timedelta(days=daysLeft)
 
 
     def toText(self, indent: int=0) -> str:
@@ -160,14 +163,14 @@ class YearlyRecurrence(Recurrence):
         return YearlyRecurrence(days)
 
 
-    def nextOccurrence(self, referenceTime=dt.datetime.now()) -> dt.datetime:
+    def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.datetime:
         if not self.days: return None
-        year = referenceTime.year
-        yearDay = referenceTime.timetuple().tm_yday
+        year = referenceDate.year
+        yearDay = referenceDate.timetuple().tm_yday
         leapyear = cal.isleap(year)
         daysInYear = 365 + 1 * leapyear
         daysLeft = min((yday - yearDay) % daysInYear for yday in self.days)
-        return referenceTime + dt.timedelta(days=daysLeft)
+        return referenceDate + dt.timedelta(days=daysLeft)
 
 
     def toText(self, indent: int=0) -> str:
@@ -192,11 +195,11 @@ class DaysOfMonthKRecurrence(Recurrence):
         return DaysOfMonthKRecurrence(month, days)
 
 
-    def nextOccurrence(self, referenceTime=dt.datetime.now()) -> dt.datetime:
+    def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.datetime:
         if not self.days: return None
-        year = referenceTime.year
-        month = referenceTime.month
-        day = referenceTime.day
+        year = referenceDate.year
+        month = referenceDate.month
+        day = referenceDate.day
         if month > self.month:
             firstDay = min(self.days)
             return dt.datetime(year + 1, self.month, firstDay)
@@ -205,7 +208,7 @@ class DaysOfMonthKRecurrence(Recurrence):
         else:
             daysInMonth = cal.monthrange(year, month)[1]
             daysLeft = min((mday - day) % daysInMonth for mday in self.days)
-            return referenceTime + dt.timedelta(days=daysLeft)
+            return referenceDate + dt.timedelta(days=daysLeft)
 
 
     def toText(self, indent: int=0) -> str:
@@ -234,10 +237,10 @@ class NthWeekdayMOfMonthKRecurrence(Recurrence):
         return NthWeekdayMOfMonthKRecurrence(month, weekday, n)
 
 
-    def nextOccurrence(self, referenceTime=dt.datetime.now()) -> dt.datetime:
-        year = referenceTime.year
-        month = referenceTime.month
-        day = referenceTime.day
+    def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.datetime:
+        year = referenceDate.year
+        month = referenceDate.month
+        day = referenceDate.day
 
         if month > self.month.num: 
             theFirst = dt.datetime(year + 1, month, 1)
@@ -264,30 +267,32 @@ class NthWeekdayMOfMonthKRecurrence(Recurrence):
 
 
 class OnceRecurrence(Recurrence):
-    def __init__(self, month: str, day: int, year: int):
+    def __init__(self, occurrence: dt.datetime):
         super().__init__(RecurrencePeriod.ONCE)
-        self.year = year
-        self.month = month
-        self.day = day
-        self.yearDay = dt.datetime(year, month, day).timetuple().tm_yday
+        self.occurrence = occurrence
+        self.year = occurrence.year
+        self.monthName = CalendarObjects.MONTH_NUM_TO_NAME[occurrence.month]
+        self.day = occurrence.day
 
 
     @staticmethod
     def setupPrompt() -> Recurrence:
-        pass
+        month = UserIO.getIntInput("which month? ")
+        day = UserIO.getIntInput("which day? ")
+        year = UserIO.getIntInput("which year? ")
+        occurrence = dt.datetime(year, month, day)
+        return OnceRecurrence(occurrence)
 
 
-    def nextOccurrence(self, referenceTime=dt.datetime.now()) -> dt.datetime:
-        year = referenceTime.year
-        yearDay = referenceTime.timetuple().tm_yday
-        hasOccurred = (year > self.year) or (year == self.year and yearDay > self.yearDay)
+    def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.datetime:
+        hasOccurred = referenceDate > self.occurrence
         if hasOccurred: return None
-        else: return dt.datetime(self.year, self.month, self.day)
+        else: return self.occurrence
 
 
     def toText(self, indent: int=0) -> str:
         text = super().toText()
-        
+        text += f"  occurrence: {self.monthName} {self.day}, {self.year}"
         return super().indentText(text, indent)
 
 
@@ -303,9 +308,9 @@ class AggregateRecurrence(Recurrence):
         pass
 
 
-    def nextOccurrence(self, referenceTime=dt.datetime.now()) -> dt.datetime:
+    def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.datetime:
         if not self.recurrences: return None
-        soonestOccurrences = [recurrence.nextOccurrence(referenceTime=referenceTime) for recurrence in self.recurrences]
+        soonestOccurrences = [recurrence.nextOccurrence(referenceDate=referenceDate) for recurrence in self.recurrences]
         filteredOccurrences = list(filter(lambda nextOcc: nextOcc != None, soonestOccurrences))
         return min(filteredOccurrences)
 

@@ -11,6 +11,8 @@ import pprint
 
 
 def main():
+    print(dt.date.today() + dt.timedelta(days=1) > dt.date.today())
+
     habit = Habit.setupPrompt()
     isUpcoming = habit.isUpcoming()
     print(isUpcoming)

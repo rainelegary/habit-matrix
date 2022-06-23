@@ -25,14 +25,14 @@ class Habit(TextEquivalent):
         return Habit(title, required, upcomingBuffer, recurrence, doneByTimes)
 
 
-    def nextOccurrence(self, referenceTime=dt.datetime.now()):
-        return self.recurrence.nextOccurrence(referenceTime=referenceTime)
+    def nextOccurrence(self, referenceDate: dt.date=dt.date.today()):
+        return self.recurrence.nextOccurrence(referenceDate=referenceDate)
 
 
-    def isUpcoming(self, referenceTime=dt.datetime.now()) -> bool:
-        nextOcc = self.nextOccurrence(referenceTime=referenceTime)
+    def isUpcoming(self, referenceDate: dt.date=dt.date.today()) -> bool:
+        nextOcc = self.nextOccurrence(referenceDate=referenceDate)
         if nextOcc == None: return False
-        return referenceTime + dt.timedelta(days=self.upcomingBuffer) >= nextOcc
+        return referenceDate + dt.timedelta(days=self.upcomingBuffer) >= nextOcc
 
 
     def toText(self, indent: int=0):
