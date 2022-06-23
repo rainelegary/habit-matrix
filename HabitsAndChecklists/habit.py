@@ -42,11 +42,3 @@ class Habit(TextEquivalent):
         text += self.recurrence.toText(indent=1)
         return super().indentText(text, indent)
 
-
-    
-
-
-
-
-
-

@@ -8,7 +8,7 @@ class UserIO:
         print(UserIO.optionsString(options))
         optionsDict = UserIO.stringOptionsDict(options)
         choices = UserIO.getStringListInput()
-        selected = UserIO.extractStringChoices(list(set(choice.lower() for choice in choices)), optionsDict)
+        selected = UserIO.extractStringChoices(sorted(set(choice.lower() for choice in choices)), optionsDict)
         return selected
 
 
@@ -18,7 +18,7 @@ class UserIO:
         print(UserIO.optionsString(options))
         optionsDict = UserIO.intOptionsDict(options)
         choices = UserIO.getIntListInput()
-        selected = UserIO.extractIntChoices(list(set(choice for choice in choices)), optionsDict)
+        selected = UserIO.extractIntChoices(sorted(set(choice for choice in choices)), optionsDict)
         return selected
 
 
@@ -131,11 +131,11 @@ class UserIO:
     @staticmethod
     def extractStringChoices(choices: list[str], optionsDict: dict[str, str]) -> list[str]:
         selected = []
+        lowerKeys = list(map(lambda x: x.lower(), optionsDict.keys()))
+        lowerVals = list(map(lambda x: x.lower(), optionsDict.values()))
         for item in choices:
-            if item in optionsDict.keys():
-                selected.append(optionsDict[item])
-            if item in optionsDict.values():
-                selected.append(item)
+            if item in lowerKeys: selected.append(optionsDict[item])
+            if item in lowerVals: selected.append(item)
         return selected
 
 

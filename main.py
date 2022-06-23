@@ -14,6 +14,7 @@ def main():
     habit = Habit.setupPrompt()
     isUpcoming = habit.isUpcoming()
     print(isUpcoming)
+    print(habit.toText())
 
 
 if __name__ == "__main__":
