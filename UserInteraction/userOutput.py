@@ -1,5 +1,7 @@
 
 class UserOutput:
+    indentStyle = "}>  "
+
     @staticmethod
     def numberSuffix(num: int) -> str:
         num = abs(num)
@@ -9,5 +11,10 @@ class UserOutput:
         suffixDict = {1: "st", 2: "nd", 3: "rd"}
         if lastDigit in suffixDict: return suffixDict[lastDigit]
         else: return "th"
+
+    
+    @staticmethod
+    def indentPadding(indent: int) -> str:
+        return UserOutput.indentStyle * indent
 
 

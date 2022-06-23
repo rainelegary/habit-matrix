@@ -28,27 +28,38 @@ class RecurrencePeriod(Enum):
 
 
 class Recurrence(TextEquivalent, ABC):
-    def __init__(self, period: RecurrencePeriod):
-        self.period: RecurrencePeriod = period
+    def __init__(self):
+        "no specialized constructor necessary"
 
 
     @staticmethod
-    def setupPrompt() -> object:
-        prompt = "what kind of recurrence?"
+    def setupPrompt(indent: int=0) -> object:
+        indentA = UserOutput.indentPadding(indent)
+        indentB = UserOutput.indentPadding(indent + 1)
+        print(f"{indentA}recurrence")
+        prompt = f"what kind of recurrence?"
         options = [rp.value for rp in RecurrencePeriod]
-        recurrencePeriod = UserInput.singleSelectString(prompt, options)
+        recurrencePeriod = UserInput.singleSelectString(prompt, options, indent=indent+1)
         
         recurrence = None
 
         # call appropriate subclass method
-        if recurrencePeriod == RecurrencePeriod.DAILY.value: recurrence = DailyRecurrence.setupPrompt()
-        if recurrencePeriod == RecurrencePeriod.WEEKLY.value: recurrence = WeeklyRecurrence.setupPrompt()
-        if recurrencePeriod == RecurrencePeriod.MONTHLY.value: recurrence = MonthlyRecurrence.setupPrompt()
-        if recurrencePeriod == RecurrencePeriod.YEARLY.value: recurrence = YearlyRecurrence.setupPrompt()
-        if recurrencePeriod == RecurrencePeriod.DAYS_OF_MONTH_K.value: recurrence = DaysOfMonthKRecurrence.setupPrompt()
-        if recurrencePeriod == RecurrencePeriod.NTH_WEEKDAY_M_OF_MONTH_K.value: recurrence = NthWeekdayMOfMonthKRecurrence.setupPrompt()
-        if recurrencePeriod == RecurrencePeriod.ONCE.value: recurrence = OnceRecurrence.setupPrompt()
-        if recurrencePeriod == RecurrencePeriod.AGGREGATE.value: recurrence = AggregateRecurrence.setupPrompt()
+        if recurrencePeriod == RecurrencePeriod.DAILY.value: 
+            recurrence = DailyRecurrence.setupPrompt(indent=indent+1)
+        if recurrencePeriod == RecurrencePeriod.WEEKLY.value: 
+            recurrence = WeeklyRecurrence.setupPrompt(indent=indent+1)
+        if recurrencePeriod == RecurrencePeriod.MONTHLY.value: 
+            recurrence = MonthlyRecurrence.setupPrompt(indent=indent+1)
+        if recurrencePeriod == RecurrencePeriod.YEARLY.value: 
+            recurrence = YearlyRecurrence.setupPrompt(indent=indent+1)
+        if recurrencePeriod == RecurrencePeriod.DAYS_OF_MONTH_K.value: 
+            recurrence = DaysOfMonthKRecurrence.setupPrompt(indent=indent+1)
+        if recurrencePeriod == RecurrencePeriod.NTH_WEEKDAY_M_OF_MONTH_K.value: 
+            recurrence = NthWeekdayMOfMonthKRecurrence.setupPrompt(indent=indent+1)
+        if recurrencePeriod == RecurrencePeriod.ONCE.value: 
+            recurrence = OnceRecurrence.setupPrompt(indent=indent+1)
+        if recurrencePeriod == RecurrencePeriod.AGGREGATE.value: 
+            recurrence = AggregateRecurrence.setupPrompt(indent=indent+1)
 
         if recurrence == None: raise NotImplementedError(f"recurrence type {recurrencePeriod} not handled")
 
@@ -67,18 +78,21 @@ class Recurrence(TextEquivalent, ABC):
 
 
     def toText(self, indent=0) -> str:
-        text = f"recurrence: {self.period.value}"
+        text = f"recurrence: {self.recurrencePeriod.value}"
         return super().indentText(text, indent)
 
 
 
 class DailyRecurrence(Recurrence):
-    def __init__(self):
-        super().__init__(RecurrencePeriod.DAILY)
+    recurrencePeriod = RecurrencePeriod.DAILY
 
+    def __init__(self):
+        "no specialized constructor necessary"
 
     @staticmethod
-    def setupPrompt() -> Recurrence:
+    def setupPrompt(indent: int=0) -> Recurrence:
+        indentA = UserOutput.indentPadding(indent)
+        print(f"{indentA}{RecurrencePeriod.DAILY.value} recurrence")
         return DailyRecurrence()
 
 
@@ -93,16 +107,19 @@ class DailyRecurrence(Recurrence):
 
 
 class WeeklyRecurrence(Recurrence):
+    recurrencePeriod = RecurrencePeriod.WEEKLY
+
     def __init__(self, weekdays: list[WeekdayEnum]):
-        super().__init__(RecurrencePeriod.WEEKLY)
         self.weekdays = weekdays
         self.weekdayNames = [CalendarObjects.WEEKDAY_ID_TO_OBJ[wday].name for wday in self.weekdays]
         self.weekdayNums = [CalendarObjects.WEEKDAY_ID_TO_OBJ[wday].num for wday in self.weekdays]
 
 
     @staticmethod
-    def setupPrompt() -> Recurrence:
-        dayNames = UserInput.multiSelectString("which weekdays? ", CalendarObjects.WEEKDAY_NAMES)
+    def setupPrompt(indent: int=0) -> Recurrence:
+        indentA = UserOutput.indentPadding(indent)
+        print(f"{indentA}{RecurrencePeriod.WEEKLY.value} recurrence")
+        dayNames = UserInput.multiSelectString("which weekdays? ", CalendarObjects.WEEKDAY_NAMES, indent=indent+1)
         dayNums = sorted([CalendarObjects.WEEKDAY_NAME_TO_NUM[dayName] for dayName in dayNames])
         weekdays = [CalendarObjects.WEEKDAY_NUM_TO_ID[dayNum] for dayNum in dayNums]
         return WeeklyRecurrence(weekdays)
@@ -117,20 +134,24 @@ class WeeklyRecurrence(Recurrence):
 
     def toText(self, indent: int=0) -> str:
         text = super().toText()
-        text += f"\n  weekdays: {self.weekdayNames}"
+        text += f"\n{UserOutput.indentStyle}weekdays: {self.weekdayNames}"
         return super().indentText(text, indent)
 
 
 
 class MonthlyRecurrence(Recurrence):
+    recurrencePeriod = RecurrencePeriod.MONTHLY
+
     def __init__(self, days: list[int]):
-        super().__init__(RecurrencePeriod.MONTHLY)
         self.days = days
 
 
     @staticmethod
-    def setupPrompt() -> Recurrence:
-        days = UserInput.getIntListInput("which month days? ")
+    def setupPrompt(indent: int=0) -> Recurrence:
+        indentA = UserOutput.indentPadding(indent)
+        indentB = UserOutput.indentPadding(indent + 1)
+        print(f"{indentA}{RecurrencePeriod.MONTHLY.value} recurrence")
+        days = UserInput.getIntListInput("which month days? ", indent=indent+1)
         return MonthlyRecurrence(days)
 
 
@@ -146,20 +167,24 @@ class MonthlyRecurrence(Recurrence):
 
     def toText(self, indent: int=0) -> str:
         text = super().toText()
-        text += f"\n  days of the month: {self.days}"
+        text += f"\n{UserOutput.indentStyle}days of the month: {self.days}"
         return super().indentText(text, indent)
 
 
 
 class YearlyRecurrence(Recurrence):
+    recurrencePeriod = RecurrencePeriod.YEARLY
+
     def __init__(self, days: list[int]):
-        super().__init__(RecurrencePeriod.YEARLY)
         self.days = days
 
     
     @staticmethod
-    def setupPrompt() -> Recurrence:
-        days = UserInput.getIntListInput("which days of the year? ")
+    def setupPrompt(indent: int=0) -> Recurrence:
+        indentA = UserOutput.indentPadding(indent)
+        indentB = UserOutput.indentPadding(indent + 1)
+        print(f"{indentA}{RecurrencePeriod.YEARLY.value} recurrence")
+        days = UserInput.getIntListInput("which days of the year? ", indent=indent+1)
         return YearlyRecurrence(days)
 
 
@@ -175,14 +200,15 @@ class YearlyRecurrence(Recurrence):
 
     def toText(self, indent: int=0) -> str:
         text = super().toText()
-        text += f"\n  days of the year: {self.days}"
+        text += f"\n{UserOutput.indentStyle}days of the year: {self.days}"
         return super().indentText(text, indent)
 
 
 
 class DaysOfMonthKRecurrence(Recurrence):
+    recurrencePeriod = RecurrencePeriod.DAYS_OF_MONTH_K
+
     def __init__(self, month: MonthEnum, days: list[int]):
-        super().__init__(RecurrencePeriod.DAYS_OF_MONTH_K)
         self.month = month
         self.monthName = month.value.name
         self.monthNum = month.value.num
@@ -190,10 +216,13 @@ class DaysOfMonthKRecurrence(Recurrence):
 
 
     @staticmethod
-    def setupPrompt() -> Recurrence:
-        monthName = UserInput.singleSelectString("which month? ", CalendarObjects.MONTH_NAMES)
+    def setupPrompt(indent: int=0) -> Recurrence:
+        indentA = UserOutput.indentPadding(indent)
+        indentB = UserOutput.indentPadding(indent + 1)
+        print(f"{indentA}{RecurrencePeriod.DAYS_OF_MONTH_K.value} recurrence")
+        monthName = UserInput.singleSelectString("which month? ", CalendarObjects.MONTH_NAMES, indent=indent+1)
         month = CalendarObjects.MONTH_NAME_TO_ID[monthName]
-        days = UserInput.getIntListInput(prompt=f"which days of {monthName}? ")
+        days = UserInput.getIntListInput(prompt=f"which days of {monthName}? ", indent=indent+1)
         return DaysOfMonthKRecurrence(month, days)
 
 
@@ -215,25 +244,29 @@ class DaysOfMonthKRecurrence(Recurrence):
 
     def toText(self, indent: int=0) -> str:
         text = super().toText()
-        text += f"\n  month: {self.month.value.name}"
-        text += f"\n  days: {self.days}"
+        text += f"\n{UserOutput.indentStyle}month: {self.month.value.name}"
+        text += f"\n{UserOutput.indentStyle}days: {self.days}"
         return super().indentText(text, indent)
 
 
 
 class NthWeekdayMOfMonthKRecurrence(Recurrence):
+    recurrencePeriod = RecurrencePeriod.NTH_WEEKDAY_M_OF_MONTH_K
+
     def __init__(self, month: MonthEnum, weekday: WeekdayEnum, n: int):
-        super().__init__(RecurrencePeriod.NTH_WEEKDAY_M_OF_MONTH_K)
         self.month = month
         self.weekday = weekday
         self.n = n
     
 
     @staticmethod
-    def setupPrompt() -> Recurrence:
-        monthName = UserInput.singleSelectString("which month? ", CalendarObjects.MONTH_NAMES)
-        weekdayName = UserInput.singleSelectString("which weekday? ", CalendarObjects.WEEKDAY_NAMES)
-        n = UserInput.getIntInput(f"which (n)th {weekdayName} of {monthName}? ")
+    def setupPrompt(indent: int=0) -> Recurrence:
+        indentA = UserOutput.indentPadding(indent)
+        indentB = UserOutput.indentPadding(indent + 1)
+        print(f"{indentA}{RecurrencePeriod.NTH_WEEKDAY_M_OF_MONTH_K.value} recurrence")
+        monthName = UserInput.singleSelectString("which month? ", CalendarObjects.MONTH_NAMES, indent=indent+1)
+        weekdayName = UserInput.singleSelectString("which weekday? ", CalendarObjects.WEEKDAY_NAMES, indent=indent+1)
+        n = UserInput.getIntInput(f"which (n)th {weekdayName} of {monthName}? ", indent=indent+1)
         month = CalendarObjects.MONTH_NAME_TO_ID[monthName]
         weekday = CalendarObjects.WEEKDAY_NAME_TO_ID[weekdayName]
         return NthWeekdayMOfMonthKRecurrence(month, weekday, n)
@@ -264,14 +297,15 @@ class NthWeekdayMOfMonthKRecurrence(Recurrence):
     def toText(self, indent: int=0) -> str:
         text = super().toText()
         numberSuffix = UserOutput.numberSuffix(self.n)
-        text += f"\n  {self.n}{numberSuffix} {self.weekday.value.name} of {self.month.value.name}"
+        text += f"\n{UserOutput.indentStyle}{self.n}{numberSuffix} {self.weekday.value.name} of {self.month.value.name}"
         return super().indentText(text, indent)
 
 
 
 class OnceRecurrence(Recurrence):
+    recurrencePeriod = RecurrencePeriod.ONCE
+
     def __init__(self, date: dt.date):
-        super().__init__(RecurrencePeriod.ONCE)
         self.date = date
         self.year = date.year
         self.monthName = CalendarObjects.MONTH_NUM_TO_NAME[date.month]
@@ -279,10 +313,14 @@ class OnceRecurrence(Recurrence):
 
 
     @staticmethod
-    def setupPrompt() -> Recurrence:
-        year = UserInput.getIntInput("which year? ")
-        month = UserInput.getIntInput("which month? ")
-        day = UserInput.getIntInput("which day? ")
+    def setupPrompt(indent: int=0) -> Recurrence:
+        indentA = UserOutput.indentPadding(indent)
+        indentB = UserOutput.indentPadding(indent + 1)
+        print(f"{indentA}{RecurrencePeriod.ONCE.value} recurrence")
+        year = UserInput.getIntInput("which year? ", indent=indent+1)
+        monthName = UserInput.singleSelectString("which month? ", CalendarObjects.MONTH_NAMES, indent=indent+1)
+        day = UserInput.getIntInput(f"which day of {monthName}? ", indent=indent+1)
+        month = CalendarObjects.MONTH_NAME_TO_NUM[monthName]
         date = dt.date(year, month, day)
         return OnceRecurrence(date)
 
@@ -294,25 +332,29 @@ class OnceRecurrence(Recurrence):
 
     def toText(self, indent: int=0) -> str:
         text = super().toText()
-        text += f"\n  date: {self.monthName} {self.day}, {self.year}"
+        text += f"\n{UserOutput.indentStyle}date: {self.monthName} {self.day}, {self.year}"
         return super().indentText(text, indent)
 
 
 
 class AggregateRecurrence(Recurrence):
+    recurrencePeriod = RecurrencePeriod.AGGREGATE
+
     def __init__(self, recurrences: list[Recurrence]):
-        super().__init__(RecurrencePeriod.AGGREGATE)
         self.recurrences = recurrences
     
 
     @staticmethod
-    def setupPrompt() -> Recurrence:
+    def setupPrompt(indent: int=0) -> Recurrence:
+        indentA = UserOutput.indentPadding(indent)
+        indentB = UserOutput.indentPadding(indent + 1)
+        print(f"{indentA}{RecurrencePeriod.AGGREGATE.value} recurrence")
         recurrences = []
-        keepAdding = UserInput.getBoolInput("add a recurrence? ")
+        keepAdding = UserInput.getBoolInput("add a recurrence? ", indent=indent+1)
         while keepAdding:
-            recurrence = Recurrence.setupPrompt()
+            recurrence = Recurrence.setupPrompt(indent=indent+1)
             recurrences.append(recurrence)
-            keepAdding = UserInput.getBoolInput("add another recurrence? ")
+            keepAdding = UserInput.getBoolInput("add another recurrence? ", indent=indent+1)
         return AggregateRecurrence(recurrences)
 
 
@@ -320,7 +362,8 @@ class AggregateRecurrence(Recurrence):
         if not self.recurrences: return None
         soonestOccurrences = [recurrence.nextOccurrence(referenceDate=referenceDate) for recurrence in self.recurrences]
         filteredSoonest = list(filter(lambda nextOcc: nextOcc != None, soonestOccurrences))
-        return min(filteredSoonest)
+        if len(filteredSoonest) == 0: return None
+        return min(filteredSoonest) 
 
     
     def toText(self, indent: int=0) -> str:
@@ -328,6 +371,3 @@ class AggregateRecurrence(Recurrence):
         for recurrence in self.recurrences:
             text += "\n" + recurrence.toText(indent=1)
         return super().indentText(text, indent)
-
-
-
