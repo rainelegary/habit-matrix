@@ -1,4 +1,4 @@
-from UserInteraction.userIO import UserIO
+from UserInteraction.userInput import UserIO
 
 class UserIOTests:
     @staticmethod

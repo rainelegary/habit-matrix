@@ -1,49 +1,49 @@
 import string
 import re
 
-class UserIO:
+class UserInput:
     @staticmethod
     def multiSelectString(prompt: str, options: list[str]) -> list[str]:
         print(prompt)
-        print(UserIO.optionsString(options))
-        optionsDict = UserIO.stringOptionsDict(options)
-        choices = UserIO.getStringListInput()
-        selected = UserIO.extractStringChoices(sorted(set(choice.lower() for choice in choices)), optionsDict)
+        print(UserInput.optionsString(options))
+        optionsDict = UserInput.stringOptionsDict(options)
+        choices = UserInput.getStringListInput()
+        selected = UserInput.extractStringChoices(sorted(set(choice.lower() for choice in choices)), optionsDict)
         return selected
 
 
     @staticmethod
     def multiSelectInt(prompt: str, options: list[int]) -> list[int]:
         print(prompt)
-        print(UserIO.optionsString(options))
-        optionsDict = UserIO.intOptionsDict(options)
-        choices = UserIO.getIntListInput()
-        selected = UserIO.extractIntChoices(sorted(set(choice for choice in choices)), optionsDict)
+        print(UserInput.optionsString(options))
+        optionsDict = UserInput.intOptionsDict(options)
+        choices = UserInput.getIntListInput()
+        selected = UserInput.extractIntChoices(sorted(set(choice for choice in choices)), optionsDict)
         return selected
 
 
     @staticmethod
     def singleSelectString(prompt: str, options: list) -> str:
-        optionsDict = UserIO.stringOptionsDict(options)
+        optionsDict = UserInput.stringOptionsDict(options)
         prompting = True
         while prompting:
             print(prompt)
-            print(UserIO.optionsString(options))
-            choice = UserIO.getStringInput()
-            selected = UserIO.extractStringChoices([choice], optionsDict)
+            print(UserInput.optionsString(options))
+            choice = UserInput.getStringInput()
+            selected = UserInput.extractStringChoices([choice], optionsDict)
             if len(selected) > 0: prompting = False
             else: print("invalid input, please try again.")
         return selected[0]
 
 
     def singleSelectInt(prompt: str, options: list[int]) -> int:
-        optionsDict = UserIO.intOptionsDict(options)
+        optionsDict = UserInput.intOptionsDict(options)
         prompting = True
         while prompting:
             print(prompt)
-            print(UserIO.optionsString(options))
-            choice = UserIO.getIntInput()
-            selected = UserIO.extractIntChoices([choice], optionsDict)
+            print(UserInput.optionsString(options))
+            choice = UserInput.getIntInput()
+            selected = UserInput.extractIntChoices([choice], optionsDict)
             if len(selected) > 0: prompting = False
             else: print("invalid input, please try again.")
         return selected[0]
@@ -51,7 +51,7 @@ class UserIO:
     
     @staticmethod
     def optionsString(options: list) -> str:
-        optionsDict = UserIO.stringOptionsDict(options)
+        optionsDict = UserInput.stringOptionsDict(options)
         menu = ""
         for option in optionsDict:
             menu += f"{option}. {optionsDict[option]}\n"
@@ -81,7 +81,7 @@ class UserIO:
         answerDict = {true: True, false: False}
         prompting = True
         while prompting:
-            choice = UserIO.singleSelectString(prompt, [true, false])
+            choice = UserInput.singleSelectString(prompt, [true, false])
             try:
                 choice = answerDict[choice]
                 prompting = False
@@ -107,7 +107,9 @@ class UserIO:
         # - any amount of commas and spaces (at least one of either)
         regExp = "[, ]+"
         items = re.split(regExp, userIn)
-        return items
+        itemsWithNum = list(filter(lambda item: item.isdecimal(), items))
+        itemsAsNum = list(map(int, itemsWithNum))
+        return itemsAsNum
 
     
     @staticmethod
@@ -148,3 +150,5 @@ class UserIO:
             if item in optionsDict.values():
                 selected.append(item)
         return selected
+
+

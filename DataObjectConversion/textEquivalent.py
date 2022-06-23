@@ -12,3 +12,4 @@ class TextEquivalent(ABC):
         prefix = "  " * indent
         return textwrap.indent(text, prefix)
 
+

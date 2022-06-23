@@ -2,7 +2,7 @@ from HabitsAndChecklists.recurrence import Recurrence, RecurrencePeriod, DailyRe
 import datetime as dt
 from DataObjectConversion.dictionaryEquivalent import DictionaryEquivalent
 from DataObjectConversion.textEquivalent import TextEquivalent
-from UserInteraction.userIO import UserIO
+from UserInteraction.userInput import UserInput
 
 
 
@@ -17,9 +17,9 @@ class Habit(TextEquivalent):
 
     @staticmethod
     def setupPrompt():
-        title = UserIO.getStringInput("habit title? ")
-        required = UserIO.getBoolInput("required? ")
-        upcomingBuffer = UserIO.getIntInput("notify how many days in advance? ")
+        title = UserInput.getStringInput("habit title? ")
+        required = UserInput.getBoolInput("required? ")
+        upcomingBuffer = UserInput.getIntInput("notify how many days in advance? ")
         recurrence = Recurrence.setupPrompt()
         doneByTimes = None
         return Habit(title, required, upcomingBuffer, recurrence, doneByTimes)

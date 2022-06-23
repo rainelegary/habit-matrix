@@ -5,14 +5,12 @@ from HabitsAndChecklists.habit import Habit
 import datetime as dt
 import calendar as cal
 import yaml
-from UserInteraction.userIO import UserIO
+from UserInteraction.userInput import UserInput
 from DateAndTime.calendarObjects import CalendarObjects
 import pprint
 
 
 def main():
-    print(dt.date.today() + dt.timedelta(days=1) > dt.date.today())
-
     habit = Habit.setupPrompt()
     isUpcoming = habit.isUpcoming()
     print(isUpcoming)
