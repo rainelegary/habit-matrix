@@ -2,47 +2,47 @@ from HabitsAndChecklists.recurrence import Recurrence, RecurrencePeriod, DailyRe
 import datetime as dt
 from DataObjectConversion.dictionaryEquivalent import DictionaryEquivalent
 from DataObjectConversion.textEquivalent import TextEquivalent
+from UserInteraction.userInput import UserInput
+from UserInteraction.userOutput import UserOutput
 
 
-class Habit(TextEquivalent, DictionaryEquivalent):
-    def __init__(self, required: bool, upcomingBuffer: int, recurrence: Recurrence, doneByTime: dt.time):
+
+class Habit(TextEquivalent):
+    def __init__(self, title: str, required: bool, upcomingBuffer: int, recurrence: Recurrence, doneByTimes: list[dt.time]):
+        self.title = title
         self.required = required
         self.upcomingBuffer = upcomingBuffer
         self.recurrence = recurrence
-        self.doneByTime = doneByTime
+        self.doneByTimes = doneByTimes
 
 
     @staticmethod
-    def setupPrompt():
-        pass
+    def setupPrompt(indent: int=0):
+        indentA = UserOutput.indentPadding(indent)
+        indentB = UserOutput.indentPadding(indent + 1)
+        print(f"{indentA}habit")
+        title = UserInput.getStringInput(f"habit title? ", indent=indent+1)
+        required = UserInput.getBoolInput(f"required? ", indent=indent+1)
+        upcomingBuffer = UserInput.getIntInput(f"notify how many days in advance? ", indent=indent+1)
+        recurrence = Recurrence.setupPrompt(indent=indent+1)
+        doneByTimes = None
+        return Habit(title, required, upcomingBuffer, recurrence, doneByTimes)
 
 
-    def nextOccurrence(self, referenceTime=dt.datetime.now()):
-        return self.recurrence.nextOccurrence(referenceTime=referenceTime)
+    def nextOccurrence(self, referenceDate: dt.date=dt.date.today()):
+        return self.recurrence.nextOccurrence(referenceDate=referenceDate)
 
 
-    def isUpcoming(self, referenceTime=dt.datetime.now()):
-        nextOcc = self.nextOccurrence(referenceTime=referenceTime)
+    def isUpcoming(self, referenceDate: dt.date=dt.date.today()) -> bool:
+        nextOcc = self.nextOccurrence(referenceDate=referenceDate)
         if nextOcc == None: return False
-        return referenceTime + dt.timedelta(days=self.upcomingBuffer) >= nextOcc
+        return referenceDate + dt.timedelta(days=self.upcomingBuffer) >= nextOcc
 
 
-    def toText(self):
-        pass
-
-
-    def toDict(self):
-        pass
-
-
-    def fromDict(self, dictionary):
-        pass
-
-
-    
-
-
-
-
-
+    def toText(self, indent: int=0):
+        text = f"habit: {self.title}\n"
+        text += f"{UserOutput.indentStyle}required: {self.required}\n"
+        text += f"{UserOutput.indentStyle}upcoming buffer: {self.upcomingBuffer} days\n"
+        text += self.recurrence.toText(indent=1)
+        return super().indentText(text, indent)
 

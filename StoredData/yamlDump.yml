@@ -1,5 +1,11 @@
+zebra: horse
 foo: bar
 hello:
 - world
 - guy
 - matrix
+recurrence in yaml: <HabitsAndChecklists.recurrence.WeeklyRecurrence object at 0x000001D08A1E3970>
+list:
+- 6
+- 4
+- 38

@@ -7,3 +7,8 @@
 # To deactivate an active environment, use
 #
 #     $ conda deactivate
+
+avoid using mutable types as default parameters
+yaml restricts the use of tabs
+
+
