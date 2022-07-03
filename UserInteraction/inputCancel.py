@@ -1,2 +1,6 @@
-class InputCancel(Exception):
-    pass
+
+
+
+class CancelInputException(Exception):
+        def __init__(self, message: str):
+            self.message = message

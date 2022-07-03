@@ -17,4 +17,10 @@ class UserOutput:
     def indentPadding(indent: int) -> str:
         return UserOutput.indentStyle * indent
 
+    
+    @staticmethod
+    def indentedPrint(output: str, indent: int=0) -> str:
+        print(f"{UserOutput.indentPadding(indent)}{output}")
+
+
 

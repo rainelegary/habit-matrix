@@ -1,18 +1,28 @@
 import string
 import re
 from UserInteraction.userOutput import UserOutput
+from UserInteraction.inputCancel import CancelInputException
+
+
 
 class UserInput:
-    commaRegex = "[, ]*,[, ]*"
-    doubleSpaceRegex = "  +"
-    commaOrSpaceRegex = "[, ]+"
+    commaRegex = r"[, ]*,[, ]*"
+    doubleSpaceRegex = r"  +"
+    commaOrSpaceRegex = r"[, ]+"
+    
+
+    @staticmethod
+    def indentedInput(prompt: str, indent: int=0):
+        userIn = input(f"{UserOutput.indentPadding(indent)}{prompt}")
+        if userIn == "cancel":
+            raise CancelInputException("inpiut cancelled")
+        return userIn
+
 
     @staticmethod
     def multiSelectString(prompt: str, options: list[str], indent: int=0) -> list[str]:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
-        print(f"{indentA}{prompt}")
-        print(f"{UserInput.optionsString(options, indent=indent+1)}")
+        UserOutput.indentedPrint(output=prompt, indent=indent)
+        print(UserInput.optionsString(options, indent=indent+1))
         optionsDict = UserInput.stringOptionsDict(options)
         choices = UserInput.getStringListInput(indent=indent)
         selected = UserInput.extractStringChoices(sorted(set(choice.lower() for choice in choices)), optionsDict)
@@ -21,9 +31,7 @@ class UserInput:
 
     @staticmethod
     def multiSelectInt(prompt: str, options: list[int], indent: int=0) -> list[int]:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
-        print(f"{indentA}{prompt}")
+        UserOutput.indentedPrint(output=prompt, indent=indent)
         print(UserInput.optionsString(options, indent=indent+1))
         optionsDict = UserInput.intOptionsDict(options)
         choices = UserInput.getIntListInput(indent=indent)
@@ -33,72 +41,64 @@ class UserInput:
 
     @staticmethod
     def singleSelectString(prompt: str, options: list, indent: int=0) -> str:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
         optionsDict = UserInput.stringOptionsDict(options)
         prompting = True
         while prompting:
-            print(f"{indentA}{prompt}")
+            UserOutput.indentedPrint(output=prompt, indent=indent)
             print(UserInput.optionsString(options, indent=indent+1))
             choice = UserInput.getStringInput(indent=indent)
             selected = UserInput.extractStringChoices([choice], optionsDict)
-            if len(selected) > 0: prompting = False
-            else: print(f"{indentA}invalid input, please try again.")
+            if len(selected) > 0: 
+                prompting = False
+            else: 
+                UserOutput.indentedPrint(output="invalid input, please try again.", indent=indent)
         return selected[0]
 
 
     def singleSelectInt(prompt: str, options: list[int], indent: int=0) -> int:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
         optionsDict = UserInput.intOptionsDict(options)
         prompting = True
         while prompting:
-            print(f"{indentA}{prompt}")
+            UserOutput.indentedPrint(output=prompt, indent=indent)
             print(UserInput.optionsString(options, indent=indent+1))
             choice = UserInput.getIntInput(indent=indent)
             selected = UserInput.extractIntChoices([choice], optionsDict)
-            if len(selected) > 0: prompting = False
-            else: print(f"{indentA}invalid input, please try again.")
+            if len(selected) > 0: 
+                prompting = False
+            else: 
+                UserOutput.indentedPrint(output="invalid input, please try again.", indent=indent)
         return selected[0]
 
     
     @staticmethod
     def optionsString(options: list, indent: int=0) -> str:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
         optionsDict = UserInput.stringOptionsDict(options)
         menu = ""
         for option in optionsDict:
-            menu += f"{indentA}{option}. {optionsDict[option]}\n"
+            menu += f"{UserOutput.indentPadding(indent)}{option}. {optionsDict[option]}\n"
         return menu.rstrip("\n")
 
     
     @staticmethod
     def getStringInput(prompt: str="", indent: int=0) -> str:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
-        return input(f"{indentA}{prompt}")
+        return UserInput.indentedInput(prompt, indent=indent)
 
     
     @staticmethod
     def getIntInput(prompt: str="", indent: int=0) -> int:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
         prompting = True
         while prompting:
-            choice = input(f"{indentA}{prompt}")
+            choice = UserInput.indentedInput(prompt, indent=indent)
             try:
                 choice = int(choice)
                 prompting = False
             except ValueError:
-                print(f"{indentA}invalid integer, please try again.")
+                UserOutput.indentedPrint(output="invalid integer, please try again.", indent=indent)
         return choice
 
 
     @staticmethod
     def getBoolInput(prompt: str="", true: str="yes", false: str="no", indent: int=0) -> bool:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
         answerDict = {true: True, false: False}
         prompting = True
         while prompting:
@@ -107,15 +107,13 @@ class UserInput:
                 choice = answerDict[choice]
                 prompting = False
             except KeyError:
-                print(f"{indentA}invalid answer, please try again.")
+                UserOutput.indentedPrint(output="invalid answer, please try again.", indent=indent)
         return choice
 
 
     @staticmethod
     def getStringListInput(prompt: str="", indent: int=0) -> list[str]:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
-        userIn = input(f"{indentA}{prompt}").strip()
+        userIn = UserInput.indentedInput(prompt, indent=indent).strip()
         if "," in userIn: regExp = UserInput.commaRegex 
         else: regExp = UserInput.doubleSpaceRegex
         items = re.split(regExp, userIn)
@@ -124,9 +122,7 @@ class UserInput:
     
     @staticmethod
     def getIntListInput(prompt: str="", indent: int=0) -> list[int]:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
-        userIn = input(f"{indentA}{prompt}").strip()
+        userIn = UserInput.indentedInput(prompt, indent=indent).strip()
         regExp = UserInput.commaOrSpaceRegex
         items = re.split(regExp, userIn)
         itemsWithNum = list(filter(lambda item: item.isdecimal(), items))
@@ -172,5 +168,3 @@ class UserInput:
             if item in optionsDict.values():
                 selected.append(item)
         return selected
-
-
