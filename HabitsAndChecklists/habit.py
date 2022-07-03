@@ -18,12 +18,10 @@ class Habit(TextEquivalent):
 
     @staticmethod
     def setupPrompt(indent: int=0):
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
-        print(f"{indentA}habit")
-        title = UserInput.getStringInput(f"habit title? ", indent=indent+1)
-        required = UserInput.getBoolInput(f"required? ", indent=indent+1)
-        upcomingBuffer = UserInput.getIntInput(f"notify how many days in advance? ", indent=indent+1)
+        UserOutput.indentedPrint("habit", indent)
+        title = UserInput.getStringInput("habit title? ", indent=indent+1)
+        required = UserInput.getBoolInput("required? ", indent=indent+1)
+        upcomingBuffer = UserInput.getIntInput("notify how many days in advance? ", indent=indent+1)
         recurrence = Recurrence.setupPrompt(indent=indent+1)
         doneByTimes = None
         return Habit(title, required, upcomingBuffer, recurrence, doneByTimes)
@@ -45,4 +43,5 @@ class Habit(TextEquivalent):
         text += f"{UserOutput.indentStyle}upcoming buffer: {self.upcomingBuffer} days\n"
         text += self.recurrence.toText(indent=1)
         return super().indentText(text, indent)
+
 

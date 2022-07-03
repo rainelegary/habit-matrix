@@ -1,104 +1,118 @@
 import string
 import re
+from UserInteraction.commandInterface import CommandInterface
+from UserInteraction.commands import CommandScopeEnum, CommandEnum
 from UserInteraction.userOutput import UserOutput
 
+
+
 class UserInput:
-    commaRegex = "[, ]*,[, ]*"
-    doubleSpaceRegex = "  +"
-    commaOrSpaceRegex = "[, ]+"
+    commaRegex = r"[, ]*,[, ]*"
+    doubleSpaceRegex = r"  +"
+    commaOrSpaceRegex = r"[, ]+"
+
+
 
     @staticmethod
-    def multiSelectString(prompt: str, options: list[str], indent: int=0) -> list[str]:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
-        print(f"{indentA}{prompt}")
-        print(f"{UserInput.optionsString(options, indent=indent+1)}")
+    def getInputOrCommand(prompt: str, commandScopeID: CommandScopeEnum, indent: int=0):
+        commandScope = commandScopeID.value
+        availableCommands = CommandInterface.getAvailableCommands(commandScope)
+        userInput = UserInput.indentedInput(prompt, indent)
+        commandArgs = userInput.strip().split()
+        if len(commandArgs) == 0:
+            return userInput
+        for command in CommandEnum:
+            if command.value.SHORTCUT == commandArgs[0] and command in availableCommands:
+                return command.value.executeCommand(commandArgs, commandScopeID)
+        return userInput
+
+    
+
+    @staticmethod
+    def indentedInput(prompt: str, indent: int=0):
+        return input(f"{UserOutput.indentPadding(indent)}{prompt}")
+
+
+    @staticmethod
+    def multiSelectString(prompt: str, options: list[str], commandScopeID: CommandScopeEnum, indent: int=0) -> list[str]:
+        UserOutput.indentedPrint(output=prompt, indent=indent)
+        print(UserInput.optionsString(options, indent=indent+1))
         optionsDict = UserInput.stringOptionsDict(options)
-        choices = UserInput.getStringListInput(indent=indent)
+        choices = UserInput.getStringListInput(commandScopeID=commandScopeID, indent=indent)
         selected = UserInput.extractStringChoices(sorted(set(choice.lower() for choice in choices)), optionsDict)
         return selected
 
 
     @staticmethod
-    def multiSelectInt(prompt: str, options: list[int], indent: int=0) -> list[int]:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
-        print(f"{indentA}{prompt}")
+    def multiSelectInt(prompt: str, options: list[int], commandScopeID: CommandScopeEnum, indent: int=0) -> list[int]:
+        UserOutput.indentedPrint(output=prompt, indent=indent)
         print(UserInput.optionsString(options, indent=indent+1))
         optionsDict = UserInput.intOptionsDict(options)
-        choices = UserInput.getIntListInput(indent=indent)
+        choices = UserInput.getIntListInput(commandScopeID=commandScopeID, indent=indent)
         selected = UserInput.extractIntChoices(sorted(set(choice for choice in choices)), optionsDict)
         return selected
 
 
     @staticmethod
-    def singleSelectString(prompt: str, options: list, indent: int=0) -> str:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
+    def singleSelectString(prompt: str, options: list, commandScopeID: CommandScopeEnum, indent: int=0) -> str:
         optionsDict = UserInput.stringOptionsDict(options)
         prompting = True
         while prompting:
-            print(f"{indentA}{prompt}")
+            UserOutput.indentedPrint(output=prompt, indent=indent)
             print(UserInput.optionsString(options, indent=indent+1))
-            choice = UserInput.getStringInput(indent=indent)
+            choice = UserInput.getStringInput(commandScopeID=commandScopeID, indent=indent)
             selected = UserInput.extractStringChoices([choice], optionsDict)
-            if len(selected) > 0: prompting = False
-            else: print(f"{indentA}invalid input, please try again.")
+            if len(selected) > 0: 
+                prompting = False
+            else: 
+                UserOutput.indentedPrint(output="invalid input, please try again.", indent=indent)
         return selected[0]
 
 
-    def singleSelectInt(prompt: str, options: list[int], indent: int=0) -> int:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
+    def singleSelectInt(prompt: str, options: list[int], commandScopeID: CommandScopeEnum, indent: int=0) -> int:
         optionsDict = UserInput.intOptionsDict(options)
         prompting = True
         while prompting:
-            print(f"{indentA}{prompt}")
+            UserOutput.indentedPrint(output=prompt, indent=indent)
             print(UserInput.optionsString(options, indent=indent+1))
-            choice = UserInput.getIntInput(indent=indent)
+            choice = UserInput.getIntInput(commandScopeID=commandScopeID, indent=indent)
             selected = UserInput.extractIntChoices([choice], optionsDict)
-            if len(selected) > 0: prompting = False
-            else: print(f"{indentA}invalid input, please try again.")
+            if len(selected) > 0: 
+                prompting = False
+            else: 
+                UserOutput.indentedPrint(output="invalid input, please try again.", indent=indent)
         return selected[0]
 
     
     @staticmethod
     def optionsString(options: list, indent: int=0) -> str:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
         optionsDict = UserInput.stringOptionsDict(options)
         menu = ""
         for option in optionsDict:
-            menu += f"{indentA}{option}. {optionsDict[option]}\n"
+            menu += f"{UserOutput.indentPadding(indent)}{option}. {optionsDict[option]}\n"
         return menu.rstrip("\n")
 
     
     @staticmethod
-    def getStringInput(prompt: str="", indent: int=0) -> str:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
-        return input(f"{indentA}{prompt}")
+    def getStringInput(commandScopeID: CommandScopeEnum, prompt: str="", indent: int=0) -> str:
+        return CommandInterface.getInputOrCommand(prompt, commandScopeID=commandScopeID, indent=indent)
 
     
     @staticmethod
-    def getIntInput(prompt: str="", indent: int=0) -> int:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
+    def getIntInput(commandScopeID: CommandScopeEnum, prompt: str="", indent: int=0) -> int:
         prompting = True
         while prompting:
-            choice = input(f"{indentA}{prompt}")
+            choice = CommandInterface.getInputOrCommand(prompt, commandScopeID=commandScopeID, indent=indent)
             try:
                 choice = int(choice)
                 prompting = False
             except ValueError:
-                print(f"{indentA}invalid integer, please try again.")
+                UserOutput.indentedPrint(output="invalid integer, please try again.", indent=indent)
         return choice
 
 
     @staticmethod
-    def getBoolInput(prompt: str="", true: str="yes", false: str="no", indent: int=0) -> bool:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
+    def getBoolInput(commandScopeID: CommandScopeEnum, prompt: str="", true: str="yes", false: str="no", indent: int=0) -> bool:
         answerDict = {true: True, false: False}
         prompting = True
         while prompting:
@@ -107,15 +121,13 @@ class UserInput:
                 choice = answerDict[choice]
                 prompting = False
             except KeyError:
-                print(f"{indentA}invalid answer, please try again.")
+                UserOutput.indentedPrint(output="invalid answer, please try again.", indent=indent)
         return choice
 
 
     @staticmethod
-    def getStringListInput(prompt: str="", indent: int=0) -> list[str]:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
-        userIn = input(f"{indentA}{prompt}").strip()
+    def getStringListInput(commandScopeID: CommandScopeEnum, prompt: str="", indent: int=0) -> list[str]:
+        userIn = CommandInterface.getInputOrCommand(prompt, commandScopeID=commandScopeID, indent=indent).strip()
         if "," in userIn: regExp = UserInput.commaRegex 
         else: regExp = UserInput.doubleSpaceRegex
         items = re.split(regExp, userIn)
@@ -123,10 +135,8 @@ class UserInput:
 
     
     @staticmethod
-    def getIntListInput(prompt: str="", indent: int=0) -> list[int]:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
-        userIn = input(f"{indentA}{prompt}").strip()
+    def getIntListInput(commandScopeID: CommandScopeEnum, prompt: str="", indent: int=0) -> list[int]:
+        userIn = CommandInterface.getInputOrCommand(prompt, commandScopeID=commandScopeID, indent=indent).strip()
         regExp = UserInput.commaOrSpaceRegex
         items = re.split(regExp, userIn)
         itemsWithNum = list(filter(lambda item: item.isdecimal(), items))
@@ -172,5 +182,3 @@ class UserInput:
             if item in optionsDict.values():
                 selected.append(item)
         return selected
-
-

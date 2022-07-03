@@ -4,8 +4,8 @@ from enum import Enum
 
 class Weekday:
     def __init__(self, name: str, num: int):
-        self.name: str = name
-        self.num: int = num
+        self.name = name
+        self.num = num
 
 
 
@@ -44,7 +44,7 @@ class MonthEnum(Enum):
 
 
 class CalendarObjects:
-    WEEKDAY_ID_TO_OBJ: dict[WeekdayEnum, Weekday] = {weekday: weekday.value for weekday in WeekdayEnum}
+    # WEEKDAY_ID_TO_OBJ: dict[WeekdayEnum, Weekday] = {weekday: weekday.value for weekday in WeekdayEnum}
     WEEKDAY_NAME_TO_ID: dict[str, WeekdayEnum] = {weekday.value.name: weekday for weekday in WeekdayEnum}
     WEEKDAY_NUM_TO_ID: dict[int, WeekdayEnum] = {weekday.value.num: weekday for weekday in WeekdayEnum}
     WEEKDAY_NAME_TO_NUM: dict[str, int] = {weekday.value.name: weekday.value.num for weekday in WeekdayEnum}
@@ -53,7 +53,7 @@ class CalendarObjects:
     WEEKDAY_NAMES: list[str] = [weekday.value.name for weekday in WeekdayEnum]
     WEEKDAY_NUMS: list[int] = [weekday.value.num for weekday in WeekdayEnum]
         
-    MONTH_ID_TO_OBJ: dict[MonthEnum, Month] = {month: month.value for month in MonthEnum}
+    # MONTH_ID_TO_OBJ: dict[MonthEnum, Month] = {month: month.value for month in MonthEnum}
     MONTH_NAME_TO_ID: dict[str, MonthEnum] = {month.value.name: month for month in MonthEnum}
     MONTH_NUM_TO_ID: dict[int, MonthEnum] = {month.value.num: month for month in MonthEnum}
     MONTH_NAME_TO_NUM: dict[str, int] = {month.value.name: month.value.num for month in MonthEnum}
