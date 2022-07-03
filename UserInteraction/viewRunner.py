@@ -1,4 +1,4 @@
-from UserInteraction.commands import CommandScope, CommandScopeEnum, InvalidCommandArgsException
+from UserInteraction.commands import CommandScope, CommandScopeEnum, EndOfCommandException, InvalidCommandArgsException
 from UserInteraction.commandInterface import CommandInterface
 from UserInteraction.userInput import UserInput
 from UserInteraction.userOutput import UserOutput
@@ -10,9 +10,11 @@ class ViewRunner:
         print("{{ << -- home view -- >> }}")
         while True:
             try:
-                UserInput.getInputOrCommand(prompt="home: ", commandScopeID=CommandScopeEnum.HOME)
+                CommandInterface.getInputOrCommand(prompt="home: ", commandScopeID=CommandScopeEnum.HOME)
             except InvalidCommandArgsException:
                 UserOutput.indentedPrint(output="invalid command arguments, please try again.")
+            except EndOfCommandException:
+                pass
 
     
     @staticmethod
@@ -20,9 +22,11 @@ class ViewRunner:
         print("{{ << -- calendar view -- >> }}")
         while True:
             try:
-                UserInput.getInputOrCommand(prompt="calendar: ", commandScopeID=CommandScopeEnum.CALENDAR)
+                CommandInterface.getInputOrCommand(prompt="calendar: ", commandScopeID=CommandScopeEnum.CALENDAR)
             except InvalidCommandArgsException:
                 UserOutput.indentedPrint(output="invalid command arguments, please try again.")
+            except EndOfCommandException:
+                pass
             
 
     @staticmethod
@@ -30,9 +34,11 @@ class ViewRunner:
         print("{{ << -- habits view -- >> }}")
         while True:
             try:
-                UserInput.getInputOrCommand(prompt="habits: ", commandScopeID=CommandScopeEnum.HABITS)
+                CommandInterface.getInputOrCommand(prompt="habits: ", commandScopeID=CommandScopeEnum.HABITS)
             except InvalidCommandArgsException:
                 UserOutput.indentedPrint(output="invalid command arguments, please try again.")
+            except EndOfCommandException:
+                pass
             
 
     @staticmethod
@@ -40,9 +46,11 @@ class ViewRunner:
         print("{{ << -- checklists view -- >> }}")
         while True:
             try:
-                UserInput.getInputOrCommand(prompt="recurrences: ", commandScopeID=CommandScopeEnum.RECURRENCES)
+                CommandInterface.getInputOrCommand(prompt="recurrences: ", commandScopeID=CommandScopeEnum.RECURRENCES)
             except InvalidCommandArgsException:
                 UserOutput.indentedPrint(output="invalid command arguments, please try again.")
+            except EndOfCommandException:
+                pass
 
 
     @staticmethod
@@ -50,7 +58,9 @@ class ViewRunner:
         print("{{ << -- checklists view -- >> }}")
         while True:
             try:
-                UserInput.getInputOrCommand(prompt="checklists: ", commandScopeID=CommandScopeEnum.CHECKLISTS)
+                CommandInterface.getInputOrCommand(prompt="checklists: ", commandScopeID=CommandScopeEnum.CHECKLISTS)
             except InvalidCommandArgsException:
                 UserOutput.indentedPrint(output="invalid command arguments, please try again.")
+            except EndOfCommandException:
+                pass
             

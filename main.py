@@ -42,15 +42,8 @@ class Launcher:
 
     @staticmethod
     def runExperimental():
-        print("hello world".split())
-
-        cs = CommandScope(None, [CommandEnum.CHANGE_VIEW], [])
-        for item in CommandInterface.getAvailableCommands(cs): print(item)
-
-        habit = Habit.setupPrompt()
-        isUpcoming = habit.isUpcoming()
-        print(isUpcoming)
-        print(habit.toText())
+        x = UserInput.getBoolInput
+        x(CommandScopeEnum.ALL)
 
 
 

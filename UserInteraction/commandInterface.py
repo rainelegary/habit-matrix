@@ -1,7 +1,22 @@
 from UserInteraction.commands import Command, CommandScope, CommandEnum, CommandScopeEnum
+from UserInteraction.userInput import UserInput
 
 
 class CommandInterface:
+    @staticmethod
+    def getInputOrCommand(prompt: str, commandScopeID: CommandScopeEnum, indent: int=0, userInputMethod=UserInput.indentedInput):
+        commandScope = commandScopeID.value
+        availableCommands = CommandInterface.getAvailableCommands(commandScope)
+        userInput = UserInput.indentedInput(prompt, indent)
+        commandArgs = userInput.strip().split()
+        if len(commandArgs) == 0:
+            return userInput
+        for command in CommandEnum:
+            if command.value.SHORTCUT == commandArgs[0] and command in availableCommands:
+                return command.value.executeCommand(commandArgs, commandScopeID)
+        return userInput
+
+
     @staticmethod
     def getAvailableCommands(commandScope: CommandScope):
         if commandScope.parent != None:
