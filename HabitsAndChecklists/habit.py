@@ -1,9 +1,9 @@
 from HabitsAndChecklists.recurrence import Recurrence, RecurrencePeriod, DailyRecurrence, WeeklyRecurrence, MonthlyRecurrence, YearlyRecurrence, OnceRecurrence, DaysOfMonthKRecurrence, NthWeekdayMOfMonthKRecurrence, AggregateRecurrence
 import datetime as dt
-from DataObjectConversion.dictionaryEquivalent import DictionaryEquivalent
 from DataObjectConversion.textEquivalent import TextEquivalent
 from UserInteraction.userInput import UserInput
 from UserInteraction.userOutput import UserOutput
+from DataObjectConversion.dataStack import DataStack
 
 
 
@@ -24,7 +24,16 @@ class Habit(TextEquivalent):
         upcomingBuffer = UserInput.getIntInput("notify how many days in advance? ", indent=indent+1)
         recurrence = Recurrence.setupPrompt(indent=indent+1)
         doneByTimes = None
-        return Habit(title, required, upcomingBuffer, recurrence, doneByTimes)
+        habit = Habit(title, required, upcomingBuffer, recurrence, doneByTimes)
+        habit.savePrompt(indent=indent+1)
+        return habit
+
+
+    def savePrompt(self, indent: int=0):
+        save = UserInput.getBoolInput("save this habit? ", indent=indent)
+        if save:
+            name = UserInput.getStringInput("what would you like to save this habit as? ", indent=indent+1)
+            DataStack.addHabit(self, name)
 
 
     def nextOccurrence(self, referenceDate: dt.date=dt.date.today()):

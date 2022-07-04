@@ -15,7 +15,7 @@ class UserInput:
     def indentedInput(prompt: str, indent: int=0):
         userIn = input(f"{UserOutput.indentPadding(indent)}{prompt}")
         if userIn == "cancel":
-            raise CancelInputException("inpiut cancelled")
+            raise CancelInputException("input cancelled")
         return userIn
 
 
