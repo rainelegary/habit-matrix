@@ -1,4 +1,5 @@
 import datetime as dt
+from DataObjectConversion.dataStack import DataStack
 from HabitsAndChecklists.recurrence import Recurrence, DailyRecurrence, WeeklyRecurrence, MonthlyRecurrence, YearlyRecurrence, DaysOfMonthKRecurrence, NthWeekdayMOfMonthKRecurrence, OnceRecurrence, AggregateRecurrence, RecurrencePeriod
 from UserInteraction.userInput import UserInput
 from UserInteraction.userOutput import UserOutput
@@ -30,28 +31,19 @@ class RecurrenceCreation:
         except KeyError:
             raise NotImplementedError(f"recurrence period {recurrencePeriodName} not handled")
 
-        return setupPromptMethod()
+        return setupPromptMethod(indent=indent+1)
 
-        # # call appropriate subclass method
-        # if recurrencePeriod == RecurrencePeriod.DAILY.value: 
-        #     recurrence = RecurrenceCreation.dailyRecurrencesetupPrompt(indent=indent+1)
-        # if recurrencePeriod == RecurrencePeriod.WEEKLY.value: 
-        #     recurrence = RecurrenceCreation.weeklyRecurrenceSetupPrompt(indent=indent+1)
-        # if recurrencePeriod == RecurrencePeriod.MONTHLY.value: 
-        #     recurrence = RecurrenceCreation.monthlyRecurrenceSetupPrompt(indent=indent+1)
-        # if recurrencePeriod == RecurrencePeriod.YEARLY.value: 
-        #     recurrence = RecurrenceCreation.yearlyRecurrenceSetupPrompt(indent=indent+1)
-        # if recurrencePeriod == RecurrencePeriod.DAYS_OF_MONTH_K.value: 
-        #     recurrence = RecurrenceCreation.daysOfMonthKRecurrenceSetupPrompt(indent=indent+1)
-        # if recurrencePeriod == RecurrencePeriod.NTH_WEEKDAY_M_OF_MONTH_K.value: 
-        #     recurrence = RecurrenceCreation.nthWeekdayOfMonthKRecurrenceSetupPrompt(indent=indent+1)
-        # if recurrencePeriod == RecurrencePeriod.ONCE.value: 
-        #     recurrence = RecurrenceCreation.onceRecurrenceSetupPrompt(indent=indent+1)
-        # if recurrencePeriod == RecurrencePeriod.AGGREGATE.value: 
-        #     recurrence = RecurrenceCreation.aggregateRecurrenceSetupPrompt(indent=indent+1)
+    
+    @staticmethod
+    def generalSaveRecurrencePrompt(recurrence: Recurrence, indent: int=0):
+        UserOutput.indentedPrint("recurrence", indent=indent)
+        print(recurrence.toText(indent=indent+1))
+        save = UserInput.getBoolInput("save the above recurrence?", indent=indent)
+        if save: 
+            name = UserInput.getStringInput("what would you like to save this recurrence as? ", indent=indent)
+            DataStack.addRecurrence(recurrence, name)
+        return save
 
-        # # ask if user wants to save recurrence
-        # return recurrence
 
     
     @staticmethod

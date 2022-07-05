@@ -1,8 +1,8 @@
 from HabitsAndChecklists.habit import Habit
-from HabitsAndChecklists.recurrence import Recurrence
 from ObjectCreation.recurrenceCreation import RecurrenceCreation
 from UserInteraction.userInput import UserInput
 from UserInteraction.userOutput import UserOutput
+from DataObjectConversion.dataStack import DataStack
 
 
 class HabitCreation:
@@ -15,3 +15,14 @@ class HabitCreation:
         recurrence = RecurrenceCreation.generalRecurrenceSetupPrompt(indent=indent+1)
         doneByTimes = None
         return Habit(title, required, upcomingBuffer, recurrence, doneByTimes)
+
+    
+    @staticmethod
+    def saveHabitPrompt(habit: Habit, indent: int=0):
+        UserOutput.indentedPrint("habit", indent=indent)
+        print(habit.toText(indent=indent+1))
+        save = UserInput.getBoolInput("save the above habit?", indent=indent)
+        if save: 
+            DataStack.addHabit(habit)
+        return save
+

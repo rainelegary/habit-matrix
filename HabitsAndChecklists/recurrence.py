@@ -47,7 +47,7 @@ class Recurrence(TextEquivalent, DataEquivalent, ABC):
     @abstractmethod
     def toData(self, subData):
         return {
-            "recurrence period": self.recurrencePeriod.value,
+            "recurrence type": self.recurrencePeriod.value,
             "details": subData,
         }
 
@@ -66,13 +66,13 @@ class Recurrence(TextEquivalent, DataEquivalent, ABC):
             RecurrencePeriod.AGGREGATE: AggregateRecurrence.fromData,
         }
 
-        recurrencePeriodName = data["recurrence period"]
+        recurrencePeriodName = data["recurrence type"]
         recurrencePeriod = Recurrence.RECURRENCE_PERIOD_NAME_TO_ID[recurrencePeriodName]
 
         try: 
             fromDataMethod = fromDataMethodDict[recurrencePeriod]
         except KeyError:
-            raise NotImplementedError(f"recurrence period {recurrencePeriodName} not handled")
+            raise NotImplementedError(f"recurrence type {recurrencePeriodName} not handled")
         
         return fromDataMethod(data["details"])
 
@@ -110,8 +110,8 @@ class WeeklyRecurrence(Recurrence):
 
     def __init__(self, weekdays: list[WeekdayEnum]):
         self.weekdays = weekdays
-        self.weekdayNames = [CalendarObjects.WEEKDAY_ID_TO_OBJ[wday].name for wday in self.weekdays]
-        self.weekdayNums = [CalendarObjects.WEEKDAY_ID_TO_OBJ[wday].num for wday in self.weekdays]
+        self.weekdayNames = [wday.value.name for wday in weekdays]
+        self.weekdayNums = [wday.value.num for wday in weekdays]
 
 
     def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
@@ -128,6 +128,7 @@ class WeeklyRecurrence(Recurrence):
 
 
     def toData(self):
+        print(self.weekdayNames)
         data = {
             "weekday names": self.weekdayNames
         }
