@@ -1,8 +1,8 @@
 from enum import Enum
 from abc import ABC, abstractmethod
-from HabitsAndChecklists.habit import Habit
-from HabitsAndChecklists.recurrence import Recurrence
 from UserInteraction.views import ExitException, ViewEnum, ChangeViewException, Views
+from ObjectCreation.habitCreation import HabitCreation
+from ObjectCreation.recurrenceCreation import RecurrenceCreation
 
 
 class InvalidCommandArgsException(Exception):
@@ -81,9 +81,9 @@ class NewObjectCommand(Command):
             objectTypeName = commandArgs[1]
 
         if objectTypeName == "habit": 
-            Habit.setupPrompt(indent=indent)
+            HabitCreation.habitSetupPrompt(indent=indent)
         elif objectTypeName == "recurrence":
-            Recurrence.setupPrompt(indent=indent)
+            RecurrenceCreation.generalRecurrenceSetupPrompt(indent=indent)
         else:
             raise InvalidCommandArgsException("unrecognized object type")
         

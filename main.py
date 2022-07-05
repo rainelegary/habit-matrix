@@ -51,8 +51,9 @@ class Launcher:
 
     @staticmethod
     def runExperimental():
-        x = UserInput.getBoolInput
-        x(CommandScopeEnum.ALL)
+        rec = DailyRecurrence()
+        print(DailyRecurrence.fromData(rec.toData()).toData())
+
 
 
 

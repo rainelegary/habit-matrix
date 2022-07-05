@@ -1,4 +1,6 @@
 from DataObjectConversion.yamlInteraction import YAMLInteraction, YAMLFiles
+from HabitsAndChecklists.habit import Habit
+from HabitsAndChecklists.recurrence import Recurrence
 
 
 class DataStack:
@@ -15,8 +17,8 @@ class DataStack:
 
 
     @classmethod
-    def addHabit(cls, habit, name):
-        cls.habits[name] = habit
+    def addHabit(cls, habit: Habit):
+        cls.habits = cls.habits | habit.toData()
 
 
     @classmethod
@@ -25,8 +27,8 @@ class DataStack:
 
 
     @classmethod
-    def addRecurrence(cls, recurrence, name):
-        cls.recurrences[name] = recurrence
+    def addRecurrence(cls, recurrence: Recurrence, name):
+        cls.recurrences[name] = recurrence.toData()
 
 
     @classmethod

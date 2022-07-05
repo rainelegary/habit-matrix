@@ -1,13 +1,11 @@
 from enum import Enum
 from abc import ABC, abstractmethod
-import time
 import datetime as dt
 import calendar as cal
-from UserInteraction.userInput import UserInput
+from DataObjectConversion.dataEquivalent import DataEquivalent
 from DateAndTime.calendarObjects import CalendarObjects, MonthEnum, WeekdayEnum
 from DataObjectConversion.textEquivalent import TextEquivalent
 from UserInteraction.userOutput import UserOutput
-from DataObjectConversion.dataStack import DataStack
 
 
 
@@ -23,51 +21,12 @@ class RecurrencePeriod(Enum):
 
 
 
-class Recurrence(TextEquivalent, ABC):
+class Recurrence(TextEquivalent, DataEquivalent, ABC):
+    RECURRENCE_PERIOD_NAME_TO_ID = {rp.value: rp for rp in RecurrencePeriod}
+    recurrencePeriod = None
+
     def __init__(self):
         "no specialized constructor necessary"
-
-
-    @staticmethod
-    def setupPrompt(indent: int=0) -> object:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
-        print(f"{indentA}recurrence")
-        prompt = f"what kind of recurrence?"
-        options = [rp.value for rp in RecurrencePeriod]
-        recurrencePeriod = UserInput.singleSelectString(prompt, options, indent=indent+1)
-        
-        recurrence = None
-
-        # call appropriate subclass method
-        if recurrencePeriod == RecurrencePeriod.DAILY.value: 
-            recurrence = DailyRecurrence.setupPrompt(indent=indent+1)
-        if recurrencePeriod == RecurrencePeriod.WEEKLY.value: 
-            recurrence = WeeklyRecurrence.setupPrompt(indent=indent+1)
-        if recurrencePeriod == RecurrencePeriod.MONTHLY.value: 
-            recurrence = MonthlyRecurrence.setupPrompt(indent=indent+1)
-        if recurrencePeriod == RecurrencePeriod.YEARLY.value: 
-            recurrence = YearlyRecurrence.setupPrompt(indent=indent+1)
-        if recurrencePeriod == RecurrencePeriod.DAYS_OF_MONTH_K.value: 
-            recurrence = DaysOfMonthKRecurrence.setupPrompt(indent=indent+1)
-        if recurrencePeriod == RecurrencePeriod.NTH_WEEKDAY_M_OF_MONTH_K.value: 
-            recurrence = NthWeekdayMOfMonthKRecurrence.setupPrompt(indent=indent+1)
-        if recurrencePeriod == RecurrencePeriod.ONCE.value: 
-            recurrence = OnceRecurrence.setupPrompt(indent=indent+1)
-        if recurrencePeriod == RecurrencePeriod.AGGREGATE.value: 
-            recurrence = AggregateRecurrence.setupPrompt(indent=indent+1)
-
-        if recurrence == None: raise NotImplementedError(f"recurrence type {recurrencePeriod} not handled")
-
-        # ask if user wants to save recurrence
-        return recurrence
-
-
-    def savePrompt(self, indent: int=0):
-        save = UserInput.getBoolInput("save this recurrence? ", indent=indent)
-        if save:
-            name = UserInput.getStringInput("what would you like to save this recurrence as? ", indent=indent+1)
-            DataStack.addRecurrence(self, name)
 
 
     @abstractmethod
@@ -83,6 +42,39 @@ class Recurrence(TextEquivalent, ABC):
     def toText(self, indent=0) -> str:
         text = f"recurrence: {self.recurrencePeriod.value}"
         return super().indentText(text, indent)
+    
+
+    @abstractmethod
+    def toData(self, subData):
+        return {
+            "recurrence period": self.recurrencePeriod.value,
+            "details": subData,
+        }
+
+
+    @staticmethod
+    @abstractmethod
+    def fromData(data):
+        fromDataMethodDict = {
+            RecurrencePeriod.DAILY: DailyRecurrence.fromData,
+            RecurrencePeriod.WEEKLY: WeeklyRecurrence.fromData,
+            RecurrencePeriod.MONTHLY: MonthlyRecurrence.fromData,
+            RecurrencePeriod.YEARLY: YearlyRecurrence.fromData,
+            RecurrencePeriod.DAYS_OF_MONTH_K: DaysOfMonthKRecurrence.fromData,
+            RecurrencePeriod.NTH_WEEKDAY_M_OF_MONTH_K: NthWeekdayMOfMonthKRecurrence.fromData,
+            RecurrencePeriod.ONCE: OnceRecurrence.fromData,
+            RecurrencePeriod.AGGREGATE: AggregateRecurrence.fromData,
+        }
+
+        recurrencePeriodName = data["recurrence period"]
+        recurrencePeriod = Recurrence.RECURRENCE_PERIOD_NAME_TO_ID[recurrencePeriodName]
+
+        try: 
+            fromDataMethod = fromDataMethodDict[recurrencePeriod]
+        except KeyError:
+            raise NotImplementedError(f"recurrence period {recurrencePeriodName} not handled")
+        
+        return fromDataMethod(data["details"])
 
 
 
@@ -91,14 +83,6 @@ class DailyRecurrence(Recurrence):
 
     def __init__(self):
         "no specialized constructor necessary"
-
-    @staticmethod
-    def setupPrompt(indent: int=0) -> Recurrence:
-        indentA = UserOutput.indentPadding(indent)
-        print(f"{indentA}{RecurrencePeriod.DAILY.value} recurrence")
-        recurrence = DailyRecurrence()
-        recurrence.savePrompt(indent=indent+1)
-        return recurrence
 
 
     def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
@@ -110,6 +94,16 @@ class DailyRecurrence(Recurrence):
         return super().indentText(text, indent)
 
 
+    def toData(self):
+        data = {}
+        return super().toData(data)
+
+
+    @staticmethod
+    def fromData(data):
+        return DailyRecurrence()
+
+
 
 class WeeklyRecurrence(Recurrence):
     recurrencePeriod = RecurrencePeriod.WEEKLY
@@ -118,18 +112,6 @@ class WeeklyRecurrence(Recurrence):
         self.weekdays = weekdays
         self.weekdayNames = [CalendarObjects.WEEKDAY_ID_TO_OBJ[wday].name for wday in self.weekdays]
         self.weekdayNums = [CalendarObjects.WEEKDAY_ID_TO_OBJ[wday].num for wday in self.weekdays]
-
-
-    @staticmethod
-    def setupPrompt(indent: int=0) -> Recurrence:
-        indentA = UserOutput.indentPadding(indent)
-        print(f"{indentA}{RecurrencePeriod.WEEKLY.value} recurrence")
-        dayNames = UserInput.multiSelectString("which weekdays? ", CalendarObjects.WEEKDAY_NAMES, indent=indent+1)
-        dayNums = sorted([CalendarObjects.WEEKDAY_NAME_TO_NUM[dayName] for dayName in dayNames])
-        weekdays = [CalendarObjects.WEEKDAY_NUM_TO_ID[dayNum] for dayNum in dayNums]
-        recurrence = WeeklyRecurrence(weekdays)
-        recurrence.savePrompt(indent=indent+1)
-        return recurrence
 
 
     def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
@@ -145,23 +127,28 @@ class WeeklyRecurrence(Recurrence):
         return super().indentText(text, indent)
 
 
+    def toData(self):
+        data = {
+            "weekday names": self.weekdayNames
+        }
+        return super().toData(data)
+
+
+    @staticmethod
+    def fromData(data):
+        details = data["details"]
+        weekdayNames = details["weekday names"]
+        weekdayDict = CalendarObjects.WEEKDAY_NAME_TO_ID
+        weekdays = [weekdayDict[weekdayName] for weekdayName in weekdayNames]
+        return WeeklyRecurrence(weekdays)
+
+
 
 class MonthlyRecurrence(Recurrence):
     recurrencePeriod = RecurrencePeriod.MONTHLY
 
     def __init__(self, days: list[int]):
         self.days = days
-
-
-    @staticmethod
-    def setupPrompt(indent: int=0) -> Recurrence:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
-        print(f"{indentA}{RecurrencePeriod.MONTHLY.value} recurrence")
-        days = UserInput.getIntListInput("which month days? ", indent=indent+1)
-        recurrence = MonthlyRecurrence(days)
-        recurrence.savePrompt(indent=indent+1)
-        return recurrence
 
 
     def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
@@ -179,6 +166,20 @@ class MonthlyRecurrence(Recurrence):
         text += f"\n{UserOutput.indentStyle}days of the month: {self.days}"
         return super().indentText(text, indent)
 
+    
+    def toData(self):
+        data = {
+            "days of the month": self.days
+        }
+        return super().toData(data)
+
+
+    @staticmethod
+    def fromData(data):
+        details = data["details"]
+        days = details["days of the month"]
+        return MonthlyRecurrence(days)
+
 
 
 class YearlyRecurrence(Recurrence):
@@ -186,17 +187,6 @@ class YearlyRecurrence(Recurrence):
 
     def __init__(self, days: list[int]):
         self.days = days
-
-    
-    @staticmethod
-    def setupPrompt(indent: int=0) -> Recurrence:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
-        print(f"{indentA}{RecurrencePeriod.YEARLY.value} recurrence")
-        days = UserInput.getIntListInput("which days of the year? ", indent=indent+1)
-        recurrence = YearlyRecurrence(days)
-        recurrence.savePrompt(indent=indent+1)
-        return recurrence
 
 
     def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
@@ -214,6 +204,20 @@ class YearlyRecurrence(Recurrence):
         text += f"\n{UserOutput.indentStyle}days of the year: {self.days}"
         return super().indentText(text, indent)
 
+    
+    def toData(self):
+        data = {
+            "days of the year": self.days
+        }
+        return super().toData(data)
+
+
+    @staticmethod
+    def fromData(data):
+        details = data["details"]
+        days = details["days of the year"]
+        return YearlyRecurrence(days)
+
 
 
 class DaysOfMonthKRecurrence(Recurrence):
@@ -224,19 +228,6 @@ class DaysOfMonthKRecurrence(Recurrence):
         self.monthName = month.value.name
         self.monthNum = month.value.num
         self.days = days
-
-
-    @staticmethod
-    def setupPrompt(indent: int=0) -> Recurrence:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
-        print(f"{indentA}{RecurrencePeriod.DAYS_OF_MONTH_K.value} recurrence")
-        monthName = UserInput.singleSelectString("which month? ", CalendarObjects.MONTH_NAMES, indent=indent+1)
-        month = CalendarObjects.MONTH_NAME_TO_ID[monthName]
-        days = UserInput.getIntListInput(prompt=f"which days of {monthName}? ", indent=indent+1)
-        recurrence = DaysOfMonthKRecurrence(month, days)
-        recurrence.savePrompt(indent=indent+1)
-        return recurrence
 
 
     def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
@@ -260,6 +251,24 @@ class DaysOfMonthKRecurrence(Recurrence):
         text += f"\n{UserOutput.indentStyle}month: {self.month.value.name}"
         text += f"\n{UserOutput.indentStyle}days: {self.days}"
         return super().indentText(text, indent)
+    
+
+    def toData(self):
+        data = {
+            "month name": self.monthName,
+            "days": self.days,
+        }
+        return super().toData(data)
+
+
+    @staticmethod
+    def fromData(data):
+        details = data["details"]
+        monthName = details["month name"]
+        monthDict = CalendarObjects.MONTH_NAME_TO_ID
+        month = monthDict[monthName]
+        days = details["days"]
+        return DaysOfMonthKRecurrence(month, days)
 
 
 
@@ -270,21 +279,6 @@ class NthWeekdayMOfMonthKRecurrence(Recurrence):
         self.month = month
         self.weekday = weekday
         self.n = n
-    
-
-    @staticmethod
-    def setupPrompt(indent: int=0) -> Recurrence:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
-        print(f"{indentA}{RecurrencePeriod.NTH_WEEKDAY_M_OF_MONTH_K.value} recurrence")
-        monthName = UserInput.singleSelectString("which month? ", CalendarObjects.MONTH_NAMES, indent=indent+1)
-        weekdayName = UserInput.singleSelectString("which weekday? ", CalendarObjects.WEEKDAY_NAMES, indent=indent+1)
-        n = UserInput.getIntInput(f"which (n)th {weekdayName} of {monthName}? ", indent=indent+1)
-        month = CalendarObjects.MONTH_NAME_TO_ID[monthName]
-        weekday = CalendarObjects.WEEKDAY_NAME_TO_ID[weekdayName]
-        recurrence = NthWeekdayMOfMonthKRecurrence(month, weekday, n)
-        recurrence.savePrompt(indent=indent+1)
-        return recurrence
 
 
     def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
@@ -314,6 +308,28 @@ class NthWeekdayMOfMonthKRecurrence(Recurrence):
         numberSuffix = UserOutput.numberSuffix(self.n)
         text += f"\n{UserOutput.indentStyle}{self.n}{numberSuffix} {self.weekday.value.name} of {self.month.value.name}"
         return super().indentText(text, indent)
+    
+
+    def toData(self):
+        data = {
+            "month name": self.month.value,
+            "weekday name": self.weekday.value,
+            "n": self.n,
+        }
+        return super().toData(data)
+
+
+    @staticmethod
+    def fromData(data):
+        details = data["details"]
+        monthName = details["month name"]
+        monthDict = CalendarObjects.MONTH_NAME_TO_ID
+        month = monthDict[monthName]
+        weekdayName = details["weekday name"]
+        weekdayDict = CalendarObjects.WEEKDAY_NAME_TO_ID
+        weekday = weekdayDict[weekdayName]
+        n = details["n"]
+        return NthWeekdayMOfMonthKRecurrence(month, weekday, n)
 
 
 
@@ -327,21 +343,6 @@ class OnceRecurrence(Recurrence):
         self.day = date.day
 
 
-    @staticmethod
-    def setupPrompt(indent: int=0) -> Recurrence:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
-        print(f"{indentA}{RecurrencePeriod.ONCE.value} recurrence")
-        year = UserInput.getIntInput("which year? ", indent=indent+1)
-        monthName = UserInput.singleSelectString("which month? ", CalendarObjects.MONTH_NAMES, indent=indent+1)
-        day = UserInput.getIntInput(f"which day of {monthName}? ", indent=indent+1)
-        month = CalendarObjects.MONTH_NAME_TO_NUM[monthName]
-        date = dt.date(year, month, day)
-        recurrence = OnceRecurrence(date)
-        recurrence.savePrompt(indent=indent+1)
-        return recurrence
-
-
     def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
         if referenceDate > self.date: return None
         else: return self.date
@@ -352,6 +353,26 @@ class OnceRecurrence(Recurrence):
         text += f"\n{UserOutput.indentStyle}date: {self.monthName} {self.day}, {self.year}"
         return super().indentText(text, indent)
 
+    
+    def toData(self):
+        data = {
+            "year": self.year,
+            "month name": self.monthName,
+            "day": self.day,
+        }
+        return super().toData(data)
+
+
+    @staticmethod
+    def fromData(data):
+        details = data["details"]
+        year = details["year"]
+        monthName = details["month name"]
+        monthDict = CalendarObjects.MONTH_NAME_TO_NUM
+        monthNum = monthDict[monthName]
+        day = details["day"]
+        return OnceRecurrence(year, monthNum, day)
+
 
 
 class AggregateRecurrence(Recurrence):
@@ -359,22 +380,6 @@ class AggregateRecurrence(Recurrence):
 
     def __init__(self, recurrences: list[Recurrence]):
         self.recurrences = recurrences
-    
-
-    @staticmethod
-    def setupPrompt(indent: int=0) -> Recurrence:
-        indentA = UserOutput.indentPadding(indent)
-        indentB = UserOutput.indentPadding(indent + 1)
-        print(f"{indentA}{RecurrencePeriod.AGGREGATE.value} recurrence")
-        recurrences = []
-        keepAdding = UserInput.getBoolInput("add a recurrence? ", indent=indent+1)
-        while keepAdding:
-            recurrence = Recurrence.setupPrompt(indent=indent+1)
-            recurrences.append(recurrence)
-            keepAdding = UserInput.getBoolInput("add another recurrence? ", indent=indent+1)
-        recurrence = AggregateRecurrence(recurrences)
-        recurrence.savePrompt(indent=indent+1)
-        return recurrence
 
 
     def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
@@ -390,3 +395,18 @@ class AggregateRecurrence(Recurrence):
         for recurrence in self.recurrences:
             text += "\n" + recurrence.toText(indent=1)
         return super().indentText(text, indent)
+
+    
+    def toData(self):
+        data = {
+            "recurrences": [recurrence.toData() for recurrence in self.recurrences]
+        }
+        return super().toData(data)
+
+
+    @staticmethod
+    def fromData(data):
+        details = data["details"]
+        recurrenceData = details["recurrences"]
+        recurrences = [Recurrence.fromData(recurrence) for recurrence in recurrenceData]
+        return AggregateRecurrence(recurrences)
