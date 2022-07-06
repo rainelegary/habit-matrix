@@ -1,30 +1,18 @@
+from DataObjectConversion.dataEquivalent import DataEquivalent
 from HabitsAndChecklists.recurrence import Recurrence, RecurrencePeriod, DailyRecurrence, WeeklyRecurrence, MonthlyRecurrence, YearlyRecurrence, OnceRecurrence, DaysOfMonthKRecurrence, NthWeekdayMOfMonthKRecurrence, AggregateRecurrence
 import datetime as dt
-from DataObjectConversion.dictionaryEquivalent import DictionaryEquivalent
 from DataObjectConversion.textEquivalent import TextEquivalent
-from UserInteraction.userInput import UserInput
 from UserInteraction.userOutput import UserOutput
 
 
 
-class Habit(TextEquivalent):
+class Habit(TextEquivalent, DataEquivalent):
     def __init__(self, title: str, required: bool, upcomingBuffer: int, recurrence: Recurrence, doneByTimes: list[dt.time]):
         self.title = title
         self.required = required
         self.upcomingBuffer = upcomingBuffer
         self.recurrence = recurrence
         self.doneByTimes = doneByTimes
-
-
-    @staticmethod
-    def setupPrompt(indent: int=0):
-        UserOutput.indentedPrint("habit", indent)
-        title = UserInput.getStringInput("habit title? ", indent=indent+1)
-        required = UserInput.getBoolInput("required? ", indent=indent+1)
-        upcomingBuffer = UserInput.getIntInput("notify how many days in advance? ", indent=indent+1)
-        recurrence = Recurrence.setupPrompt(indent=indent+1)
-        doneByTimes = None
-        return Habit(title, required, upcomingBuffer, recurrence, doneByTimes)
 
 
     def nextOccurrence(self, referenceDate: dt.date=dt.date.today()):
@@ -44,4 +32,24 @@ class Habit(TextEquivalent):
         text += self.recurrence.toText(indent=1)
         return super().indentText(text, indent)
 
+    
+    def toData(self):
+        return {
+            self.title: {
+                "required": self.required,
+                "upcoming buffer": self.upcomingBuffer,
+                "recurrence": self.recurrence.toData(),
+                "done by times": self.doneByTimes,
+            }
+        }
 
+
+    @staticmethod
+    def fromData(data: dict):
+        title = list(data.keys())[0]
+        details = data[title]
+        required = details["required"]
+        upcomingBuffer = details["upcoming buffer"]
+        recurrence = details["recurrence"]
+        doneByTimes = details["done by times"]
+        return Habit(title, required, upcomingBuffer, recurrence, doneByTimes)

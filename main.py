@@ -1,5 +1,6 @@
 import sys
 from DataObjectConversion.yamlInteraction import YAMLInteraction
+from DataObjectConversion.dataStack import DataStack
 from HabitsAndChecklists.recurrence import Recurrence, RecurrencePeriod
 from HabitsAndChecklists.recurrence import DailyRecurrence, WeeklyRecurrence, MonthlyRecurrence
 from HabitsAndChecklists.habit import Habit
@@ -31,9 +32,17 @@ class Launcher:
                 except ChangeViewException as cve:
                     view = cve.view
         except ExitException:
-            print("exiting program.")
-
-
+            Launcher.savePrompt()
+    
+    
+    @staticmethod
+    def savePrompt():
+        save = UserInput.getBoolInput("save changes? ")
+        if save: 
+            DataStack.saveChanges()
+            print("saving changes... ")
+        print("exiting program. ")
+    
 
     @staticmethod
     def runTests():
@@ -42,8 +51,9 @@ class Launcher:
 
     @staticmethod
     def runExperimental():
-        x = UserInput.getBoolInput
-        x(CommandScopeEnum.ALL)
+        rec = DailyRecurrence()
+        print(DailyRecurrence.fromData(rec.toData()).toData())
+
 
 
 

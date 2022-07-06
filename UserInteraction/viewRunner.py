@@ -1,5 +1,6 @@
 from UserInteraction.commands import CommandScope, CommandScopeEnum, EndOfCommandException, InvalidCommandArgsException
 from UserInteraction.commandInterface import CommandInterface
+from UserInteraction.inputCancel import CancelInputException
 from UserInteraction.userInput import UserInput
 from UserInteraction.userOutput import UserOutput
 
@@ -15,6 +16,8 @@ class ViewRunner:
                 UserOutput.indentedPrint(output="invalid command arguments, please try again.")
             except EndOfCommandException:
                 pass
+            except CancelInputException:
+                pass
 
     
     @staticmethod
@@ -26,6 +29,8 @@ class ViewRunner:
             except InvalidCommandArgsException:
                 UserOutput.indentedPrint(output="invalid command arguments, please try again.")
             except EndOfCommandException:
+                pass
+            except CancelInputException:
                 pass
             
 
@@ -39,6 +44,8 @@ class ViewRunner:
                 UserOutput.indentedPrint(output="invalid command arguments, please try again.")
             except EndOfCommandException:
                 pass
+            except CancelInputException:
+                pass
             
 
     @staticmethod
@@ -51,6 +58,8 @@ class ViewRunner:
                 UserOutput.indentedPrint(output="invalid command arguments, please try again.")
             except EndOfCommandException:
                 pass
+            except CancelInputException:
+                pass
 
 
     @staticmethod
@@ -62,5 +71,7 @@ class ViewRunner:
             except InvalidCommandArgsException:
                 UserOutput.indentedPrint(output="invalid command arguments, please try again.")
             except EndOfCommandException:
+                pass
+            except CancelInputException:
                 pass
             

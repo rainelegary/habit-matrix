@@ -1,4 +1,4 @@
-from DataObjectConversion.dictionaryEquivalent import DictionaryEquivalent
+from DataObjectConversion.dataEquivalent import DictionaryEquivalent
 
 
 class ChecklistCollection(DictionaryEquivalent):
