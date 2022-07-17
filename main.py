@@ -53,6 +53,7 @@ class Launcher:
     def runExperimental():
         rec = DailyRecurrence()
         print(DailyRecurrence.fromData(rec.toData()).toData())
+        dt.datetime.strptime("12/09/2022", "%m/%d/%Y")
 
 
 

@@ -22,15 +22,31 @@ class DataStack:
 
 
     @classmethod
-    def removeHabit(cls, name):
+    def removeHabit(cls, name: str):
         del cls.habits[name]
+
+    
+    @classmethod
+    def getHabit(cls, name: str) -> Habit:
+        if name not in cls.habits:
+            raise Exception("habit not found")
+        habitDict = cls.habits[name]
+        return Habit.fromData(data={name: habitDict})
 
 
     @classmethod
-    def addRecurrence(cls, recurrence: Recurrence, name):
+    def addRecurrence(cls, recurrence: Recurrence, name: str):
         cls.recurrences[name] = recurrence.toData()
 
 
     @classmethod
-    def removeRecurrence(cls, name):
+    def removeRecurrence(cls, name: str):
         del cls.recurrences[name]
+
+
+    @classmethod
+    def getRecurrence(cls, name: str) -> Recurrence:
+        if name not in cls.recurrences:
+            raise Exception("recurrence not found")
+        recurrenceDict = cls.recurrences[name]
+        return Recurrence.fromData(data=recurrenceDict)

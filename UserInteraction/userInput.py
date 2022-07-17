@@ -8,6 +8,7 @@ from UserInteraction.inputCancel import CancelInputException
 class UserInput:
     commaRegex = r"[, ]*,[, ]*"
     doubleSpaceRegex = r"  +"
+    singleSpaceRegex = r" +"
     commaOrSpaceRegex = r"[, ]+"
     
 
@@ -115,7 +116,8 @@ class UserInput:
     def getStringListInput(prompt: str="", indent: int=0) -> list[str]:
         userIn = UserInput.indentedInput(prompt, indent=indent).strip()
         if "," in userIn: regExp = UserInput.commaRegex 
-        else: regExp = UserInput.doubleSpaceRegex
+        elif "  " in userIn: regExp = UserInput.doubleSpaceRegex
+        else: regExp = UserInput.singleSpaceRegex
         items = re.split(regExp, userIn)
         return items
 

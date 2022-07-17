@@ -1,9 +1,14 @@
 from enum import Enum
 from abc import ABC, abstractmethod
+from tokenize import Single
+from DateAndTime.calendarObjects import CalendarObjects
 from HabitsAndChecklists.habit import Habit
+from UserInteraction.userOutput import UserOutput
 from UserInteraction.views import ExitException, ViewEnum, ChangeViewException, Views
 from ObjectCreation.habitCreation import HabitCreation
 from ObjectCreation.recurrenceCreation import RecurrenceCreation
+from HabitsAndChecklists.checklist import Checklist, SingleDayChecklist, DayRangeChecklist, OverdueChecklist, UpcomingChecklist
+import datetime as dt
 
 
 class InvalidCommandArgsException(Exception):
@@ -92,12 +97,90 @@ class NewObjectCommand(Command):
         
         raise EndOfCommandException()
 
+
+class SeeChecklistCommand(Command):
+    NAME = "see checklist"
+    SHORTCUT = "check"
+
+
+    @staticmethod
+    def executeCommand(commandArgs: list[str], commandScopeID, indent: int=0):
+        if len(commandArgs) < 2:
+            raise InvalidCommandArgsException("no checklist type specified")
+        checklistType = commandArgs[1]
+        if checklistType == "day":
+            SeeChecklistCommand.dayChecklist(commandArgs, indent=indent)
+        elif checklistType == "range":
+            SeeChecklistCommand.rangeChecklist(commandArgs, indent=indent)
+        elif checklistType == "overdue":
+            SeeChecklistCommand.overdueChecklist(commandArgs, indent=indent)
+        elif checklistType == "upcoming":
+            SeeChecklistCommand.upcomingChecklist(commandArgs, indent=indent)
+        elif checklistType == "all":
+            SeeChecklistCommand.allChecklists(commandArgs, indent=indent)
+        else:
+            raise InvalidCommandArgsException("not a recognized checklist type")
+
         
+    @staticmethod
+    def dayChecklist(commandArgs, indent: int=0):
+        if len(commandArgs) < 3:
+            day = dt.date.today()
+        else:
+            dayString = commandArgs[2]
+            try:
+                day = dt.datetime.strptime(dayString, CalendarObjects.DATE_STR_FORMAT).date()
+            except ValueError:
+                UserOutput.indentedPrint(f"not a valid date, please enter dates in the form {CalendarObjects.DATE_STR_FORMAT_EXAMPLE}", indent=indent)
+                return
+
+        checklist = SingleDayChecklist(day)
+        checklist.display(indent=indent)
+
+        
+
+    @staticmethod
+    def rangeChecklist(commandArgs, indent: int=0):
+        if len(commandArgs) < 4:
+            raise InvalidCommandArgsException("please specify a start and end date")
+        startDayString = commandArgs[2]
+        endDayString = commandArgs[3]
+        try:
+            startDay = dt.datetime.strptime(startDayString, CalendarObjects.DATE_STR_FORMAT).date()
+            endDay = dt.datetime.strptime(endDayString, CalendarObjects.DATE_STR_FORMAT).date()
+        except ValueError:
+            UserOutput.indentedPrint(f"not a valid range of dates, please enter dates in the form {CalendarObjects.DATE_STR_FORMAT_EXAMPLE}", indent=indent)
+            return
+
+        checklist = DayRangeChecklist(startDay, endDay)
+        checklist.display(indent=indent)
+
+
+    @staticmethod
+    def overdueChecklist(commandArgs, indent: int=0):
+        checklist = OverdueChecklist()
+        checklist.display(indent=indent)
+
+    
+    @staticmethod
+    def upcomingChecklist(commandArgs, indent: int=0):
+        checklist = UpcomingChecklist()
+        checklist.display(indent=indent)
+
+    
+    @staticmethod
+    def allChecklists(commandArgs, indent: int=0):
+        SingleDayChecklist(dt.date.today()).display()
+        OverdueChecklist().display()
+        UpcomingChecklist().display()
+
+
 
 class CommandEnum(Enum):
     CHANGE_VIEW = ChangeViewCommand()
     EXIT = ExitCommand()
     NEW = NewObjectCommand()
+    SEE_CHECKLIST = SeeChecklistCommand()
 
 
 
@@ -108,4 +191,4 @@ class CommandScopeEnum(Enum):
     CALENDAR = CommandScope(name="calendar", parent=VIEW)
     HABITS = CommandScope(name="habits", parent=VIEW, whitelist=[CommandEnum.NEW])
     RECURRENCES = CommandScope(name="recurrences", parent=VIEW, whitelist=[CommandEnum.NEW])
-    CHECKLISTS = CommandScope(name="checklists", parent=VIEW)
+    CHECKLISTS = CommandScope(name="checklists", parent=VIEW, whitelist=[CommandEnum.SEE_CHECKLIST])

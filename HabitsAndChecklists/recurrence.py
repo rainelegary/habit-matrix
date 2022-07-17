@@ -45,7 +45,7 @@ class Recurrence(TextEquivalent, DataEquivalent, ABC):
     
 
     @abstractmethod
-    def toData(self, subData):
+    def toData(self, subData) -> dict:
         return {
             "recurrence type": self.recurrencePeriod.value,
             "details": subData,
@@ -74,7 +74,7 @@ class Recurrence(TextEquivalent, DataEquivalent, ABC):
         except KeyError:
             raise NotImplementedError(f"recurrence type {recurrencePeriodName} not handled")
         
-        return fromDataMethod(data["details"])
+        return fromDataMethod(data)
 
 
 
@@ -128,7 +128,6 @@ class WeeklyRecurrence(Recurrence):
 
 
     def toData(self):
-        print(self.weekdayNames)
         data = {
             "weekday names": self.weekdayNames
         }
@@ -236,8 +235,8 @@ class DaysOfMonthKRecurrence(Recurrence):
         year = referenceDate.year
         month = referenceDate.month
         day = referenceDate.day
+        firstDay = min(self.days)
         if month > self.monthNum:
-            firstDay = min(self.days)
             return dt.date(year + 1, self.monthNum, firstDay)
         elif month < self.monthNum:
             return dt.date(year, self.monthNum, firstDay)
@@ -372,7 +371,8 @@ class OnceRecurrence(Recurrence):
         monthDict = CalendarObjects.MONTH_NAME_TO_NUM
         monthNum = monthDict[monthName]
         day = details["day"]
-        return OnceRecurrence(year, monthNum, day)
+        date = dt.date(year, monthNum, day)
+        return OnceRecurrence(date)
 
 
 
@@ -398,7 +398,7 @@ class AggregateRecurrence(Recurrence):
         return super().indentText(text, indent)
 
     
-    def toData(self):
+    def toData(self) -> dict:
         data = {
             "recurrences": [recurrence.toData() for recurrence in self.recurrences]
         }
@@ -406,7 +406,7 @@ class AggregateRecurrence(Recurrence):
 
 
     @staticmethod
-    def fromData(data):
+    def fromData(data: dict):
         details = data["details"]
         recurrenceData = details["recurrences"]
         recurrences = [Recurrence.fromData(recurrence) for recurrence in recurrenceData]

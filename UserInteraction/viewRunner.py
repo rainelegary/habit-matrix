@@ -8,7 +8,7 @@ from UserInteraction.userOutput import UserOutput
 class ViewRunner:
     @staticmethod
     def homeView():
-        print("{{ << -- home view -- >> }}")
+        print("home view")
         while True:
             try:
                 CommandInterface.getInputOrCommand(prompt="home: ", commandScopeID=CommandScopeEnum.HOME)
@@ -22,7 +22,7 @@ class ViewRunner:
     
     @staticmethod
     def calendarView():
-        print("{{ << -- calendar view -- >> }}")
+        print("calendar view")
         while True:
             try:
                 CommandInterface.getInputOrCommand(prompt="calendar: ", commandScopeID=CommandScopeEnum.CALENDAR)
@@ -36,7 +36,7 @@ class ViewRunner:
 
     @staticmethod
     def habitsView():
-        print("{{ << -- habits view -- >> }}")
+        print("habits view")
         while True:
             try:
                 CommandInterface.getInputOrCommand(prompt="habits: ", commandScopeID=CommandScopeEnum.HABITS)
@@ -50,7 +50,7 @@ class ViewRunner:
 
     @staticmethod
     def recurrencesView():
-        print("{{ << -- checklists view -- >> }}")
+        print("recurrences view")
         while True:
             try:
                 CommandInterface.getInputOrCommand(prompt="recurrences: ", commandScopeID=CommandScopeEnum.RECURRENCES)
@@ -64,7 +64,7 @@ class ViewRunner:
 
     @staticmethod
     def checklistsView():
-        print("{{ << -- checklists view -- >> }}")
+        print("checklists view")
         while True:
             try:
                 CommandInterface.getInputOrCommand(prompt="checklists: ", commandScopeID=CommandScopeEnum.CHECKLISTS)

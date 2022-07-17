@@ -7,7 +7,7 @@ class CommandInterface:
     def getInputOrCommand(prompt: str, commandScopeID: CommandScopeEnum, indent: int=0, userInputMethod=UserInput.indentedInput):
         commandScope = commandScopeID.value
         availableCommands = CommandInterface.getAvailableCommands(commandScope)
-        userInput = UserInput.indentedInput(prompt, indent)
+        userInput = userInputMethod(prompt, indent)
         commandArgs = userInput.strip().split()
         if len(commandArgs) == 0:
             return userInput
