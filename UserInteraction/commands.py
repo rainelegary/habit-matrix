@@ -9,8 +9,8 @@ from HabitsAndChecklists.checklist import (Checklist, DayRangeChecklist,
                                            SingleDayChecklist,
                                            UpcomingChecklist)
 from HabitsAndChecklists.habit import Habit
-from ObjectCreation.habitCreation import HabitCreation
-from ObjectCreation.recurrenceCreation import RecurrenceCreation
+from DataManagement.DataStackInterfaces.habitDataStackInterface import HabitDataStackInterface
+from DataManagement.DataStackInterfaces.recurrenceDataStackInterface import RecurrenceDataStackInterface
 
 from UserInteraction.userOutput import UserOutput
 from UserInteraction.views import (ChangeViewException, ExitException,

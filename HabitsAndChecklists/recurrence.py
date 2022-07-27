@@ -2,9 +2,9 @@ from enum import Enum
 from abc import ABC, abstractmethod
 import datetime as dt
 import calendar as cal
-from DataObjectConversion.dataEquivalent import DataEquivalent
+from DataManagement.DataHelpers.dataEquivalent import DataEquivalent
 from DateAndTime.calendarObjects import CalendarObjects, MonthEnum, WeekdayEnum
-from DataObjectConversion.textEquivalent import TextEquivalent
+from DataManagement.DataHelpers.textEquivalent import TextEquivalent
 from UserInteraction.userOutput import UserOutput
 
 

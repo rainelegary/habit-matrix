@@ -1,7 +1,12 @@
 import string
 import re
 from UserInteraction.userOutput import UserOutput
-from UserInteraction.inputCancel import CancelInputException
+
+
+
+class CancelInputException(Exception):
+        def __init__(self, message: str):
+            self.message = message
 
 
 
@@ -170,3 +175,7 @@ class UserInput:
             if item in optionsDict.values():
                 selected.append(item)
         return selected
+
+
+
+

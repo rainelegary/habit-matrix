@@ -1,6 +1,6 @@
 import sys
 from DataObjectConversion.yamlInteraction import YAMLInteraction
-from DataObjectConversion.dataStack import DataStack
+from DataManagement.DataStacks.dataStack import DataStack
 from HabitsAndChecklists.recurrence import Recurrence, RecurrencePeriod
 from HabitsAndChecklists.recurrence import DailyRecurrence, WeeklyRecurrence, MonthlyRecurrence
 from HabitsAndChecklists.habit import Habit

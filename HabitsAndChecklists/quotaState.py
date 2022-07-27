@@ -1,7 +1,7 @@
 import datetime as dt
 
-from DataObjectConversion.dataEquivalent import DataEquivalent
-from DataObjectConversion.textEquivalent import TextEquivalent
+from DataManagement.DataHelpers.dataEquivalent import DataEquivalent
+from DataManagement.DataHelpers.textEquivalent import TextEquivalent
 from DateAndTime.calendarObjects import CalendarObjects
 from UserInteraction.userOutput import UserOutput
 

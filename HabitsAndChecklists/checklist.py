@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from DateAndTime.calendarObjects import CalendarObjects
 from UserInteraction.userInput import UserInput
 from UserInteraction.userOutput import UserOutput
-from DataObjectConversion.dataStack import DataStack
+from DataManagement.DataStacks.dataStack import DataStack
 from HabitsAndChecklists.habit import Habit
 
 

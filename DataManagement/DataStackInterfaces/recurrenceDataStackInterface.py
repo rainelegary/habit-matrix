@@ -1,6 +1,6 @@
 import datetime as dt
 
-from DataObjectConversion.dataStack import DataStack
+from DataManagement.DataStacks.dataStack import DataStack
 from DateAndTime.calendarObjects import CalendarObjects
 from HabitsAndChecklists.recurrence import (AggregateRecurrence,
                                             DailyRecurrence,
@@ -15,7 +15,7 @@ from UserInteraction.userOutput import UserOutput
 
 
 
-class RecurrenceCreation:
+class RecurrenceDataStackInterface:
     @staticmethod
     def generalRecurrenceSetupPrompt(indent: int=0):
         UserOutput.indentedPrint("recurrence", indent)
@@ -25,14 +25,14 @@ class RecurrenceCreation:
         recurrencePeriod = Recurrence.RECURRENCE_PERIOD_NAME_TO_ID[recurrencePeriodName]
 
         setupPromptMethodDict = {
-            RecurrencePeriod.DAILY: RecurrenceCreation.dailyRecurrencesetupPrompt,
-            RecurrencePeriod.WEEKLY: RecurrenceCreation.weeklyRecurrenceSetupPrompt,
-            RecurrencePeriod.MONTHLY: RecurrenceCreation.monthlyRecurrenceSetupPrompt,
-            RecurrencePeriod.YEARLY: RecurrenceCreation.yearlyRecurrenceSetupPrompt,
-            RecurrencePeriod.DAYS_OF_MONTH_K: RecurrenceCreation.daysOfMonthKRecurrenceSetupPrompt,
-            RecurrencePeriod.NTH_WEEKDAY_M_OF_MONTH_K: RecurrenceCreation.nthWeekdayOfMonthKRecurrenceSetupPrompt,
-            RecurrencePeriod.ONCE: RecurrenceCreation.onceRecurrenceSetupPrompt,
-            RecurrencePeriod.AGGREGATE: RecurrenceCreation.aggregateRecurrenceSetupPrompt,
+            RecurrencePeriod.DAILY: RecurrenceDataStackInterface.dailyRecurrencesetupPrompt,
+            RecurrencePeriod.WEEKLY: RecurrenceDataStackInterface.weeklyRecurrenceSetupPrompt,
+            RecurrencePeriod.MONTHLY: RecurrenceDataStackInterface.monthlyRecurrenceSetupPrompt,
+            RecurrencePeriod.YEARLY: RecurrenceDataStackInterface.yearlyRecurrenceSetupPrompt,
+            RecurrencePeriod.DAYS_OF_MONTH_K: RecurrenceDataStackInterface.daysOfMonthKRecurrenceSetupPrompt,
+            RecurrencePeriod.NTH_WEEKDAY_M_OF_MONTH_K: RecurrenceDataStackInterface.nthWeekdayOfMonthKRecurrenceSetupPrompt,
+            RecurrencePeriod.ONCE: RecurrenceDataStackInterface.onceRecurrenceSetupPrompt,
+            RecurrencePeriod.AGGREGATE: RecurrenceDataStackInterface.aggregateRecurrenceSetupPrompt,
         }
 
         try:
@@ -122,7 +122,7 @@ class RecurrenceCreation:
         recurrences = []
         keepAdding = UserInput.getBoolInput("add a recurrence? ", indent=indent+1)
         while keepAdding:
-            recurrence = RecurrenceCreation.generalRecurrenceSetupPrompt(indent=indent+1)
+            recurrence = RecurrenceDataStackInterface.generalRecurrenceSetupPrompt(indent=indent+1)
             recurrences.append(recurrence)
             keepAdding = UserInput.getBoolInput("add another recurrence? ", indent=indent+1)
         return AggregateRecurrence(recurrences)

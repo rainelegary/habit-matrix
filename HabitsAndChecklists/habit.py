@@ -1,8 +1,8 @@
-from DataObjectConversion.dataEquivalent import DataEquivalent
+from DataManagement.DataHelpers.dataEquivalent import DataEquivalent
 from DateAndTime.calendarObjects import CalendarObjects
 from HabitsAndChecklists.recurrence import Recurrence, RecurrencePeriod, DailyRecurrence, WeeklyRecurrence, MonthlyRecurrence, YearlyRecurrence, OnceRecurrence, DaysOfMonthKRecurrence, NthWeekdayMOfMonthKRecurrence, AggregateRecurrence
 import datetime as dt
-from DataObjectConversion.textEquivalent import TextEquivalent
+from DataManagement.DataHelpers.textEquivalent import TextEquivalent
 from UserInteraction.userOutput import UserOutput
 from HabitsAndChecklists.quotaState import QuotaState
 

@@ -8,7 +8,7 @@ from UserInteraction.userInput import UserInput
 from UserInteraction.userOutput import UserOutput
 
 
-class QuotaStateCreation:
+class QuotaStateDataStackInterface:
     @staticmethod
     def quotaStateSetupPrompt(indent: int=0):
         doneByTimeString = UserInput.getStringInput(f"What time of day should this task be completed by? {CalendarObjects.TIME_STR_FORMAT_EXAMPLE}", indent=indent)

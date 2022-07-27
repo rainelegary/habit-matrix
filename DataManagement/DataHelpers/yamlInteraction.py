@@ -27,7 +27,7 @@ class YAMLInteraction:
 
 
 class YAMLFiles:
-    HABITS = "StoredData/habits.yml"
-    RECURRENCES = "StoredData/recurrences.yml"
-    SESSION_INFO = "StoredData/sessionInfo.yml"
+    HABITS = "DataManagement/DataYAML/habits.yml"
+    RECURRENCES = "DataManagement/DataYAML/recurrences.yml"
+    SESSION_INFO = "DataManagement/DataYAML/sessionInfo.yml"
     
