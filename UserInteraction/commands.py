@@ -1,23 +1,24 @@
-from enum import Enum
+import datetime as dt
 from abc import ABC, abstractmethod
+from enum import Enum
 from tokenize import Single
+
 from DateAndTime.calendarObjects import CalendarObjects
+from HabitsAndChecklists.checklist import (Checklist, DayRangeChecklist,
+                                           OverdueChecklist,
+                                           SingleDayChecklist,
+                                           UpcomingChecklist)
 from HabitsAndChecklists.habit import Habit
-from UserInteraction.userOutput import UserOutput
-from UserInteraction.views import ExitException, ViewEnum, ChangeViewException, Views
 from ObjectCreation.habitCreation import HabitCreation
 from ObjectCreation.recurrenceCreation import RecurrenceCreation
-from HabitsAndChecklists.checklist import Checklist, SingleDayChecklist, DayRangeChecklist, OverdueChecklist, UpcomingChecklist
-import datetime as dt
+
+from UserInteraction.userOutput import UserOutput
+from UserInteraction.views import (ChangeViewException, ExitException,
+                                   ViewEnum, Views)
 
 
 class InvalidCommandArgsException(Exception):
     """an exception for when incorrect command arguments are given"""
-
-
-
-class EndOfCommandException(Exception):
-    """an exception to be raised whenever a command ends"""
 
 
 
@@ -94,8 +95,6 @@ class NewObjectCommand(Command):
             RecurrenceCreation.generalSaveRecurrencePrompt(recurrence, indent=indent+1)
         else:
             raise InvalidCommandArgsException("unrecognized object type")
-        
-        raise EndOfCommandException()
 
 
 class SeeChecklistCommand(Command):

@@ -33,6 +33,11 @@ class Recurrence(TextEquivalent, DataEquivalent, ABC):
     def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
         raise NotImplementedError("method not yet implemented in subclass")
 
+    
+    @abstractmethod
+    def prevOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
+        raise NotImplementedError("method not yet implemented in subclass")
+
 
     def isToday(self, referenceDate: dt.date=dt.date.today()) -> bool:
         nextOcc = self.nextOccurrence(referenceDate=referenceDate)
@@ -44,7 +49,6 @@ class Recurrence(TextEquivalent, DataEquivalent, ABC):
         return super().indentText(text, indent)
     
 
-    @abstractmethod
     def toData(self, subData) -> dict:
         return {
             "recurrence type": self.recurrencePeriod.value,
@@ -53,7 +57,6 @@ class Recurrence(TextEquivalent, DataEquivalent, ABC):
 
 
     @staticmethod
-    @abstractmethod
     def fromData(data):
         fromDataMethodDict = {
             RecurrencePeriod.DAILY: DailyRecurrence.fromData,
@@ -86,6 +89,10 @@ class DailyRecurrence(Recurrence):
 
 
     def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
+        return referenceDate
+
+    
+    def prevOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
         return referenceDate
 
     

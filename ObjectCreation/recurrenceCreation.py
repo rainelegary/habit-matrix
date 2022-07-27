@@ -1,9 +1,18 @@
 import datetime as dt
+
 from DataObjectConversion.dataStack import DataStack
-from HabitsAndChecklists.recurrence import Recurrence, DailyRecurrence, WeeklyRecurrence, MonthlyRecurrence, YearlyRecurrence, DaysOfMonthKRecurrence, NthWeekdayMOfMonthKRecurrence, OnceRecurrence, AggregateRecurrence, RecurrencePeriod
+from DateAndTime.calendarObjects import CalendarObjects
+from HabitsAndChecklists.recurrence import (AggregateRecurrence,
+                                            DailyRecurrence,
+                                            DaysOfMonthKRecurrence,
+                                            MonthlyRecurrence,
+                                            NthWeekdayMOfMonthKRecurrence,
+                                            OnceRecurrence, Recurrence,
+                                            RecurrencePeriod, WeeklyRecurrence,
+                                            YearlyRecurrence)
 from UserInteraction.userInput import UserInput
 from UserInteraction.userOutput import UserOutput
-from DateAndTime.calendarObjects import CalendarObjects
+
 
 
 class RecurrenceCreation:

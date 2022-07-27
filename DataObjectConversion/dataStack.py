@@ -1,19 +1,26 @@
-from DataObjectConversion.yamlInteraction import YAMLInteraction, YAMLFiles
+import copy
+
 from HabitsAndChecklists.habit import Habit
 from HabitsAndChecklists.recurrence import Recurrence
+
+from DataObjectConversion.yamlInteraction import YAMLFiles, YAMLInteraction
+
 
 
 class DataStack:
     habits = YAMLInteraction.YAMLtoData(YAMLFiles.HABITS)
-    recurrences = YAMLInteraction.YAMLtoData(YAMLFiles.RECURRENCES)
     if habits == None: habits = {}
+    recurrences = YAMLInteraction.YAMLtoData(YAMLFiles.RECURRENCES)
     if recurrences == None: recurrences = {}
+    sessionInfo = YAMLInteraction.YAMLtoData(YAMLFiles.SESSION_INFO)
+    if sessionInfo == None: sessionInfo = {}
 
 
     @classmethod
     def saveChanges(cls):
         YAMLInteraction.dataToYAML(YAMLFiles.HABITS, cls.habits)
         YAMLInteraction.dataToYAML(YAMLFiles.RECURRENCES, cls.recurrences)
+        YAMLInteraction.dataToYAML(YAMLFiles.SESSION_INFO, cls.sessionInfo)
 
 
     @classmethod
@@ -50,3 +57,13 @@ class DataStack:
             raise Exception("recurrence not found")
         recurrenceDict = cls.recurrences[name]
         return Recurrence.fromData(data=recurrenceDict)
+
+    
+    @classmethod
+    def getSessionInfo(cls):
+        return copy.deepcopy(cls.sessionInfo)
+
+
+    @classmethod
+    def setSessionInfo(cls, info):
+        cls.sessionInfo = copy.deepcopy(info)

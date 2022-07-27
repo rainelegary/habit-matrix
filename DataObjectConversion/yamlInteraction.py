@@ -1,6 +1,8 @@
 import yaml
 import sys
 
+
+
 class YAMLInteraction:
     @staticmethod
     def dataToYAML(fileName: str, data) -> None:
@@ -27,4 +29,5 @@ class YAMLInteraction:
 class YAMLFiles:
     HABITS = "StoredData/habits.yml"
     RECURRENCES = "StoredData/recurrences.yml"
+    SESSION_INFO = "StoredData/sessionInfo.yml"
     

@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+
+
 class DataEquivalent(ABC):
     @abstractmethod
     def toData(self):
