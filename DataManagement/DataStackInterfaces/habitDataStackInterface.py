@@ -1,7 +1,7 @@
 import datetime as dt
 from DataManagement.DataStacks.habitDataStack import HabitDataStack
 
-from DataManagement.DataStacks.dataStack import DataStack
+from DataManagement.DataHelpers.dataStack import DataStack
 from DateAndTime.calendarObjects import CalendarObjects
 from HabitsAndChecklists.habit import Habit
 from HabitsAndChecklists.quotaState import QuotaState

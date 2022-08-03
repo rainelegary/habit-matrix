@@ -1,10 +1,19 @@
-from DataManagement.DataHelpers.dataEquivalent import DataEquivalent
-from DateAndTime.calendarObjects import CalendarObjects
-from HabitsAndChecklists.recurrence import Recurrence, RecurrencePeriod, DailyRecurrence, WeeklyRecurrence, MonthlyRecurrence, YearlyRecurrence, OnceRecurrence, DaysOfMonthKRecurrence, NthWeekdayMOfMonthKRecurrence, AggregateRecurrence
 import datetime as dt
+
+from DataManagement.DataHelpers.dataEquivalent import DataEquivalent
 from DataManagement.DataHelpers.textEquivalent import TextEquivalent
+from DateAndTime.calendarObjects import CalendarObjects
 from UserInteraction.userOutput import UserOutput
+
 from HabitsAndChecklists.quotaState import QuotaState
+from HabitsAndChecklists.recurrence import (AggregateRecurrence,
+                                            DailyRecurrence,
+                                            DaysOfMonthKRecurrence,
+                                            MonthlyRecurrence,
+                                            NthWeekdayMOfMonthKRecurrence,
+                                            OnceRecurrence, Recurrence,
+                                            RecurrencePeriod, WeeklyRecurrence,
+                                            YearlyRecurrence)
 
 
 

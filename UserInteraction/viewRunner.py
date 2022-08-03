@@ -1,7 +1,7 @@
-from UserInteraction.commands import CommandScope, CommandScopeEnum, EndOfCommandException, InvalidCommandArgsException
 from UserInteraction.commandInterface import CommandInterface
-from UserInteraction.inputCancel import CancelInputException
-from UserInteraction.userInput import UserInput
+from UserInteraction.commands import (CommandScope, CommandScopeEnum,
+                                      InvalidCommandArgsException)
+from UserInteraction.userInput import CancelInputException, UserInput
 from UserInteraction.userOutput import UserOutput
 
 

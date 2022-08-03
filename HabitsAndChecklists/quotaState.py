@@ -18,29 +18,23 @@ class QuotaState(TextEquivalent, DataEquivalent):
         self.prevCompletionDate = prevCompletionDate
 
     
-    def applicableCompletionDate(self, recurrence: Recurrence) -> dt.date:
-        prevCompletionDate = self.prevCompletionDate
-        prevOccurrence = recurrence.prevOccurrence()
-        nextOccurrence = recurrence.nextOccurrence()
-        if self.dateIsInRange(prevOccurrence):
+    def applicableCompletionDate(self, recurrence: Recurrence, referenceDate: dt.date=dt.date.today()) -> dt.date:
+        prevOccurrence = recurrence.prevOccurrence(referenceDate=referenceDate)
+        nextOccurrence = recurrence.nextOccurrence(referenceDate=referenceDate)
+
+        if self.dateIsInRange(prevOccurrence, referenceDate=referenceDate):
             applicableDate = prevOccurrence
-        elif self.dateIsInRange(nextOccurrence):
+        elif self.dateIsInRange(nextOccurrence, referenceDate=referenceDate):
             applicableDate = nextOccurrence
         else:
             applicableDate = None
-
-        if applicableDate is not None and prevCompletionDate is not None:
-            if applicableDate <= prevCompletionDate:
-                applicableDate = recurrence.nextOccurrence(prevCompletionDate + dt.timedelta(days=1))
-            if not self.dateIsInRange(applicableDate):
-                applicableDate = None
         
         return applicableDate
 
 
-    def dateIsInRange(self, date: dt.date, referenceDate: dt.date=dt.date.today()):
+    def dateIsInRange(self, date: dt.date, referenceDate: dt.date=dt.date.today()) -> bool:
         if date == None:
-            inRange = False
+            raise ValueError("Invalid date format: NoneType")
         elif date + dt.timedelta(days=self.maxDaysAfter) < referenceDate:
             inRange = False
         elif date - dt.timedelta(days=self.maxDaysBefore) > referenceDate:
@@ -48,7 +42,33 @@ class QuotaState(TextEquivalent, DataEquivalent):
         else:
             inRange = True
         return inRange
-    
+
+
+    def exclusiveNumApplicableDatesBetween(self, recurrence: Recurrence, startDate: dt.date, endDate: dt.date) -> int:
+        if endDate < startDate:
+            raise ValueError("start date must come before end date.")
+        
+        applicableDateForStart = self.applicableCompletionDate(recurrence, referenceDate=startDate)
+        applicableDateForEnd = self.applicableCompletionDate(recurrence, referenceDate=endDate)
+
+        if applicableDateForStart == None: applicableDateForStart = startDate
+        if applicableDateForEnd == None: applicableDateForEnd = endDate
+
+        n = 0
+        workingDate = applicableDateForStart
+        timeDelta = dt.timedelta(days=1)
+        looping = True
+        while looping:
+            workingDate = recurrence.nextOccurrence(referenceDate=workingDate + timeDelta)
+            if workingDate == None:
+                looping = False
+            elif workingDate < applicableDateForEnd:
+                n += 1
+            else:
+                looping = False
+        
+        return n
+        
 
     def toText(self, indent: int=0) -> str:
         ind = UserOutput.indentPadding(indent=1)

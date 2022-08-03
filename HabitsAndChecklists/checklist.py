@@ -1,11 +1,11 @@
-from DataObjectConversion.dataEquivalent import DataEquivalent
-from DataObjectConversion.textEquivalent import TextEquivalent
+from DataManagement.DataHelpers.dataEquivalent import DataEquivalent
+from DataManagement.DataHelpers.textEquivalent import TextEquivalent
 import datetime as dt
 from abc import ABC, abstractmethod
 from DateAndTime.calendarObjects import CalendarObjects
 from UserInteraction.userInput import UserInput
 from UserInteraction.userOutput import UserOutput
-from DataManagement.DataStacks.dataStack import DataStack
+from DataManagement.DataHelpers.dataStack import DataStack
 from HabitsAndChecklists.habit import Habit
 
 

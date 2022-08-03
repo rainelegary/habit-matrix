@@ -1,20 +1,21 @@
 from DataManagement.DataHelpers.yamlInteraction import YAMLFiles, YAMLInteraction
-from DataManagement.DataStacks.dataStack import DataStack
+from DataManagement.DataHelpers.dataStack import DataStack
 
 
 
 class SessionInfoDataStack(DataStack):
-    sessionInfo = YAMLInteraction.YAMLtoData(YAMLFiles.SESSION_INFO)
-    if sessionInfo == None: sessionInfo = {}
+    dataStack = YAMLInteraction.YAMLtoData(YAMLFiles.SESSION_INFO)
+    if dataStack == None: dataStack = {}
+    yamlFile = YAMLFiles.SESSION_INFO
 
 
     @classmethod
     def getSessionInfo(cls):
-        return cls.sessionInfo
+        return cls.dataStack
 
 
     @classmethod
     def setSessionInfo(cls, info):
-        cls.sessionInfo = info
+        cls.dataStack = info
     
     

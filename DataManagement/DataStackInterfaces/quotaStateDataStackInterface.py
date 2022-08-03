@@ -1,4 +1,6 @@
 import datetime as dt
+from DataManagement.DataObjects.sessionInfo import SessionInfo
+from DataManagement.DataStacks.sessionInfoDataStack import SessionInfoDataStack
 
 from DateAndTime.calendarObjects import CalendarObjects
 from HabitsAndChecklists.habit import Habit
@@ -19,7 +21,7 @@ class QuotaStateDataStackInterface:
 
 
     @staticmethod
-    def habitCompletedUpdateQuotaState(habit: Habit, indent: int=0):
+    def habitCompletedUpdateQuotaState(habit: Habit, timeOfCompletion: dt.time=dt.datetime.now().time(), indent: int=0):
         recurrence = habit.recurrence
         quotaState = habit.quotaState
         
@@ -28,7 +30,7 @@ class QuotaStateDataStackInterface:
             UserOutput.indentedPrint("Error: no applicable date for this habit to be completed.", indent=indent)
             return
 
-        if quotaState.doneByTime < dt.datetime.now().time():
+        if quotaState.doneByTime < timeOfCompletion:
             timeStr = quotaState.doneByTime.strftime(CalendarObjects.TIME_STR_FORMAT)
             UserOutput.indentedPrint(f"Error: this task must be completed by {timeStr}.")
             return
@@ -41,16 +43,23 @@ class QuotaStateDataStackInterface:
         quotaState.prevCompletionDate = applicableDate
 
 
-    
-
     @staticmethod
     def timeElapsedUpdateQuotaState(habit: Habit):
-        title = habit.title
         recurrence = habit.recurrence
         quotaState = habit.quotaState
 
-        
+        sessionInfo = SessionInfo.fromData(SessionInfoDataStack.dataStack)
+        prevUpdate = sessionInfo.prevUpdate
+        today = dt.date.today()
 
-        
+        prevApplicableDate = quotaState.applicableCompletionDate(recurrence, referenceDate=prevUpdate)
+        currentApplicableDate = quotaState.applicableCompletionDate(recurrence, referenceDate=today)
 
+        numDatesBetween = quotaState.exclusiveNumApplicableDatesBetween(recurrence, prevApplicableDate, currentApplicableDate)
+        n = numDatesBetween
+
+        if quotaState.prevCompletionDate != prevApplicableDate:
+            n += 1
+        
+        quotaState.quotaMet -= n
         

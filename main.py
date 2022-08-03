@@ -1,6 +1,8 @@
 import sys
-from DataObjectConversion.yamlInteraction import YAMLInteraction
-from DataManagement.DataStacks.dataStack import DataStack
+from DataManagement.DataHelpers.dataStackActivator import DataStackActivator
+from DataManagement.DataStacks.habitDataStack import HabitDataStack
+from DataManagement.DataHelpers.yamlInteraction import YAMLInteraction
+from DataManagement.DataHelpers.dataStack import DataStack
 from HabitsAndChecklists.recurrence import Recurrence, RecurrencePeriod
 from HabitsAndChecklists.recurrence import DailyRecurrence, WeeklyRecurrence, MonthlyRecurrence
 from HabitsAndChecklists.habit import Habit
@@ -32,16 +34,11 @@ class Launcher:
                 except ChangeViewException as cve:
                     view = cve.view
         except ExitException:
-            Launcher.savePrompt()
-    
-    
-    @staticmethod
-    def savePrompt():
-        save = UserInput.getBoolInput("save changes? ")
-        if save: 
-            DataStack.saveChanges()
-            print("saving changes... ")
-        print("exiting program. ")
+            save = UserInput.getBoolInput("save changes? ")
+            if save: 
+                DataStackActivator.saveData()
+                print("saving changes... ")
+            print("exiting program. ")
     
 
     @staticmethod
@@ -51,10 +48,7 @@ class Launcher:
 
     @staticmethod
     def runExperimental():
-        rec = DailyRecurrence()
-        print(DailyRecurrence.fromData(rec.toData()).toData())
-        dt.datetime.strptime("12/09/2022", "%m/%d/%Y")
-
+        pass
 
 
 

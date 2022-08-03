@@ -1,28 +1,29 @@
 from DataManagement.DataHelpers.yamlInteraction import YAMLFiles, YAMLInteraction
-from DataManagement.DataStacks.dataStack import DataStack
+from DataManagement.DataHelpers.dataStack import DataStack
 from HabitsAndChecklists.recurrence import Recurrence
 
 
 
 class RecurrenceDataStack(DataStack):
-    recurrences = YAMLInteraction.YAMLtoData(YAMLFiles.RECURRENCES)
-    if recurrences == None: recurrences = {}
+    dataStack = YAMLInteraction.YAMLtoData(YAMLFiles.RECURRENCES)
+    if dataStack == None: dataStack = {}
+    yamlFile = YAMLFiles.RECURRENCES
 
-    
+
     @classmethod
     def addRecurrence(cls, recurrence: Recurrence, name: str):
-        cls.recurrences[name] = recurrence.toData()
+        cls.dataStack[name] = recurrence.toData()
 
 
     @classmethod
     def removeRecurrence(cls, name: str):
-        del cls.recurrences[name]
+        del cls.dataStack[name]
 
 
     @classmethod
     def getRecurrence(cls, name: str) -> Recurrence:
-        if name not in cls.recurrences:
+        if name not in cls.dataStack:
             raise Exception("recurrence not found")
-        recurrenceDict = cls.recurrences[name]
+        recurrenceDict = cls.dataStack[name]
         return Recurrence.fromData(data=recurrenceDict)
     
