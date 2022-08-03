@@ -1,12 +1,12 @@
-from enum import Enum
-from abc import ABC, abstractmethod
-import datetime as dt
 import calendar as cal
-from DataManagement.DataHelpers.dataEquivalent import DataEquivalent
-from DateAndTime.calendarObjects import CalendarObjects, MonthEnum, WeekdayEnum
-from DataManagement.DataHelpers.textEquivalent import TextEquivalent
-from UserInteraction.userOutput import UserOutput
+import datetime as dt
+from abc import ABC, abstractmethod
+from enum import Enum
 
+from DataManagement.DataHelpers.dataEquivalent import DataEquivalent
+from DataManagement.DataHelpers.textEquivalent import TextEquivalent
+from DateAndTime.calendarObjects import CalendarObjects, MonthEnum, WeekdayEnum
+from UserInteraction.userOutput import UserOutput
 
 
 class RecurrencePeriod(Enum):
@@ -128,6 +128,13 @@ class WeeklyRecurrence(Recurrence):
         return referenceDate + dt.timedelta(days=daysLeft)
 
 
+    def prevOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
+        if not self.weekdays: return None
+        weekday = referenceDate.weekday()
+        daysAgo = min((weekday - wday) % 7 for wday in self.weekdayNums)
+        return referenceDate - dt.timedelta(days=daysAgo)
+
+
     def toText(self, indent: int=0) -> str:
         text = super().toText()
         text += f"\n{UserOutput.indentStyle}weekdays: {self.weekdayNames}"
@@ -166,6 +173,16 @@ class MonthlyRecurrence(Recurrence):
         daysInMonth = cal.monthrange(year, month)[1]
         daysLeft = min((mday - monthDay) % daysInMonth for mday in self.days)
         return referenceDate + dt.timedelta(days=daysLeft)
+    
+
+    def prevOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
+        if self.days == None: return None
+        year = referenceDate.year
+        month = referenceDate.month
+        monthDay = referenceDate.day
+        daysInPrevMonth = cal.monthrange(year, ((month - 2) % 12) + 1)[1]
+        daysAgo = min(((monthDay - mday) % daysInPrevMonth) for mday in self.days)
+        return referenceDate - dt.timedelta(days=daysAgo)
 
 
     def toText(self, indent: int=0) -> str:
@@ -197,13 +214,25 @@ class YearlyRecurrence(Recurrence):
 
 
     def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
-        if not self.days: return None
+        if not self.days: 
+            return None
         year = referenceDate.year
         yearDay = referenceDate.timetuple().tm_yday
         leapyear = cal.isleap(year)
         daysInYear = 365 + 1 * leapyear
         daysLeft = min((yday - yearDay) % daysInYear for yday in self.days)
         return referenceDate + dt.timedelta(days=daysLeft)
+
+    
+    def prevOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
+        if not self.days: 
+            return None
+        year = referenceDate.year
+        yearDay = referenceDate.timetuple().tm_yday
+        prevLeapyear = cal.isleap(year - 1)
+        daysInPrevYear = 365 + 1 * prevLeapyear
+        daysAgo = min(((yearDay - yday) % daysInPrevYear) for yday in self.days)
+        return referenceDate - dt.timedelta(days=daysAgo)
 
 
     def toText(self, indent: int=0) -> str:
@@ -238,12 +267,16 @@ class DaysOfMonthKRecurrence(Recurrence):
 
 
     def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
-        if not self.days: return None
+        if not self.days: 
+            return None
+        
         year = referenceDate.year
         month = referenceDate.month
         day = referenceDate.day
         firstDay = min(self.days)
-        if month > self.monthNum:
+        lastDay = max(self.days)
+
+        if month > self.monthNum or (month == self.monthNum and day > lastDay):
             return dt.date(year + 1, self.monthNum, firstDay)
         elif month < self.monthNum:
             return dt.date(year, self.monthNum, firstDay)
@@ -251,6 +284,26 @@ class DaysOfMonthKRecurrence(Recurrence):
             daysInMonth = cal.monthrange(year, month)[1]
             daysLeft = min((mday - day) % daysInMonth for mday in self.days)
             return referenceDate + dt.timedelta(days=daysLeft)
+
+
+    def prevOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
+        if not self.days:
+            return None
+        
+        year = referenceDate.year
+        month = referenceDate.month
+        day = referenceDate.day
+        firstDay = min(self.days)
+        lastDay = max(self.days)
+
+        if month < self.monthNum or (month == self.monthNum and day < firstDay):
+            return dt.date(year - 1, self.monthNum, lastDay)
+        elif month > self.monthNum:
+            return dt.date(year, self.monthNum, lastDay)
+        else:
+            daysInPrevMonth = cal.monthrange(year, month - 1)[1]
+            daysAgo = min((day - mday) % daysInPrevMonth for mday in self.days)
+            return referenceDate - dt.timedelta(days=daysAgo)
 
 
     def toText(self, indent: int=0) -> str:
@@ -294,22 +347,44 @@ class NthWeekdayMOfMonthKRecurrence(Recurrence):
         day = referenceDate.day
 
         if month > self.month.value.num: 
-            theFirst = dt.date(year + 1, month, 1)
+            firstDayOfMonth = dt.date(year + 1, month, 1)
         else: 
-            theFirst = dt.date(year, month, 1)
+            firstDayOfMonth = dt.date(year, month, 1)
 
-        weekdayOfFirst = theFirst.weekday()
+        weekdayOfFirst = firstDayOfMonth.weekday()
         weekdayNum = self.weekday.value.num
         daysFromFirstToNthWeekdayM = ((weekdayNum - weekdayOfFirst) % 7) + (7 * (self.n - 1))
 
         if month == self.month.value.num and day > 1 + daysFromFirstToNthWeekdayM:
-            theFirst = dt.date(year + 1, month, 1)
-            weekdayOfFirst = theFirst.weekday()
+            firstDayOfMonth = dt.date(year + 1, month, 1)
+            weekdayOfFirst = firstDayOfMonth.weekday()
             daysFromFirstToNthWeekdayM = ((weekdayNum - weekdayOfFirst) % 7) + (7 * (self.n - 1))
 
-        return theFirst + dt.timedelta(days=daysFromFirstToNthWeekdayM)
+        return firstDayOfMonth + dt.timedelta(days=daysFromFirstToNthWeekdayM)
 
 
+    def prevOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
+        year = referenceDate.year
+        month = referenceDate.month
+        day = referenceDate.day
+
+        if month < self.month.value.num:
+            firstDayOfMonth = dt.date(year - 1, month, 1)
+        else:
+            firstDayOfMonth = dt.date(year, month, 1)
+
+        weekdayOfFirst = firstDayOfMonth.weekday()
+        weekdayNum = self.weekday.value.num
+        daysFromFirstToNthWeekdayM = ((weekdayNum - weekdayOfFirst) % 7) + (7 * (self.n - 1))
+
+        if month == self.month.value.num and day < 1 + daysFromFirstToNthWeekdayM:
+            firstDayOfMonth = dt.date(year - 1, month, 1)
+            weekdayOfFirst = firstDayOfMonth.weekday()
+            daysFromFirstToNthWeekdayM = ((weekdayNum - weekdayOfFirst) % 7) + (7 * (self.n - 1))
+        
+        return firstDayOfMonth + dt.timedelta(days=daysFromFirstToNthWeekdayM)
+
+    
     def toText(self, indent: int=0) -> str:
         text = super().toText()
         numberSuffix = UserOutput.numberSuffix(self.n)
@@ -351,8 +426,21 @@ class OnceRecurrence(Recurrence):
 
 
     def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
-        if referenceDate > self.date: return None
-        else: return self.date
+        if referenceDate > self.date: 
+            nextOcc = None
+        else: 
+            nextOcc = self.date
+        
+        return nextOcc
+
+    
+    def prevOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
+        if referenceDate < self.date:
+            prevOcc = None
+        else:
+            prevOcc = self.date
+        
+        return prevOcc
 
 
     def toText(self, indent: int=0) -> str:
@@ -391,11 +479,29 @@ class AggregateRecurrence(Recurrence):
 
 
     def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
-        if not self.recurrences: return None
+        if not self.recurrences: 
+            return None
+
         soonestOccurrences = [recurrence.nextOccurrence(referenceDate=referenceDate) for recurrence in self.recurrences]
         filteredSoonest = list(filter(lambda nextOcc: nextOcc != None, soonestOccurrences))
-        if len(filteredSoonest) == 0: return None
-        return min(filteredSoonest) 
+
+        if len(filteredSoonest) == 0: 
+            return None
+        
+        return min(filteredSoonest)
+
+    
+    def prevOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
+        if not self.recurrences:
+            return None
+        
+        mostRecentOccurrences = [recurrence.prevOccurrence(referenceDate=referenceDate) for recurrence in self.recurrences]
+        filteredMostRecent = list(filter(lambda prevOcc: prevOcc != None, mostRecentOccurrences))
+
+        if len(filteredMostRecent) == 0:
+            return None
+        
+        return min(filteredMostRecent)
 
     
     def toText(self, indent: int=0) -> str:
