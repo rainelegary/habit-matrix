@@ -15,6 +15,7 @@ git commit -m [message] # base message off of todo.md's current commit section
 git push origin [current branch]
 *go to website, pull request and merge pull request*
 git fetch
+git pull
 
 
 

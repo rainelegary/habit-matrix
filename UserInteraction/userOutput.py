@@ -1,4 +1,7 @@
 
+import textwrap
+
+
 class UserOutput:
     indentStyle = "}>  "
 
@@ -19,8 +22,17 @@ class UserOutput:
 
     
     @staticmethod
+    def indentTextBlock(text: str, indent: int=0) -> str:
+        prefix = UserOutput.indentStyle * indent
+        return textwrap.indent(text, prefix)
+        
+
+    
+    @staticmethod
     def indentedPrint(output: str, indent: int=0) -> str:
         print(f"{UserOutput.indentPadding(indent)}{output}")
+
+    
 
 
 

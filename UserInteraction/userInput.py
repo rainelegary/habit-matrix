@@ -1,13 +1,20 @@
 import string
 import re
+import datetime as dt
+from DateAndTime.calendarObjects import CalendarObjects
 from UserInteraction.userOutput import UserOutput
-from UserInteraction.inputCancel import CancelInputException
 
+
+
+class CancelInputException(Exception):
+        def __init__(self, message: str):
+            self.message = message
 
 
 class UserInput:
     commaRegex = r"[, ]*,[, ]*"
     doubleSpaceRegex = r"  +"
+    singleSpaceRegex = r" +"
     commaOrSpaceRegex = r"[, ]+"
     
 
@@ -110,12 +117,28 @@ class UserInput:
                 UserOutput.indentedPrint(output="invalid answer, please try again.", indent=indent)
         return choice
 
+    
+    @staticmethod
+    def getTimeInput(prompt: str="", indent: int=0) -> dt.time:
+        prompting = True
+        while prompting:
+            choice = UserInput.indentedInput(prompt, indent=indent)
+            try:
+                choice = dt.datetime.strptime(choice, CalendarObjects.TIME_STR_TEXT_INPUT_FORMAT).time()
+                prompting = False
+            except ValueError:
+                UserOutput.indentedPrint(
+                    output=f"please enter times in the format {CalendarObjects.TIME_STR_TEXT_INPUT_FORMAT_EXAMPLE}", 
+                    indent=indent)
+        return choice
+
 
     @staticmethod
     def getStringListInput(prompt: str="", indent: int=0) -> list[str]:
         userIn = UserInput.indentedInput(prompt, indent=indent).strip()
         if "," in userIn: regExp = UserInput.commaRegex 
-        else: regExp = UserInput.doubleSpaceRegex
+        elif "  " in userIn: regExp = UserInput.doubleSpaceRegex
+        else: regExp = UserInput.singleSpaceRegex
         items = re.split(regExp, userIn)
         return items
 
@@ -168,3 +191,7 @@ class UserInput:
             if item in optionsDict.values():
                 selected.append(item)
         return selected
+
+
+
+

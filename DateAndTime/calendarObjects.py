@@ -44,6 +44,16 @@ class MonthEnum(Enum):
 
 
 class CalendarObjects:
+    DATE_STR_DATA_FORMAT = f"%b %d, %Y"
+    DATE_STR_TEXT_OUTPUT_FORMAT = f"%b %d, %Y"
+    DATE_STR_TEXT_INPUT_FORMAT = f"%b %d, %Y"
+    DATE_STR_TEXT_INPUT_FORMAT_EXAMPLE = f"mmm dd, yyyy"
+
+    TIME_STR_DATA_FORMAT = f"%H:%M"
+    TIME_STR_TEXT_OUTPUT_FORMAT = f"%H:%M"
+    TIME_STR_TEXT_INPUT_FORMAT = f"%H:%M"
+    TIME_STR_TEXT_INPUT_FORMAT_EXAMPLE = f"hh:mm"
+
     # WEEKDAY_ID_TO_OBJ: dict[WeekdayEnum, Weekday] = {weekday: weekday.value for weekday in WeekdayEnum}
     WEEKDAY_NAME_TO_ID: dict[str, WeekdayEnum] = {weekday.value.name: weekday for weekday in WeekdayEnum}
     WEEKDAY_NUM_TO_ID: dict[int, WeekdayEnum] = {weekday.value.num: weekday for weekday in WeekdayEnum}

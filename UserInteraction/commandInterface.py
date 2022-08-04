@@ -7,8 +7,8 @@ class CommandInterface:
     def getInputOrCommand(prompt: str, commandScopeID: CommandScopeEnum, indent: int=0, userInputMethod=UserInput.indentedInput):
         commandScope = commandScopeID.value
         availableCommands = CommandInterface.getAvailableCommands(commandScope)
-        userInput = UserInput.indentedInput(prompt, indent)
-        commandArgs = userInput.strip().split()
+        userInput = userInputMethod(prompt, indent)
+        commandArgs = userInput.strip().split("\t")
         if len(commandArgs) == 0:
             return userInput
         for command in CommandEnum:
