@@ -26,12 +26,26 @@ class HabitDataStackInterface:
 
     
     @staticmethod
-    def saveHabitPrompt(habit: Habit, indent: int=0):
-        UserOutput.indentedPrint("habit", indent=indent)
-        print(habit.toText(indent=indent+1))
+    def saveHabitPrompt(habit: Habit, indent: int=0) -> bool:
+        UserOutput.indentedPrint(habit.toText(indent=indent))
         save = UserInput.getBoolInput("save the above habit? ", indent=indent)
         if save: 
             HabitDataStack.addHabit(habit)
         return save
 
+    
+    @staticmethod
+    def completeHabit(habit, completionTime: dt.time=dt.datetime.now().time(), indent: int=0):
+        QuotaStateDataStackInterface.habitCompletedUpdateQuotaState(habit, completionTime=completionTime, indent=indent)
+        HabitDataStack.updateHabit(habit)
 
+
+    @staticmethod
+    def timeElapsedUpdateAllQuotaStates():
+        allHabitData = HabitDataStack.getData()
+        for habitName in allHabitData:
+            habit = HabitDataStack.getHabit(habitName)
+            QuotaStateDataStackInterface.timeElapsedUpdateQuotaState(habit)
+            HabitDataStack.updateHabit(habit)
+
+    

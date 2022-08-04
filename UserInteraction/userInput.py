@@ -1,5 +1,7 @@
 import string
 import re
+import datetime as dt
+from DateAndTime.calendarObjects import CalendarObjects
 from UserInteraction.userOutput import UserOutput
 
 
@@ -7,7 +9,6 @@ from UserInteraction.userOutput import UserOutput
 class CancelInputException(Exception):
         def __init__(self, message: str):
             self.message = message
-
 
 
 class UserInput:
@@ -114,6 +115,21 @@ class UserInput:
                 prompting = False
             except KeyError:
                 UserOutput.indentedPrint(output="invalid answer, please try again.", indent=indent)
+        return choice
+
+    
+    @staticmethod
+    def getTimeInput(prompt: str="", indent: int=0) -> dt.time:
+        prompting = True
+        while prompting:
+            choice = UserInput.indentedInput(prompt, indent=indent)
+            try:
+                choice = dt.datetime.strptime(choice, CalendarObjects.TIME_STR_TEXT_INPUT_FORMAT).time()
+                prompting = False
+            except ValueError:
+                UserOutput.indentedPrint(
+                    output=f"please enter times in the format {CalendarObjects.TIME_STR_TEXT_INPUT_FORMAT_EXAMPLE}", 
+                    indent=indent)
         return choice
 
 

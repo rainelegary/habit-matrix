@@ -7,17 +7,28 @@ class SessionInfo(DataEquivalent):
     def __init__(self, prevUpdate: dt.date):
         self.prevUpdate = prevUpdate
 
+    
+    def changePrevUpdate(self):
+        self.prevUpdate = dt.date.today()
+
 
     def toData(self) -> dict:
+        if self.prevUpdate == None:
+            prevSession = None
+        else:
+            prevSession = self.prevUpdate.strftime(CalendarObjects.DATE_STR_DATA_FORMAT)
         return {
-            "previous update": self.prevLogin.strftime(CalendarObjects.DATE_STR_FORMAT) if self.prevLogin is not None else None
+            "previous session": prevSession
         }
 
     
     @staticmethod
     def fromData(data: dict):
-        prevUpdateString = data["previous update"]
-        prevUpdate = dt.datetime.strptime(prevUpdateString, CalendarObjects.DATE_STR_FORMAT) if prevUpdateString is not None else None
+        prevUpdateString = data["previous session"]
+        if prevUpdateString == None:
+            prevUpdate = None
+        else:
+            prevUpdate = dt.datetime.strptime(prevUpdateString, CalendarObjects.DATE_STR_DATA_FORMAT).date()
         return SessionInfo(prevUpdate)
 
 

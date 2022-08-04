@@ -11,7 +11,7 @@ class TextEquivalent(ABC):
     
     @staticmethod
     def indentText(text: str, indent: int=0) -> str:
-        prefix = UserOutput.indentStyle * indent
-        return textwrap.indent(text, prefix)
+        return UserOutput.indentTextBlock(text, indent=indent)
+        
 
 

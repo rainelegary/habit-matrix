@@ -1,70 +1,15 @@
-triceps + chest:
+nosh:
   required: true
-  upcoming buffer: 0
-  recurrence:
-    recurrence type: weekly
-    details:
-      weekday names:
-      - monday
-      - thursday
-  done by times:
-  - 10
-  quota state:
-    max days before: 0
-    max days after: 0
-    prev date: null
-    quota met: 0
-    quota streak: 0
-walk chippy:
-  required: false
-  upcoming buffer: 0
-  recurrence:
-    recurrence type: daily
-    details: {}
-  done by times: null
-  quota state: null
-abs:
-  required: true
-  upcoming buffer: 0
-  recurrence:
-    recurrence type: weekly
-    details:
-      weekday names:
-      - tuesday
-      - friday
-  done by times:
-  - 10
-  quota state:
-    max days before: 0
-    max days after: 0
-    prev date: null
-    quota met: 0
-    quota streak: 0
-biceps + back:
-  required: true
-  upcoming buffer: 10
+  upcoming buffer: 1
   recurrence:
     recurrence type: weekly
     details:
       weekday names:
       - wednesday
-      - saturday
-  done by times:
-  - 10
   quota state:
+    done by time: '11:00'
     max days before: 0
     max days after: 0
-    prev date: null
-    quota met: 0
-    quota streak: 0
-shoes:
-  required: false
-  upcoming buffer: 400
-  recurrence:
-    recurrence type: once
-    details:
-      year: 2027
-      month name: january
-      day: 15
-  done by times: null
-  quota state: null
+    quota met: 1
+    quota streak: 1
+    prev completion date: Aug 03, 2022

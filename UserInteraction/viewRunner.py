@@ -14,8 +14,6 @@ class ViewRunner:
                 CommandInterface.getInputOrCommand(prompt="home: ", commandScopeID=CommandScopeEnum.HOME)
             except InvalidCommandArgsException:
                 UserOutput.indentedPrint(output="invalid command arguments, please try again.")
-            except EndOfCommandException:
-                pass
             except CancelInputException:
                 pass
 
@@ -28,8 +26,6 @@ class ViewRunner:
                 CommandInterface.getInputOrCommand(prompt="calendar: ", commandScopeID=CommandScopeEnum.CALENDAR)
             except InvalidCommandArgsException:
                 UserOutput.indentedPrint(output="invalid command arguments, please try again.")
-            except EndOfCommandException:
-                pass
             except CancelInputException:
                 pass
             
@@ -42,8 +38,6 @@ class ViewRunner:
                 CommandInterface.getInputOrCommand(prompt="habits: ", commandScopeID=CommandScopeEnum.HABITS)
             except InvalidCommandArgsException:
                 UserOutput.indentedPrint(output="invalid command arguments, please try again.")
-            except EndOfCommandException:
-                pass
             except CancelInputException:
                 pass
             
@@ -56,8 +50,6 @@ class ViewRunner:
                 CommandInterface.getInputOrCommand(prompt="recurrences: ", commandScopeID=CommandScopeEnum.RECURRENCES)
             except InvalidCommandArgsException:
                 UserOutput.indentedPrint(output="invalid command arguments, please try again.")
-            except EndOfCommandException:
-                pass
             except CancelInputException:
                 pass
 
@@ -70,8 +62,6 @@ class ViewRunner:
                 CommandInterface.getInputOrCommand(prompt="checklists: ", commandScopeID=CommandScopeEnum.CHECKLISTS)
             except InvalidCommandArgsException:
                 UserOutput.indentedPrint(output="invalid command arguments, please try again.")
-            except EndOfCommandException:
-                pass
             except CancelInputException:
                 pass
             

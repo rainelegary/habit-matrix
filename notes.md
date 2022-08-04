@@ -11,4 +11,7 @@
 avoid using mutable types as default parameters
 yaml restricts the use of tabs
 
+Random print statements
+- sessionInfo line 28
+- quotaStateDataStackInterface line 68, 69
 

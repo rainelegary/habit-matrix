@@ -445,7 +445,7 @@ class OnceRecurrence(Recurrence):
 
     def toText(self, indent: int=0) -> str:
         text = super().toText()
-        text += f"\n{UserOutput.indentStyle}date: {self.monthName} {self.day}, {self.year}"
+        text += f"\n{UserOutput.indentStyle}date: {self.date.strftime(CalendarObjects.DATE_STR_TEXT_OUTPUT_FORMAT)}"
         return super().indentText(text, indent)
 
     

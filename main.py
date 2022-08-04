@@ -1,21 +1,30 @@
-import sys
-from DataManagement.DataHelpers.dataStackActivator import DataStackActivator
-from DataManagement.DataStacks.habitDataStack import HabitDataStack
-from DataManagement.DataHelpers.yamlInteraction import YAMLInteraction
-from DataManagement.DataHelpers.dataStack import DataStack
-from HabitsAndChecklists.recurrence import Recurrence, RecurrencePeriod
-from HabitsAndChecklists.recurrence import DailyRecurrence, WeeklyRecurrence, MonthlyRecurrence
-from HabitsAndChecklists.habit import Habit
-import datetime as dt
 import calendar as cal
-import yaml
-from UserInteraction.commands import CommandEnum, CommandScope, CommandScopeEnum
-from UserInteraction.commandInterface import CommandInterface
-from UserInteraction.userInput import UserInput
-from DateAndTime.calendarObjects import CalendarObjects
-from UserInteraction.views import ViewEnum, Views, ChangeViewException, ExitException
-from UserInteraction.viewRunner import ViewRunner
+import datetime as dt
+import sys
 
+import yaml
+
+from DataManagement.DataHelpers.dataStack import DataStack
+from DataManagement.DataHelpers.generalDataStackInterface import \
+    GeneralDataStackInterface
+from DataManagement.DataHelpers.yamlInteraction import YAMLInteraction
+from DataManagement.DataObjects.sessionInfo import SessionInfo
+from DataManagement.DataStackInterfaces.habitDataStackInterface import \
+    HabitDataStackInterface
+from DataManagement.DataStacks.habitDataStack import HabitDataStack
+from DataManagement.DataStacks.sessionInfoDataStack import SessionInfoDataStack
+from DateAndTime.calendarObjects import CalendarObjects
+from HabitsAndChecklists.habit import Habit
+from HabitsAndChecklists.recurrence import (DailyRecurrence, MonthlyRecurrence,
+                                            Recurrence, RecurrencePeriod,
+                                            WeeklyRecurrence)
+from UserInteraction.commandInterface import CommandInterface
+from UserInteraction.commands import (CommandEnum, CommandScope,
+                                      CommandScopeEnum)
+from UserInteraction.userInput import UserInput
+from UserInteraction.viewRunner import ViewRunner
+from UserInteraction.views import (ChangeViewException, ExitException,
+                                   ViewEnum, Views)
 
 
 class Launcher:
@@ -34,11 +43,23 @@ class Launcher:
                 except ChangeViewException as cve:
                     view = cve.view
         except ExitException:
-            save = UserInput.getBoolInput("save changes? ")
-            if save: 
-                DataStackActivator.saveData()
-                print("saving changes... ")
-            print("exiting program. ")
+            Launcher.closingSequence()
+    
+
+    @staticmethod
+    def openingSequence():
+        GeneralDataStackInterface.sessionStartupDataUpdates()
+        
+
+    @staticmethod
+    def closingSequence():
+        save = UserInput.getBoolInput("save changes? ")
+        if save:
+            print("saving changes... ")
+            GeneralDataStackInterface.sessionClosingDataUpdates()
+            GeneralDataStackInterface.saveData()
+            print("changes saved!")
+        print("exiting program. ")
     
 
     @staticmethod
@@ -48,7 +69,7 @@ class Launcher:
 
     @staticmethod
     def runExperimental():
-        pass
+        dt.datetime.strptime("008:30", CalendarObjects.TIME_STR_TEXT_INPUT_FORMAT)
 
 
 

@@ -8,7 +8,7 @@ class CommandInterface:
         commandScope = commandScopeID.value
         availableCommands = CommandInterface.getAvailableCommands(commandScope)
         userInput = userInputMethod(prompt, indent)
-        commandArgs = userInput.strip().split()
+        commandArgs = userInput.strip().split("\t")
         if len(commandArgs) == 0:
             return userInput
         for command in CommandEnum:

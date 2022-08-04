@@ -1,6 +1,5 @@
 import datetime as dt
-
-from DataManagement.DataHelpers.dataStack import DataStack
+from DataManagement.DataStacks.recurrenceDataStack import RecurrenceDataStack
 from DateAndTime.calendarObjects import CalendarObjects
 from HabitsAndChecklists.recurrence import (AggregateRecurrence,
                                             DailyRecurrence,
@@ -50,7 +49,7 @@ class RecurrenceDataStackInterface:
         save = UserInput.getBoolInput("save the above recurrence?", indent=indent)
         if save: 
             name = UserInput.getStringInput("what would you like to save this recurrence as? ", indent=indent)
-            DataStack.addRecurrence(recurrence, name)
+            RecurrenceDataStack.addRecurrence(recurrence, name)
         return save
 
 
