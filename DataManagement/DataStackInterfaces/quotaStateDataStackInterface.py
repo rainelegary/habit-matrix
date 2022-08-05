@@ -16,8 +16,10 @@ class QuotaStateDataStackInterface:
         timeFormatExample = CalendarObjects.TIME_STR_TEXT_INPUT_FORMAT_EXAMPLE
         doneByTime = UserInput.getTimeInput(f"What time of day should this habit be completed by? {timeFormatExample} ", 
         indent=indent)
-        maxDaysBefore = UserInput.getIntInput("how many days early can the habit be checked off? ", indent=indent)
-        maxDaysAfter = UserInput.getIntInput("how many days late can the habit be checked off? ", indent=indent)
+        maxDaysBefore = UserInput.getIntInput("how many days early can the habit be checked off? ",
+        minimum=0, maximum=None, indent=indent)
+        maxDaysAfter = UserInput.getIntInput("how many days late can the habit be checked off? ", 
+        minimum=0, maximum=None, indent=indent)
         return QuotaState(doneByTime, maxDaysBefore, maxDaysAfter)
 
 
@@ -57,6 +59,9 @@ class QuotaStateDataStackInterface:
     def timeElapsedUpdateQuotaState(habit: Habit):
         recurrence = habit.recurrence
         quotaState = habit.quotaState
+
+        if quotaState == None:
+            return
 
         sessionInfo = SessionInfo.fromData(SessionInfoDataStack.getData())
         prevUpdate = sessionInfo.prevUpdate

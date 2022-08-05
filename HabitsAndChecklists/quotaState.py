@@ -65,7 +65,7 @@ class QuotaState(TextEquivalent, DataEquivalent):
         return n
         
 
-    def toText(self, indent: int=0) -> str:
+    def toText(self, verbosity: int=0, indent: int=0) -> str:
         if self.doneByTime == None:
             doneByTimeString = None
         else:
@@ -76,15 +76,19 @@ class QuotaState(TextEquivalent, DataEquivalent):
         else:
             prevCompletionDateString = self.prevCompletionDate.strftime(CalendarObjects.DATE_STR_TEXT_OUTPUT_FORMAT)
 
-        ind = UserOutput.indentPadding(indent=1)
-        text = "quota state"
-        text += f"\n{ind}done by time: {doneByTimeString}"
-        text += f"\n{ind}max days before: {self.maxDaysBefore}"
-        text += f"\n{ind}max days after: {self.maxDaysAfter}"
-        text += f"\n{ind}quota met: {self.quotaMet}"
-        text += f"\n{ind}quota streak: {self.quotaStreak}"
-        text += f"\n{ind}previous completion date: {prevCompletionDateString}"
-        return super().indentText(text, indent=indent)
+        indentA = UserOutput.indentPadding(indent=indent)
+        indentB = UserOutput.indentPadding(indent=indent+1)
+        text = ""
+        if verbosity >= 1:
+            text += f"{indentA}quota state"
+            text += f"\n{indentB}quota met: {self.quotaMet}"
+            text += f"\n{indentB}quota streak: {self.quotaStreak}"
+        if verbosity >= 2:
+            text += f"\n{indentB}done by time: {doneByTimeString}"
+            text += f"\n{indentB}max days before: {self.maxDaysBefore}"
+            text += f"\n{indentB}max days after: {self.maxDaysAfter}"
+            text += f"\n{indentB}previous completion date: {prevCompletionDateString}"
+        return text
 
     
     def toData(self) -> dict:

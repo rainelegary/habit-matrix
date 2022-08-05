@@ -1,20 +1,22 @@
-from UserInteraction.commands import Command, CommandScope, CommandEnum, CommandScopeEnum
+from UserInteraction.commands import Command, CommandScope, CommandEnum, CommandScopeEnum, InvalidCommandArgsException
 from UserInteraction.userInput import UserInput
+from UserInteraction.userOutput import UserOutput
 
 
 class CommandInterface:
     @staticmethod
-    def getInputOrCommand(prompt: str, commandScopeID: CommandScopeEnum, indent: int=0, userInputMethod=UserInput.indentedInput):
+    def getCommand(prompt: str, commandScopeID: CommandScopeEnum, indent: int=0):
         commandScope = commandScopeID.value
         availableCommands = CommandInterface.getAvailableCommands(commandScope)
-        userInput = userInputMethod(prompt, indent)
-        commandArgs = userInput.strip().split("\t")
-        if len(commandArgs) == 0:
-            return userInput
+        userInput = UserInput.indentedInput(prompt, indent=indent)
+        commandArgs = userInput.strip().split(UserInput.tabRegex)
         for command in CommandEnum:
             if command.value.SHORTCUT == commandArgs[0] and command in availableCommands:
-                return command.value.executeCommand(commandArgs, commandScopeID)
-        return userInput
+                command.value.executeCommand(commandArgs, commandScopeID)
+                return
+        
+        raise InvalidCommandArgsException("Not a recognized command.")
+        
 
 
     @staticmethod

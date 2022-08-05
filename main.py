@@ -20,7 +20,7 @@ from HabitsAndChecklists.recurrence import (DailyRecurrence, MonthlyRecurrence,
                                             WeeklyRecurrence)
 from UserInteraction.commandInterface import CommandInterface
 from UserInteraction.commands import (CommandEnum, CommandScope,
-                                      CommandScopeEnum)
+                                      CommandScopeEnum, ListHabitsCommand, NewObjectCommand)
 from UserInteraction.userInput import UserInput
 from UserInteraction.viewRunner import ViewRunner
 from UserInteraction.views import (ChangeViewException, ExitException,
@@ -69,7 +69,8 @@ class Launcher:
 
     @staticmethod
     def runExperimental():
-        dt.datetime.strptime("008:30", CalendarObjects.TIME_STR_TEXT_INPUT_FORMAT)
+        ListHabitsCommand.executeCommand(["habits"], CommandScopeEnum.HOME)
+        NewObjectCommand.executeCommand(["new", "habit"], CommandScopeEnum.HOME)
 
 
 

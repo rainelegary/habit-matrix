@@ -16,6 +16,7 @@ class UserInput:
     doubleSpaceRegex = r"  +"
     singleSpaceRegex = r" +"
     commaOrSpaceRegex = r"[, ]+"
+    tabRegex = "\t"
     
 
     @staticmethod
@@ -29,32 +30,32 @@ class UserInput:
     @staticmethod
     def multiSelectString(prompt: str, options: list[str], indent: int=0) -> list[str]:
         UserOutput.indentedPrint(output=prompt, indent=indent)
-        print(UserInput.optionsString(options, indent=indent+1))
-        optionsDict = UserInput.stringOptionsDict(options)
+        print(UserInputHelper.optionsString(options, indent=indent+1))
+        optionsDict = UserInputHelper.stringOptionsDict(options)
         choices = UserInput.getStringListInput(indent=indent)
-        selected = UserInput.extractStringChoices(sorted(set(choice.lower() for choice in choices)), optionsDict)
+        selected = UserInputHelper.extractStringChoices(sorted(set(choice.lower() for choice in choices)), optionsDict)
         return selected
 
 
     @staticmethod
     def multiSelectInt(prompt: str, options: list[int], indent: int=0) -> list[int]:
         UserOutput.indentedPrint(output=prompt, indent=indent)
-        print(UserInput.optionsString(options, indent=indent+1))
-        optionsDict = UserInput.intOptionsDict(options)
+        print(UserInputHelper.optionsString(options, indent=indent+1))
+        optionsDict = UserInputHelper.intOptionsDict(options)
         choices = UserInput.getIntListInput(indent=indent)
-        selected = UserInput.extractIntChoices(sorted(set(choice for choice in choices)), optionsDict)
+        selected = UserInputHelper.extractIntChoices(sorted(set(choice for choice in choices)), optionsDict)
         return selected
 
 
     @staticmethod
     def singleSelectString(prompt: str, options: list, indent: int=0) -> str:
-        optionsDict = UserInput.stringOptionsDict(options)
+        optionsDict = UserInputHelper.stringOptionsDict(options)
         prompting = True
         while prompting:
             UserOutput.indentedPrint(output=prompt, indent=indent)
-            print(UserInput.optionsString(options, indent=indent+1))
+            print(UserInputHelper.optionsString(options, indent=indent+1))
             choice = UserInput.getStringInput(indent=indent)
-            selected = UserInput.extractStringChoices([choice], optionsDict)
+            selected = UserInputHelper.extractStringChoices([choice], optionsDict)
             if len(selected) > 0: 
                 prompting = False
             else: 
@@ -63,13 +64,13 @@ class UserInput:
 
 
     def singleSelectInt(prompt: str, options: list[int], indent: int=0) -> int:
-        optionsDict = UserInput.intOptionsDict(options)
+        optionsDict = UserInputHelper.intOptionsDict(options)
         prompting = True
         while prompting:
             UserOutput.indentedPrint(output=prompt, indent=indent)
-            print(UserInput.optionsString(options, indent=indent+1))
+            print(UserInputHelper.optionsString(options, indent=indent+1))
             choice = UserInput.getIntInput(indent=indent)
-            selected = UserInput.extractIntChoices([choice], optionsDict)
+            selected = UserInputHelper.extractIntChoices([choice], optionsDict)
             if len(selected) > 0: 
                 prompting = False
             else: 
@@ -78,29 +79,33 @@ class UserInput:
 
     
     @staticmethod
-    def optionsString(options: list, indent: int=0) -> str:
-        optionsDict = UserInput.stringOptionsDict(options)
-        menu = ""
-        for option in optionsDict:
-            menu += f"{UserOutput.indentPadding(indent)}{option}. {optionsDict[option]}\n"
-        return menu.rstrip("\n")
-
-    
-    @staticmethod
     def getStringInput(prompt: str="", indent: int=0) -> str:
         return UserInput.indentedInput(prompt, indent=indent)
 
     
     @staticmethod
-    def getIntInput(prompt: str="", indent: int=0) -> int:
+    def getIntInput(prompt: str="", minimum: int=None, maximum: int=None, indent: int=0) -> int:
+        if minimum == None:
+            minString = "negative infinity"
+        else:
+            minString = str(minimum)
+
+        if maximum == None:
+            maxString = "positive infinity"
+        else:
+            maxString = str(maximum)
+
+
         prompting = True
         while prompting:
             choice = UserInput.indentedInput(prompt, indent=indent)
             try:
                 choice = int(choice)
+                if (minimum != None and choice < minimum) or (maximum != None and choice > maximum):
+                    raise ValueError
                 prompting = False
             except ValueError:
-                UserOutput.indentedPrint(output="invalid integer, please try again.", indent=indent)
+                UserOutput.indentedPrint(output=f"please enter an integer between {minString} and {maxString}", indent=indent)
         return choice
 
 
@@ -144,15 +149,42 @@ class UserInput:
 
     
     @staticmethod
-    def getIntListInput(prompt: str="", indent: int=0) -> list[int]:
+    def getIntListInput(prompt: str="", minimum: int=None, maximum: int=None, indent: int=0) -> list[int]:
         userIn = UserInput.indentedInput(prompt, indent=indent).strip()
         regExp = UserInput.commaOrSpaceRegex
         items = re.split(regExp, userIn)
         itemsWithNum = list(filter(lambda item: item.isdecimal(), items))
         itemsAsNum = list(map(int, itemsWithNum))
+
+
+        if minimum == None:
+            minString = "negative infinity"
+        else:
+            minString = str(minimum)
+
+        if maximum == None:
+            maxString = "positive infinity"
+        else:
+            maxString = str(maximum)
+
+        for item in itemsAsNum:
+            if (minimum != None and item < minimum) or (maximum != None and item > maximum):
+                itemsAsNum.remove(item)
+                UserOutput.indentedPrint(f"an integer has been removed as it is not between {minString} and {maxString}", indent=indent)
         return itemsAsNum
 
     
+
+class UserInputHelper:
+    @staticmethod
+    def optionsString(options: list, indent: int=0) -> str:
+        optionsDict = UserInputHelper.stringOptionsDict(options)
+        menu = ""
+        for option in optionsDict:
+            menu += f"{UserOutput.indentPadding(indent)}{option}. {optionsDict[option]}\n"
+        return menu.rstrip("\n")
+    
+
     @staticmethod
     def stringOptionsDict(options: list[str]) -> dict[str, str]:
         optionsDict = {}
@@ -191,7 +223,5 @@ class UserInput:
             if item in optionsDict.values():
                 selected.append(item)
         return selected
-
-
 
 
