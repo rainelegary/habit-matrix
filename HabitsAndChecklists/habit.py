@@ -18,11 +18,11 @@ from HabitsAndChecklists.recurrence import (AggregateRecurrence,
 
 
 class Habit(TextEquivalent, DataEquivalent):
-    def __init__(self, title: str, required: bool, upcomingBuffer: int, recurrence: Recurrence, quotaState: QuotaState):
+    def __init__(self, title: str, recurrence: Recurrence, upcomingBuffer: int, required: bool, quotaState: QuotaState):
         self.title = title
-        self.required = required
-        self.upcomingBuffer = upcomingBuffer
         self.recurrence = recurrence
+        self.upcomingBuffer = upcomingBuffer
+        self.required = required
         self.quotaState = quotaState
 
 
@@ -31,7 +31,7 @@ class Habit(TextEquivalent, DataEquivalent):
 
     
     def prevOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
-        return self.recurrence.prevOccurence(referenceDate=referenceDate)
+        return self.recurrence.prevOccurrence(referenceDate=referenceDate)
 
     
     def isToday(self, referenceDate: dt.date=dt.date.today()) -> bool:
@@ -45,22 +45,34 @@ class Habit(TextEquivalent, DataEquivalent):
         return referenceDate + dt.timedelta(days=self.upcomingBuffer) >= nextOcc
 
 
-    def toText(self, indent: int=0):
-        text = f"habit: {self.title}"
-        text += f"\n{UserOutput.indentStyle}required: {self.required}"
-        text += f"\n{UserOutput.indentStyle}upcoming buffer: {self.upcomingBuffer} days"
-        text += f"\n{self.recurrence.toText(indent=1)}"
-        text += f"\n{self.quotaState.toText(indent=1)}" if self.quotaState is not None else ""
-        return super().indentText(text, indent)
+    def toText(self, verbosity: int=0, indent: int=0):
+        indentA = UserOutput.indentPadding(indent=indent)
+        indentB = UserOutput.indentPadding(indent=indent+1)
+        text = ""
+        if verbosity >= 0:
+            text += f"{indentA}habit: {self.title}"
+        if verbosity >= 1:
+            text += f"\n{self.recurrence.toText(verbosity=verbosity-1, indent=indent+1)}"
+        if verbosity >= 2:
+            text += f"\n{indentB}upcoming buffer: {self.upcomingBuffer} days"
+            text += f"\n{indentB}required: {self.required}"
+            if self.quotaState != None:
+                text += f"\n{self.quotaState.toText(verbosity=verbosity-1, indent=indent+1)}"
+        return text
 
     
     def toData(self) -> dict:
+        if self.quotaState == None:
+            quotaStateData = None
+        else:
+            quotaStateData = self.quotaState.toData()
+
         return {
             self.title: {
-                "required": self.required,
-                "upcoming buffer": self.upcomingBuffer,
                 "recurrence": self.recurrence.toData(),
-                "quota state": self.quotaState.toData() if self.quotaState is not None else None,
+                "upcoming buffer": self.upcomingBuffer,
+                "required": self.required,
+                "quota state": quotaStateData,
             }
         }
 
@@ -69,9 +81,10 @@ class Habit(TextEquivalent, DataEquivalent):
     def fromData(data: dict):
         title = list(data.keys())[0]
         details = data[title]
-        required = details["required"]
-        upcomingBuffer = details["upcoming buffer"]
+
         recurrence = Recurrence.fromData(details["recurrence"])
+        upcomingBuffer = details["upcoming buffer"]
+        required = details["required"]
         quotaState = QuotaState.fromData(details["quota state"])
-        return Habit(title, required, upcomingBuffer, recurrence, quotaState)
+        return Habit(title, recurrence, upcomingBuffer, required, quotaState)
 

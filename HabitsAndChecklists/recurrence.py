@@ -44,9 +44,12 @@ class Recurrence(TextEquivalent, DataEquivalent, ABC):
         return nextOcc == referenceDate
 
 
-    def toText(self, indent=0) -> str:
-        text = f"recurrence: {self.recurrencePeriod.value}"
-        return super().indentText(text, indent)
+    def toText(self, verbosity: int=0, indent=0) -> str:
+        indentA = UserOutput.indentPadding(indent=indent)
+        text = ""
+        if verbosity >= 0:
+            text += f"{indentA}recurrence: {self.recurrencePeriod.value}"
+        return text
     
 
     def toData(self, subData) -> dict:
@@ -96,9 +99,11 @@ class DailyRecurrence(Recurrence):
         return referenceDate
 
     
-    def toText(self, indent: int=0) -> str:
-        text = super().toText()
-        return super().indentText(text, indent)
+    def toText(self, verbosity: int=0, indent: int=0) -> str:
+        text = ""
+        if verbosity >= 0:
+            text += super().toText(verbosity=verbosity, indent=indent)
+        return text
 
 
     def toData(self):
@@ -135,10 +140,13 @@ class WeeklyRecurrence(Recurrence):
         return referenceDate - dt.timedelta(days=daysAgo)
 
 
-    def toText(self, indent: int=0) -> str:
-        text = super().toText()
-        text += f"\n{UserOutput.indentStyle}weekdays: {self.weekdayNames}"
-        return super().indentText(text, indent)
+    def toText(self, verbosity: int=0, indent: int=0) -> str:
+        indentB = UserOutput.indentPadding(indent=indent+1)
+        text = ""
+        if verbosity >= 0:
+            text += super().toText(verbosity=verbosity, indent=indent)
+            text += f"\n{indentB}weekdays: {self.weekdayNames}"
+        return text
 
 
     def toData(self):
@@ -185,10 +193,13 @@ class MonthlyRecurrence(Recurrence):
         return referenceDate - dt.timedelta(days=daysAgo)
 
 
-    def toText(self, indent: int=0) -> str:
-        text = super().toText()
-        text += f"\n{UserOutput.indentStyle}days of the month: {self.days}"
-        return super().indentText(text, indent)
+    def toText(self, verbosity: int=0, indent: int=0) -> str:
+        indentB = UserOutput.indentPadding(indent=indent+1)
+        text = ""
+        if verbosity >= 0:
+            text += super().toText(verbosity=verbosity, indent=indent)
+            text += f"\n{indentB}days of the month: {self.days}"
+        return text
 
     
     def toData(self):
@@ -235,10 +246,13 @@ class YearlyRecurrence(Recurrence):
         return referenceDate - dt.timedelta(days=daysAgo)
 
 
-    def toText(self, indent: int=0) -> str:
-        text = super().toText()
-        text += f"\n{UserOutput.indentStyle}days of the year: {self.days}"
-        return super().indentText(text, indent)
+    def toText(self, verbosity: int=0, indent: int=0) -> str:
+        indentB = UserOutput.indentPadding(indent=indent+1)
+        text = ""
+        if verbosity >= 0:
+            text += super().toText(verbosity=verbosity, indent=indent)
+            text += f"\n{indentB}days of the year: {self.days}"
+        return text
 
     
     def toData(self):
@@ -306,11 +320,14 @@ class DaysOfMonthKRecurrence(Recurrence):
             return referenceDate - dt.timedelta(days=daysAgo)
 
 
-    def toText(self, indent: int=0) -> str:
-        text = super().toText()
-        text += f"\n{UserOutput.indentStyle}month: {self.month.value.name}"
-        text += f"\n{UserOutput.indentStyle}days: {self.days}"
-        return super().indentText(text, indent)
+    def toText(self, verbosity: int=0, indent: int=0) -> str:
+        indentB = UserOutput.indentPadding(indent=indent+1)
+        text = ""
+        if verbosity >= 0:
+            text += super().toText(verbosity=verbosity, indent=indent)
+            text += f"\n{indentB}month: {self.month.value.name}"
+            text += f"\n{indentB}days: {self.days}"
+        return text
     
 
     def toData(self):
@@ -385,11 +402,14 @@ class NthWeekdayMOfMonthKRecurrence(Recurrence):
         return firstDayOfMonth + dt.timedelta(days=daysFromFirstToNthWeekdayM)
 
     
-    def toText(self, indent: int=0) -> str:
-        text = super().toText()
-        numberSuffix = UserOutput.numberSuffix(self.n)
-        text += f"\n{UserOutput.indentStyle}{self.n}{numberSuffix} {self.weekday.value.name} of {self.month.value.name}"
-        return super().indentText(text, indent)
+    def toText(self, verbosity: int=0, indent: int=0) -> str:
+        indentB = UserOutput.indentPadding(indent=indent+1)
+        text = ""
+        if verbosity >= 0:
+            text += super().toText(verbosity=verbosity, indent=indent)
+            numberSuffix = UserOutput.numberSuffix(self.n)
+            text += f"\n{indentB}{self.n}{numberSuffix} {self.weekday.value.name} of {self.month.value.name}"
+        return text
     
 
     def toData(self):
@@ -443,10 +463,13 @@ class OnceRecurrence(Recurrence):
         return prevOcc
 
 
-    def toText(self, indent: int=0) -> str:
-        text = super().toText()
-        text += f"\n{UserOutput.indentStyle}date: {self.date.strftime(CalendarObjects.DATE_STR_TEXT_OUTPUT_FORMAT)}"
-        return super().indentText(text, indent)
+    def toText(self, verbosity: int=0, indent: int=0) -> str:
+        indentB = UserOutput.indentPadding(indent=indent+1)
+        text = ""
+        if verbosity >= 0:
+            text += super().toText(verbosity=verbosity, indent=indent)
+            text += f"\n{indentB}date: {self.date.strftime(CalendarObjects.DATE_STR_TEXT_OUTPUT_FORMAT)}"
+        return text
 
     
     def toData(self):
@@ -504,11 +527,14 @@ class AggregateRecurrence(Recurrence):
         return min(filteredMostRecent)
 
     
-    def toText(self, indent: int=0) -> str:
-        text = super().toText()
-        for recurrence in self.recurrences:
-            text += "\n" + recurrence.toText(indent=1)
-        return super().indentText(text, indent)
+    def toText(self, verbosity: int=0, indent: int=0) -> str:
+        text = ""
+        if verbosity >= 0:
+            text += super().toText(indent=indent)
+        if verbosity >= 1:
+            for recurrence in self.recurrences:
+                text += f"\n{recurrence.toText(indent=indent+1)}"
+        return text
 
     
     def toData(self) -> dict:

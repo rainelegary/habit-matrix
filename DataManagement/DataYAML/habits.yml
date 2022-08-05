@@ -1,15 +1,7 @@
-nosh:
-  required: true
-  upcoming buffer: 1
+walk chippy:
   recurrence:
-    recurrence type: weekly
-    details:
-      weekday names:
-      - wednesday
-  quota state:
-    done by time: '11:00'
-    max days before: 0
-    max days after: 0
-    quota met: 1
-    quota streak: 1
-    prev completion date: Aug 03, 2022
+    recurrence type: daily
+    details: {}
+  upcoming buffer: 0
+  required: false
+  quota state: null

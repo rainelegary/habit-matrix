@@ -11,7 +11,7 @@ class ViewRunner:
         print("home view")
         while True:
             try:
-                CommandInterface.getInputOrCommand(prompt="home: ", commandScopeID=CommandScopeEnum.HOME)
+                CommandInterface.getCommand(prompt="home: ", commandScopeID=CommandScopeEnum.HOME)
             except InvalidCommandArgsException:
                 UserOutput.indentedPrint(output="invalid command arguments, please try again.")
             except CancelInputException:
@@ -23,7 +23,7 @@ class ViewRunner:
         print("calendar view")
         while True:
             try:
-                CommandInterface.getInputOrCommand(prompt="calendar: ", commandScopeID=CommandScopeEnum.CALENDAR)
+                CommandInterface.getCommand(prompt="calendar: ", commandScopeID=CommandScopeEnum.CALENDAR)
             except InvalidCommandArgsException:
                 UserOutput.indentedPrint(output="invalid command arguments, please try again.")
             except CancelInputException:
@@ -35,7 +35,7 @@ class ViewRunner:
         print("habits view")
         while True:
             try:
-                CommandInterface.getInputOrCommand(prompt="habits: ", commandScopeID=CommandScopeEnum.HABITS)
+                CommandInterface.getCommand(prompt="habits: ", commandScopeID=CommandScopeEnum.HABITS)
             except InvalidCommandArgsException:
                 UserOutput.indentedPrint(output="invalid command arguments, please try again.")
             except CancelInputException:
@@ -47,7 +47,7 @@ class ViewRunner:
         print("recurrences view")
         while True:
             try:
-                CommandInterface.getInputOrCommand(prompt="recurrences: ", commandScopeID=CommandScopeEnum.RECURRENCES)
+                CommandInterface.getCommand(prompt="recurrences: ", commandScopeID=CommandScopeEnum.RECURRENCES)
             except InvalidCommandArgsException:
                 UserOutput.indentedPrint(output="invalid command arguments, please try again.")
             except CancelInputException:
@@ -59,7 +59,7 @@ class ViewRunner:
         print("checklists view")
         while True:
             try:
-                CommandInterface.getInputOrCommand(prompt="checklists: ", commandScopeID=CommandScopeEnum.CHECKLISTS)
+                CommandInterface.getCommand(prompt="checklists: ", commandScopeID=CommandScopeEnum.CHECKLISTS)
             except InvalidCommandArgsException:
                 UserOutput.indentedPrint(output="invalid command arguments, please try again.")
             except CancelInputException:

@@ -18,16 +18,19 @@ class HabitDataStackInterface:
     def habitSetupPrompt(indent: int=0):
         UserOutput.indentedPrint("habit", indent)
         title = UserInput.getStringInput("habit title? ", indent=indent+1)
-        required = UserInput.getBoolInput("required? ", indent=indent+1)
-        upcomingBuffer = UserInput.getIntInput("notify how many days in advance? ", indent=indent+1)
         recurrence = RecurrenceDataStackInterface.generalRecurrenceSetupPrompt(indent=indent+1)
-        quotaState = QuotaStateDataStackInterface.quotaStateSetupPrompt(indent=indent+1) if required else None
-        return Habit(title, required, upcomingBuffer, recurrence, quotaState)
+        upcomingBuffer = UserInput.getIntInput("notify how many days in advance? ", indent=indent+1)
+        required = UserInput.getBoolInput("required? ", indent=indent+1)
+        if required:
+            quotaState = QuotaStateDataStackInterface.quotaStateSetupPrompt(indent=indent+1)
+        else:
+            quotaState = None
+        return Habit(title, recurrence, upcomingBuffer, required, quotaState)
 
     
     @staticmethod
     def saveHabitPrompt(habit: Habit, indent: int=0) -> bool:
-        UserOutput.indentedPrint(habit.toText(indent=indent))
+        UserOutput.indentedPrint(habit.toText(verbosity=5, indent=indent))
         save = UserInput.getBoolInput("save the above habit? ", indent=indent)
         if save: 
             HabitDataStack.addHabit(habit)

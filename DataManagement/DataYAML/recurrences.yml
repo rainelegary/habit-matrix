@@ -1,1 +1,3 @@
-{}
+daily guy:
+  recurrence type: daily
+  details: {}

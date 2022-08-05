@@ -9,6 +9,7 @@ from DataManagement.DataStackInterfaces.quotaStateDataStackInterface import \
 from DataManagement.DataStackInterfaces.recurrenceDataStackInterface import \
     RecurrenceDataStackInterface
 from DataManagement.DataStacks.habitDataStack import HabitDataStack
+from DataManagement.DataStacks.recurrenceDataStack import RecurrenceDataStack
 from DateAndTime.calendarObjects import CalendarObjects
 from HabitsAndChecklists.checklist import (Checklist, DayRangeChecklist,
                                            OverdueChecklist,
@@ -180,6 +181,49 @@ class SeeChecklistCommand(Command):
 
 
 
+class ListHabitsCommand(Command):
+    NAME = "list habits"
+    SHORTCUT = "habits"
+
+
+    @staticmethod
+    def executeCommand(commandArgs: list[str], commandScopeID, indent: int=0):
+        dataStack = HabitDataStack.getData()
+        if dataStack in [None, {}]:
+            UserOutput.indentedPrint("no habits", indent=indent)
+            return
+        
+        for habitName in dataStack:
+            habit = HabitDataStack.getHabit(habitName)
+            UserOutput.indentedPrint(f"{habit.title}", indent=indent+1)
+
+
+
+class ListRecurrencesCommand(Command):
+    NAME = "list recurrences"
+    SHORTCUT = "recurrences"
+
+
+    @staticmethod
+    def executeCommand(commandArgs: list[str], commandScopeID, indent: int=0):
+        dataStack = RecurrenceDataStack.getData()
+        if dataStack == None:
+            UserOutput.indentedPrint("no recurrences", indent=indent)
+            return
+        
+        if len(commandArgs) >= 2:
+            verbosity = int(commandArgs[1])
+        else:
+            verbosity = 0
+        
+        for recurrenceName in dataStack:
+            recurrence = RecurrenceDataStack.getRecurrence(recurrenceName)
+            recurrenceText = f"{recurrenceName}"
+            recurrenceText += f"\n{recurrence.toText(verbosity=verbosity, indent=indent+1)}"
+            UserOutput.indentedPrint(f"{recurrenceText}", indent=0)
+
+
+
 class CompleteHabitCommand(Command):
     NAME = "complete habit"
     SHORTCUT = "done"
@@ -211,6 +255,8 @@ class CommandEnum(Enum):
     NEW = NewObjectCommand()
     SEE_CHECKLIST = SeeChecklistCommand()
     COMPLETE_HABIT = CompleteHabitCommand()
+    LIST_HABITS = ListHabitsCommand()
+    LIST_RECURRENCES = ListRecurrencesCommand()
 
 
 
@@ -236,6 +282,8 @@ class CommandScopeEnum(Enum):
         CommandEnum.NEW, 
         CommandEnum.SEE_CHECKLIST, 
         CommandEnum.COMPLETE_HABIT,
+        CommandEnum.LIST_HABITS,
+        CommandEnum.LIST_RECURRENCES,
     ])
 
     CALENDAR = CommandScope(
