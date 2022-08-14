@@ -70,6 +70,12 @@ class QuotaStateDataStackInterface:
         prevApplicableDate = quotaState.applicableCompletionDate(recurrence, referenceDate=prevUpdate)
         currentApplicableDate = quotaState.applicableCompletionDate(recurrence, referenceDate=today)
 
+        if prevApplicableDate == None:
+            prevApplicableDate = prevUpdate
+        
+        if currentApplicableDate == None:
+            currentApplicableDate = today
+
         numDatesBetween = quotaState.numApplicableDatesBetween(recurrence, prevApplicableDate, currentApplicableDate)
         
         quotaState.quotaMet -= numDatesBetween

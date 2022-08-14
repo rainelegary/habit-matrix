@@ -5,3 +5,30 @@ walk chippy:
   upcoming buffer: 0
   required: false
   quota state: null
+'yes':
+  recurrence:
+    recurrence type: aggregate
+    details:
+      recurrences:
+      - recurrence type: days of month k
+        details:
+          month name: may
+          days:
+          - 1
+          - 2
+          - 3
+          - 10
+      - recurrence type: nth weekday m of month k
+        details:
+          month name: may
+          weekday name: wednesday
+          n: 4
+  upcoming buffer: 16
+  required: true
+  quota state:
+    done by time: '15:00'
+    max days before: 20
+    max days after: 20
+    quota met: -1
+    quota streak: 0
+    prev completion date: null

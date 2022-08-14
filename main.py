@@ -76,7 +76,9 @@ class Launcher:
 
 def main():
     args = sys.argv
-    if len(args) == 1 or args[1] == "app": 
+    if len(args) < 2:
+        raise Exception("please specify a code running mode (app, tests, exp)")
+    if args[1] == "app":
         Launcher.runApplication()
     elif args[1] == "tests":
         Launcher.runTests()
