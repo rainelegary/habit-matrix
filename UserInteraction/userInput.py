@@ -137,6 +137,21 @@ class UserInput:
                     indent=indent)
         return choice
 
+    
+    @staticmethod
+    def getDateInput(prompt: str="", indent: int=0) -> dt.date:
+        prompting = True
+        while prompting:
+            choice = UserInput.indentedInput(prompt, indent=indent)
+            try:
+                choice = dt.datetime.strptime(choice, CalendarObjects.DATE_STR_TEXT_INPUT_FORMAT).date()
+                prompting = False
+            except ValueError:
+                UserOutput.indentedPrint(
+                    output=f"please enter dates in the format {CalendarObjects.DATE_STR_TEXT_INPUT_FORMAT_EXAMPLE}", 
+                    indent=indent)
+        return choice
+
 
     @staticmethod
     def getStringListInput(prompt: str="", indent: int=0) -> list[str]:

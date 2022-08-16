@@ -414,8 +414,8 @@ class NthWeekdayMOfMonthKRecurrence(Recurrence):
 
     def toData(self):
         data = {
-            "month name": self.month.value,
-            "weekday name": self.weekday.value,
+            "month name": self.month.value.name,
+            "weekday name": self.weekday.value.name,
             "n": self.n,
         }
         return super().toData(data)

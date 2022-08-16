@@ -27,7 +27,13 @@ class YAMLInteraction:
 
 
 class YAMLFiles:
-    HABITS = "DataManagement/DataYAML/habits.yml"
-    RECURRENCES = "DataManagement/DataYAML/recurrences.yml"
-    SESSION_INFO = "DataManagement/DataYAML/sessionInfo.yml"
+    args = sys.argv
+    if len(args) >= 3:
+        WORKING_DIR = sys.argv[2]
+    else:
+        WORKING_DIR = ""
+    
+    HABITS = f"{WORKING_DIR}DataManagement/DataYAML/habits.yml"
+    RECURRENCES = f"{WORKING_DIR}DataManagement/DataYAML/recurrences.yml"
+    SESSION_INFO = f"{WORKING_DIR}DataManagement/DataYAML/sessionInfo.yml"
     

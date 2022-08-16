@@ -16,300 +16,535 @@ from HabitsAndChecklists.checklist import (Checklist, DayRangeChecklist,
                                            SingleDayChecklist,
                                            UpcomingChecklist)
 from HabitsAndChecklists.habit import Habit
+from HabitsAndChecklists.recurrence import Recurrence
+from .userInput import UserInput
 
 from UserInteraction.userOutput import UserOutput
-from UserInteraction.views import (ChangeViewException, ExitException,
-                                   ViewEnum, Views)
 
 
 class InvalidCommandArgsException(Exception):
     """an exception for when incorrect command arguments are given"""
+    def __init__(self, message, command):
+        self.message = message
+        self.command = command
+    
+
+
+class ExitException(Exception):
+    """an exception for when the exit command is executed"""
+    def __init__(self, save):
+        self.save = save
 
 
 
 class Command(ABC):
     @staticmethod
     @abstractmethod
-    def executeCommand(commandArgs: list[str], commandScopeID, indent: int=0):
+    def executeCommand(commandArgs: dict, indent: int=0):
         raise NotImplementedError("abstract method not yet implemented in subclass")
 
 
+    @staticmethod
+    @abstractmethod
+    def keywordArgDefaults():
+        raise NotImplementedError("abstract method not yet implemented in subclass")
 
-class CommandScope:
-    def __init__(self, name: str, parent, whitelist: list[Command]=None, blacklist: list[Command]=None):
-        if whitelist == None: whitelist = []
-        if blacklist == None: blacklist = []
-        self.name = name
-        self.parent = parent
-        self.whitelist = whitelist
-        self.blacklist = blacklist
+    
+    @staticmethod
+    def showCommandHelp(command, verbosity: int, indent: int=0):
+        commandClass = command.value
+        name = commandClass.NAME
+        shortcut = commandClass.SHORTCUT
+        desc = commandClass.DESCRIPTION
+        obligateArgs = commandClass.OBLIGATE_ARG_DESCRIPTIONS
+        keywordArgs = commandClass.KEYWORD_ARG_DESCRIPTIONS
+
+        if verbosity >= 0:
+            UserOutput.indentedPrint(f"{shortcut} ({name}) - {desc}", indent=indent)
+        if verbosity >= 1:
+            UserOutput.indentedPrint("obligate arguments: ", indent=indent+1)
+            for obArg in obligateArgs:
+                UserOutput.indentedPrint(f"{obArg} - {obligateArgs[obArg]}", indent=indent+2)
+            UserOutput.indentedPrint("keyword arguments: ", indent=indent+1)
+            for kwArg in keywordArgs:
+                UserOutput.indentedPrint(f"{kwArg} - {keywordArgs[kwArg]}", indent=indent+2)
+            UserOutput.indentedPrint(" ")
+        
 
 
+class HelpCommand(Command):
+    NAME = "help"
+    SHORTCUT = "help"
+    DESCRIPTION = "get help for a specific command, or for all commands."
+    OBLIGATE_ARG_DESCRIPTIONS = {
+        "command": "name of command to get help for. 'all' to see all commands."
+    }
+    KEYWORD_ARG_DESCRIPTIONS = {
+        "v": "verbosity, or how much detail to show (-1 or lower being no detail, 3 or higher being high detail).",
+    }
+    OBLIGATE_ARGS = list(OBLIGATE_ARG_DESCRIPTIONS)
+    KEYWORD_ARGS = list(KEYWORD_ARG_DESCRIPTIONS)
 
-class ChangeViewCommand(Command):
-    NAME = "change view"
-    SHORTCUT = "cv"
+
+    class HelpCommandArgs():
+        def __init__(self, commandArgs: dict):
+            commandName = commandArgs["command"]
+            self.command = None
+            for command in CommandEnum:
+                if command.value.SHORTCUT == commandName:
+                    self.command = command
+        
+            verbosityStr = commandArgs["v"]
+            try:
+                self.verbosity = int(verbosityStr)
+            except ValueError:
+                raise InvalidCommandArgsException("the 'verbosity' argument must be an integer.", CommandEnum.HELP)
+    
+
+    @staticmethod
+    def keywordArgDefaults():
+        return {
+            "v": "2"
+        }
 
 
     @staticmethod
-    def executeCommand(commandArgs: list[str], commandScopeID, indent: int=0):
-        if len(commandArgs) < 2:
-            raise InvalidCommandArgsException("please specify a view to change to")
-        viewString = commandArgs[1]
-        if viewString not in Views.VIEW_STRINGS:
-            raise InvalidCommandArgsException("unrecognized view name")
-        view = Views.VIEW_STRING_TO_ID[viewString]
-        raise ChangeViewException(view)
+    def executeCommand(commandArgs: dict, indent: int=0):
+        helpCommandArgs = HelpCommand.HelpCommandArgs(commandArgs)
+        command = helpCommandArgs.command
+        verbosity = helpCommandArgs.verbosity
 
+        if command == None: # show all commands
+            UserOutput.indentedPrint("all commands: ", indent=indent)
+            for comd in CommandEnum:
+                Command.showCommandHelp(comd, verbosity=verbosity, indent=indent+1)
+            
+            UserOutput.indentedPrint("NOTE: separate all command arguments with a tab.", indent=indent)
+        else:
+            Command.showCommandHelp(command, verbosity=verbosity, indent=indent)
+            UserOutput.indentedPrint("NOTE: separate all command arguments with a tab.", indent=indent)
+            
 
-
+            
 class ExitCommand(Command):
     NAME = "exit"
     SHORTCUT = "q"
+    DESCRIPTION = "exit the <///HABIT -> MATRIX///>"
+    OBLIGATE_ARG_DESCRIPTIONS = {
+        
+    }
+    KEYWORD_ARG_DESCRIPTIONS = {
+        "save": "whether to save changes or not."
+    }
+    OBLIGATE_ARGS = list(OBLIGATE_ARG_DESCRIPTIONS)
+    KEYWORD_ARGS = list(KEYWORD_ARG_DESCRIPTIONS)
+
+
+    class ExitCommandArgs():
+        def __init__(self, commandArgs: dict):
+            saveStr = commandArgs["save"]
+            if saveStr not in ["true", "false"]:
+                raise InvalidCommandArgsException("the 'save' command argument must be true or false.", CommandEnum.EXIT)
+            self.save = {"true": True, "false": False}[saveStr]
 
 
     @staticmethod
-    def executeCommand(commandArgs: list[str], commandScopeID, indent: int=0):
-        raise ExitException("exiting program")
+    def keywordArgDefaults():
+        return {
+            "save": "true"
+        }
+              
+            
+    @staticmethod
+    def executeCommand(commandArgs: dict, indent: int=0):
+        exitCommandArgs = ExitCommand.ExitCommandArgs(commandArgs)
+        save = exitCommandArgs.save
+
+        raise ExitException(save)
+
+
+
+class SeeObjectCommand(Command):
+    NAME = "see object"
+    SHORTCUT = "see"
+    DESCRIPTION = "view an object such as a habit or recurrence and its associated details."
+    OBLIGATE_ARG_DESCRIPTIONS = {
+        "object type": "type of object i.e. 'habit' or 'recurrence'.",
+        "object name": "name of habit or recurrence."
+    }
+    KEYWORD_ARG_DESCRIPTIONS = {
+        "v": "verbosity, or how much detail to show (-1 or lower being no detail, 3 or higher being high detail).",
+    }
+    OBLIGATE_ARGS = list(OBLIGATE_ARG_DESCRIPTIONS)
+    KEYWORD_ARGS = list(KEYWORD_ARG_DESCRIPTIONS)
+
+
+    class SeeObjectCommandArgs():
+        def __init__(self, commandArgs: dict):
+            objectTypeStr = commandArgs["object type"]
+            if objectTypeStr not in ["habit", "recurrence"]:
+                raise InvalidCommandArgsException("the 'object type' argument must be either 'habit' or 'recurrence'.", CommandEnum.SEE)
+            self.objectType = {"habit": Habit, "recurrence": Recurrence}[objectTypeStr]
+
+            self.objectName = commandArgs["object name"]
+
+            verbosityStr = commandArgs["v"]
+            try:
+                self.verbosity = int(verbosityStr)
+            except ValueError:
+                raise InvalidCommandArgsException("the 'verbosity' argument must be an integer.")
+
+    
+    @staticmethod
+    def keywordArgDefaults():
+        return {
+            "v": "2"
+        }
+
+    
+    @staticmethod
+    def executeCommand(commandArgs: dict, indent: int=0):
+        objectTypeStr = commandArgs["object type"]
+        seeObjectCommandArgs = SeeObjectCommand.SeeObjectCommandArgs(commandArgs)
+        objectType = seeObjectCommandArgs.objectType
+        objectName = seeObjectCommandArgs.objectName
+        verbosity = seeObjectCommandArgs.verbosity
+        try:
+            if objectType == Habit:
+                habit = HabitDataStack.getHabit(objectName)
+                habitText = habit.toText(verbosity=verbosity, indent=indent)
+                UserOutput.indentedPrint(habitText)
+            elif objectType == Recurrence:
+                recurrence = RecurrenceDataStack.getRecurrence(objectName)
+                recurrenceText = recurrence.toText(verbosity=verbosity, indent=indent)
+                UserOutput.indentedPrint(recurrenceText)
+            else:
+                raise InvalidCommandArgsException("unrecognized object type.", CommandEnum.SEE)
+        except KeyError:
+            raise InvalidCommandArgsException(f"a {objectTypeStr} with this name could not be found.", CommandEnum.SEE)
 
 
 
 class NewObjectCommand(Command):
     NAME = "new object"
     SHORTCUT = "new"
+    DESCRIPTION = "create a new object such as a habit or recurrence."
+    OBLIGATE_ARG_DESCRIPTIONS = {
+        "object type": "type of object to create, i.e. 'habit' or 'recurrence'."
+    }
+    KEYWORD_ARG_DESCRIPTIONS = {
+        
+    }
+    OBLIGATE_ARGS = list(OBLIGATE_ARG_DESCRIPTIONS)
+    KEYWORD_ARGS = list(KEYWORD_ARG_DESCRIPTIONS)
+
+
+    class NewObjectCommandArgs():
+        def __init__(self, commandArgs: dict):
+            objectTypeStr = commandArgs["object type"]
+            if objectTypeStr not in ["habit", "recurrence"]:
+                raise InvalidCommandArgsException("the 'object type' command argument must be either 'habit' or 'recurrence'.", CommandEnum.NEW)
+            self.objectType = {"habit": Habit, "recurrence": Recurrence}[objectTypeStr]
 
 
     @staticmethod
-    def executeCommand(commandArgs: list[str], commandScopeID, indent: int=0):
-        SCOPE_ID_TO_OBJ_TYPE_NAME = {
-            CommandScopeEnum.HOME: "habit",
-            CommandScopeEnum.HABITS: "habit",
-            CommandScopeEnum.RECURRENCES: "recurrence",
+    def keywordArgDefaults():
+        return {
+
         }
+    
 
-        if len(commandArgs) < 2:
-            objectTypeName = SCOPE_ID_TO_OBJ_TYPE_NAME[commandScopeID]
-        else:
-            objectTypeName = commandArgs[1]
+    @staticmethod
+    def executeCommand(commandArgs: dict, indent: int=0):
+        newObjectCommandArgs = NewObjectCommand.NewObjectCommandArgs(commandArgs)
+        objectType = newObjectCommandArgs.objectType
 
-        if objectTypeName == "habit": 
+        if objectType == Habit: 
             habit = HabitDataStackInterface.habitSetupPrompt(indent=indent)
             HabitDataStackInterface.saveHabitPrompt(habit, indent=indent+1)
-        elif objectTypeName == "recurrence":
+        elif objectType == Recurrence:
             recurrence = RecurrenceDataStackInterface.generalRecurrenceSetupPrompt(indent=indent)
             RecurrenceDataStackInterface.generalSaveRecurrencePrompt(recurrence, indent=indent+1)
         else:
-            raise InvalidCommandArgsException("unrecognized object type")
+            raise InvalidCommandArgsException("unrecognized object type.", CommandEnum.NEW)
+
+
+
+class DeleteObjectCommand(Command):
+    NAME = "delete object"
+    SHORTCUT = "del"
+    DESCRIPTION = "delete an object such as a habit or recurrence."
+    OBLIGATE_ARG_DESCRIPTIONS = {
+        "object type": "type of object to delete i.e. 'habit' or 'recurrence'.",
+        "object name": "name of habit or recurrence.",
+    }
+    KEYWORD_ARG_DESCRIPTIONS = {
+
+    }
+    OBLIGATE_ARGS = list(OBLIGATE_ARG_DESCRIPTIONS)
+    KEYWORD_ARGS = list(KEYWORD_ARG_DESCRIPTIONS)
+
+
+    class DeleteObjectCommandArgs():
+        def __init__(self, commandArgs):
+            objectTypeStr = commandArgs["object type"]
+            if objectTypeStr not in ["habit", "recurrence"]:
+                raise InvalidCommandArgsException("the 'object type' argument must be either 'habit' or 'recurrence'.", CommandEnum.DELETE)
+            self.objectType = {"habit": Habit, "recurrence": Recurrence}[objectTypeStr]
+
+            self.objectName = commandArgs["object name"]
+
+    
+    @staticmethod
+    def keywordArgDefaults():
+        return {
+
+        }
+
+
+    @staticmethod
+    def executeCommand(commandArgs: dict, indent: int=0):
+        objectTypeStr = commandArgs["object type"]
+        deleteObjectCommandArgs = DeleteObjectCommand.DeleteObjectCommandArgs(commandArgs)
+        objectType = deleteObjectCommandArgs.objectType
+        objectName = deleteObjectCommandArgs.objectName
+        try:
+            if objectType == Habit:
+                habit = HabitDataStack.getHabit(objectName)
+                habitText = habit.toText(verbosity=5, indent=indent)
+                UserOutput.indentedPrint(habitText)
+                delete = UserInput.getBoolInput("delete the habit above? ", indent=indent)
+                if delete:
+                    HabitDataStack.removeHabit(objectName)
+                    UserOutput.indentedPrint("habit deleted.", indent=indent)
+                else:
+                    UserOutput.indentedPrint("deletion cancelled.", indent=indent)
+            elif objectType == Recurrence:
+                recurrence = RecurrenceDataStack.getRecurrence(objectName)
+                recurrenceText = recurrence.toText(verbosity=5, indent=indent)
+                UserOutput.indentedPrint(recurrenceText)
+                delete = UserInput.getBoolInput("delete the recurrence above? ", indent=indent)
+                if delete:
+                    RecurrenceDataStack.removeRecurrence(objectName)
+                    UserOutput.indentedPrint("recurrence deleted.", indent=indent)
+                else:
+                    UserOutput.indentedPrint("deletion cancelled.", indent=indent)
+            else:
+                raise InvalidCommandArgsException("unrecognized object type.", CommandEnum.DELETE)
+        except KeyError:
+            raise InvalidCommandArgsException(f"a {objectTypeStr} with this name could not be found.", CommandEnum.DELETE)
 
 
 
 class SeeChecklistCommand(Command):
     NAME = "see checklist"
     SHORTCUT = "scl"
+    DESCRIPTION = "view a checklist of habits."
+    OBLIGATE_ARG_DESCRIPTIONS = {
+        "checklist type": "type of checklist i.e. 'day', 'range', 'overdue', 'upcoming', or 'all'."
+    }
+    KEYWORD_ARG_DESCRIPTIONS = {
+
+    }
+    OBLIGATE_ARGS = list(OBLIGATE_ARG_DESCRIPTIONS)
+    KEYWORD_ARGS = list(KEYWORD_ARG_DESCRIPTIONS)
 
 
     @staticmethod
-    def executeCommand(commandArgs: list[str], commandScopeID, indent: int=0):
-        if len(commandArgs) < 2:
-            raise InvalidCommandArgsException("no checklist type specified")
-        checklistType = commandArgs[1]
+    def keywordArgDefaults():
+        return {
+
+        }
+
+
+    @staticmethod
+    def executeCommand(commandArgs: dict, indent: int=0):
+        checklistType = commandArgs["checklist type"]
         if checklistType == "day":
-            SeeChecklistCommand.dayChecklist(commandArgs, indent=indent)
+            SeeChecklistCommand.dayChecklist(indent=indent)
         elif checklistType == "range":
-            SeeChecklistCommand.rangeChecklist(commandArgs, indent=indent)
+            SeeChecklistCommand.rangeChecklist(indent=indent)
         elif checklistType == "overdue":
-            SeeChecklistCommand.overdueChecklist(commandArgs, indent=indent)
+            SeeChecklistCommand.overdueChecklist(indent=indent)
         elif checklistType == "upcoming":
-            SeeChecklistCommand.upcomingChecklist(commandArgs, indent=indent)
+            SeeChecklistCommand.upcomingChecklist(indent=indent)
         elif checklistType == "all":
-            SeeChecklistCommand.allChecklists(commandArgs, indent=indent)
+            SeeChecklistCommand.allChecklists(indent=indent)
         else:
-            raise InvalidCommandArgsException("not a recognized checklist type")
+            raise InvalidCommandArgsException("not a recognized checklist type.", CommandEnum.SEE_CHECKLIST)
 
         
     @staticmethod
-    def dayChecklist(commandArgs, indent: int=0):
-        if len(commandArgs) < 3:
-            day = dt.date.today()
-        else:
-            dayString = commandArgs[2]
-            try:
-                day = dt.datetime.strptime(dayString, CalendarObjects.DATE_STR_TEXT_INPUT_FORMAT).date()
-            except ValueError:
-                raise InvalidCommandArgsException(
-                    f"please enter dates in the form {CalendarObjects.DATE_STR_TEXT_INPUT_FORMAT_EXAMPLE}")
-
+    def dayChecklist(indent: int=0):
+        day = UserInput.getDateInput(prompt="which day? ", indent=indent)
         checklist = SingleDayChecklist(day)
         checklist.display(indent=indent)
 
-        
 
     @staticmethod
-    def rangeChecklist(commandArgs, indent: int=0):
-        if len(commandArgs) < 4:
-            raise InvalidCommandArgsException("please specify a start and end date")
-        startDayString = commandArgs[2]
-        endDayString = commandArgs[3]
-        try:
-            startDay = dt.datetime.strptime(startDayString, CalendarObjects.DATE_STR_TEXT_INPUT_FORMAT).date()
-            endDay = dt.datetime.strptime(endDayString, CalendarObjects.DATE_STR_TEXT_INPUT_FORMAT).date()
-        except ValueError:
-            raise InvalidCommandArgsException(
-                    f"please enter dates in the form {CalendarObjects.DATE_STR_TEXT_INPUT_FORMAT_EXAMPLE}")
+    def rangeChecklist(indent: int=0):
+        startDay = UserInput.getDateInput("start day? ", indent=indent)
+        endDay = UserInput.getDateInput("end day?", indent=indent)
 
         checklist = DayRangeChecklist(startDay, endDay)
         checklist.display(indent=indent)
 
 
     @staticmethod
-    def overdueChecklist(commandArgs, indent: int=0):
+    def overdueChecklist(indent: int=0):
         checklist = OverdueChecklist()
         checklist.display(indent=indent)
 
     
     @staticmethod
-    def upcomingChecklist(commandArgs, indent: int=0):
+    def upcomingChecklist(indent: int=0):
         checklist = UpcomingChecklist()
         checklist.display(indent=indent)
 
     
     @staticmethod
-    def allChecklists(commandArgs, indent: int=0):
-        SingleDayChecklist(dt.date.today()).display()
-        OverdueChecklist().display()
-        UpcomingChecklist().display()
+    def allChecklists(indent: int=0):
+        OverdueChecklist().display(indent=indent)
+        UpcomingChecklist().display(indent=indent)
+        SingleDayChecklist(dt.date.today()).display(indent=indent)
 
 
 
-class ListHabitsCommand(Command):
-    NAME = "list habits"
-    SHORTCUT = "habits"
+class ListObjectsCommand(Command):
+    NAME = "list objects"
+    SHORTCUT = "list"
+    DESCRIPTION = "view a list of all existing habits or recurrences."
+    OBLIGATE_ARG_DESCRIPTIONS = {
+        "object type": "type of object to show a list of, i.e. 'habits' or 'recurrences'."
+    }
+    KEYWORD_ARG_DESCRIPTIONS = {
+        "v": "verbosity, or how much detail to show (-1 or lower being no detail, 3 or higher being high detail).",
+    }
+    OBLIGATE_ARGS = list(OBLIGATE_ARG_DESCRIPTIONS)
+    KEYWORD_ARGS = list(KEYWORD_ARG_DESCRIPTIONS)
+
+
+    class ListObjectsCommandArgs():
+        def __init__(self, commandArgs: dict):
+            objectTypeStr = commandArgs["object type"]
+            if objectTypeStr not in ["habits", "recurrences"]:
+                raise InvalidCommandArgsException("the 'object type' argument must be either 'habits' or 'recurrences'.", CommandEnum.LIST_OBJECTS)
+            self.objectType = {"habits": Habit, "recurrences": Recurrence}[objectTypeStr]
+            
+            verbosityStr = commandArgs["v"]
+            try:
+                self.verbosity = int(verbosityStr)
+            except ValueError:
+                raise InvalidCommandArgsException("the 'verbosity' argument must be an integer.", CommandEnum.LIST_OBJECTS)
 
 
     @staticmethod
-    def executeCommand(commandArgs: list[str], commandScopeID, indent: int=0):
+    def keywordArgDefaults():
+        return {
+            "v": "2"
+        }
+
+
+    @staticmethod
+    def executeCommand(commandArgs: dict, indent: int=0):
+        listObjectsCommandArgs = ListObjectsCommand.ListObjectsCommandArgs(commandArgs)
+        objectType = listObjectsCommandArgs.objectType
+        verbosity = listObjectsCommandArgs.verbosity
+        if objectType == Habit:
+            ListObjectsCommand.listHabits(verbosity, indent=indent)
+        elif objectType == Recurrence:
+            ListObjectsCommand.listRecurrences(verbosity, indent=indent)
+        else:
+            raise InvalidCommandArgsException("invalid object type.", CommandEnum.LIST_OBJECTS)
+
+    
+    @staticmethod
+    def listHabits(verbosity, indent: int=0):
         dataStack = HabitDataStack.getData()
         if dataStack in [None, {}]:
-            UserOutput.indentedPrint("no habits", indent=indent)
+            UserOutput.indentedPrint("no habits yet.", indent=indent)
             return
         
         for habitName in dataStack:
             habit = HabitDataStack.getHabit(habitName)
-            UserOutput.indentedPrint(f"{habit.title}", indent=indent+1)
-
-
-
-class ListRecurrencesCommand(Command):
-    NAME = "list recurrences"
-    SHORTCUT = "recurrences"
+            habitText = habit.toText(verbosity=verbosity, indent=indent)
+            UserOutput.indentedPrint(habitText)
+            UserOutput.indentedPrint("")
 
 
     @staticmethod
-    def executeCommand(commandArgs: list[str], commandScopeID, indent: int=0):
+    def listRecurrences(verbosity, indent: int=0):
+        indentA = UserOutput.indentPadding(indent=indent)
         dataStack = RecurrenceDataStack.getData()
-        if dataStack == None:
-            UserOutput.indentedPrint("no recurrences", indent=indent)
+        if dataStack in [None, {}]:
+            UserOutput.indentedPrint("no recurrences yet.", indent=indent)
             return
-        
-        if len(commandArgs) >= 2:
-            verbosity = int(commandArgs[1])
-        else:
-            verbosity = 0
         
         for recurrenceName in dataStack:
             recurrence = RecurrenceDataStack.getRecurrence(recurrenceName)
-            recurrenceText = f"{recurrenceName}"
+            recurrenceText = f"{indentA}{recurrenceName}"
             recurrenceText += f"\n{recurrence.toText(verbosity=verbosity, indent=indent+1)}"
-            UserOutput.indentedPrint(f"{recurrenceText}", indent=0)
+            UserOutput.indentedPrint(recurrenceText)
+            UserOutput.indentedPrint("")
 
 
 
 class CompleteHabitCommand(Command):
     NAME = "complete habit"
     SHORTCUT = "done"
+    DESCRIPTION = "check a habit off for today. This will increase your quota met on that habit."
+    OBLIGATE_ARG_DESCRIPTIONS = {
+        "habit name": "name of the habit.",
+    }
+    KEYWORD_ARG_DESCRIPTIONS = {
+        "t": "time when the habit was completed.",
+    }
+    OBLIGATE_ARGS = list(OBLIGATE_ARG_DESCRIPTIONS)
+    KEYWORD_ARGS = list(KEYWORD_ARG_DESCRIPTIONS)
+
+
+    class CompleteHabitCommandArgs():
+        def __init__(self, commandArgs):
+            habitName = commandArgs["habit name"]
+            habitData = HabitDataStack.getData()
+            if habitName not in habitData:
+                raise InvalidCommandArgsException("the 'habit' argument must be the name of an existing habit.", CommandEnum.COMPLETE_HABIT)
+            self.habit = HabitDataStack.getHabit(habitName)
+            
+            timeStr = commandArgs["t"]
+            timeFormat = CalendarObjects.TIME_STR_TEXT_INPUT_FORMAT
+            try:
+                self.completionTime = dt.datetime.strptime(timeStr, timeFormat).time()
+            except ValueError:
+                timeFormatExample = CalendarObjects.TIME_STR_TEXT_INPUT_FORMAT_EXAMPLE
+                raise InvalidCommandArgsException(f"the 't' argument must be in the form {timeFormatExample}", CommandEnum.COMPLETE_HABIT)
+    
+
+    @staticmethod
+    def keywordArgDefaults():
+        t = dt.datetime.now().time()
+        timeStr = t.strftime(CalendarObjects.TIME_STR_TEXT_INPUT_FORMAT)
+        return {
+            "t": timeStr
+        }
 
 
     @staticmethod
-    def executeCommand(commandArgs: list[str], commandScopeID, indent: int=0):
-        if len(commandArgs) < 2:
-            raise InvalidCommandArgsException("please specify a habit to complete")
-        habitName = commandArgs[1]
-        if len(commandArgs) < 3:
-            completionTime = dt.datetime.now().time()
-        else:
-            completionTimeString = commandArgs[2]
-            try:
-                completionTime = dt.datetime.strptime(completionTimeString, CalendarObjects.TIME_STR_TEXT_INPUT_FORMAT).time()
-            except ValueError:
-                raise InvalidCommandArgsException(
-                    f"completion time must be of the format {CalendarObjects.TIME_STR_TEXT_INPUT_FORMAT_EXAMPLE}")
-
-        habit = HabitDataStack.getHabit(habitName)
+    def executeCommand(commandArgs: dict, indent: int=0):
+        completeHabitCommandArgs = CompleteHabitCommand.CompleteHabitCommandArgs(commandArgs)
+        habit = completeHabitCommandArgs.habit
+        completionTime = completeHabitCommandArgs.completionTime
         HabitDataStackInterface.completeHabit(habit, completionTime=completionTime, indent=indent)
 
 
 
 class CommandEnum(Enum):
-    CHANGE_VIEW = ChangeViewCommand()
+    HELP = HelpCommand()
     EXIT = ExitCommand()
+    SEE = SeeObjectCommand()
     NEW = NewObjectCommand()
+    DELETE = DeleteObjectCommand()
     SEE_CHECKLIST = SeeChecklistCommand()
+    LIST_OBJECTS = ListObjectsCommand()
     COMPLETE_HABIT = CompleteHabitCommand()
-    LIST_HABITS = ListHabitsCommand()
-    LIST_RECURRENCES = ListRecurrencesCommand()
-
-
-
-class CommandScopeEnum(Enum):
-    ALL = CommandScope(
-    name="all", 
-    parent=None, 
-    whitelist=[
-        CommandEnum.EXIT,
-    ])
-
-    VIEW = CommandScope(
-    name="view", 
-    parent=ALL, 
-    whitelist=[
-        CommandEnum.CHANGE_VIEW,
-    ])
-
-    HOME = CommandScope(
-    name="home", 
-    parent=VIEW, 
-    whitelist=[
-        CommandEnum.NEW, 
-        CommandEnum.SEE_CHECKLIST, 
-        CommandEnum.COMPLETE_HABIT,
-        CommandEnum.LIST_HABITS,
-        CommandEnum.LIST_RECURRENCES,
-    ])
-
-    CALENDAR = CommandScope(
-    name="calendar", 
-    parent=VIEW, 
-    whitelist=[
-    ])
-
-    HABITS = CommandScope(
-    name="habits", 
-    parent=VIEW, 
-    whitelist=[
-        CommandEnum.NEW,
-    ])
-
-    RECURRENCES = CommandScope(
-    name="recurrences", 
-    parent=VIEW, 
-    whitelist=[
-        CommandEnum.NEW,
-    ])
-
-    CHECKLISTS = CommandScope(
-    name="checklists", 
-    parent=VIEW, 
-    whitelist=[
-        CommandEnum.SEE_CHECKLIST, 
-        CommandEnum.COMPLETE_HABIT,
-    ])
+    

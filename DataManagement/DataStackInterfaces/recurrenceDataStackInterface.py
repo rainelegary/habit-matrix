@@ -92,7 +92,7 @@ class RecurrenceDataStackInterface:
         month = CalendarObjects.MONTH_NAME_TO_ID[monthName]
         today = dt.date.today()
         daysInMonth = monthrange(today.year, month.value.num)[1]
-        days = UserInput.getIntListInput(prompt=f"which days of {monthName}? ", miniumum=1, maximum=daysInMonth, indent=indent+1)
+        days = UserInput.getIntListInput(prompt=f"which days of {monthName}? ", minimum=1, maximum=daysInMonth, indent=indent+1)
         return DaysOfMonthKRecurrence(month, days)
 
 
