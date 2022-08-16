@@ -27,6 +27,10 @@ class QuotaStateDataStackInterface:
     def habitCompletedUpdateQuotaState(habit: Habit, completionTime: dt.time=dt.datetime.now().time(), indent: int=0):
         recurrence = habit.recurrence
         quotaState = habit.quotaState
+
+        if quotaState == None:
+            UserOutput.indentedPrint("Error: this habit has no quota, so it cannot be marked as complete.", indent=indent)
+            return
         
         applicableDate = quotaState.applicableCompletionDate(recurrence)
         if applicableDate is None:
