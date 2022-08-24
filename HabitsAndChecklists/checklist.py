@@ -24,6 +24,7 @@ class SingleDayChecklist(Checklist):
 
 
     def display(self, indent: int=0):
+        UserOutput.printWhitespace()
         dayString = self.day.strftime(CalendarObjects.DATE_STR_TEXT_OUTPUT_FORMAT)
         UserOutput.indentedPrint(f"checklist for {dayString}", indent=indent)
         for habit in self.getHabits():
@@ -51,15 +52,23 @@ class DayRangeChecklist(Checklist):
     def display(self, indent: int=0):
         startDayString = self.startDay.strftime(CalendarObjects.DATE_STR_DATA_FORMAT) 
         endDayString = self.endDay.strftime(CalendarObjects.DATE_STR_DATA_FORMAT)
+        UserOutput.printWhitespace()
         UserOutput.indentedPrint(f"checklist for {startDayString} to {endDayString}")
-        for day in self.dayRange():
-            singleDayChecklist = SingleDayChecklist(day)
+        UserOutput.printWhitespace()
+        dayRange = self.dayRange()
+        for i in range(len(dayRange)):
+            singleDayChecklist = SingleDayChecklist(dayRange[i])
             singleDayChecklist.display(indent=indent+1)
+            if i < len(dayRange) - 1:
+                UserOutput.printWhitespace()
+            
     
-
     def dayRange(self):
+        dayRange = []
         for n in range(int((self.endDay - self.startDay + dt.timedelta(days=1)).days)):
-            yield self.startDay + dt.timedelta(days=n)
+            dayRange.append(self.startDay + dt.timedelta(days=n))
+        
+        return dayRange
 
 
 

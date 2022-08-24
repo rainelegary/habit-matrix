@@ -5,30 +5,219 @@ walk chippy:
   upcoming buffer: 0
   required: false
   quota state: null
-'yes':
+laundry:
   recurrence:
-    recurrence type: aggregate
+    recurrence type: weekly
     details:
-      recurrences:
-      - recurrence type: days of month k
-        details:
-          month name: may
-          days:
-          - 1
-          - 2
-          - 3
-          - 10
-      - recurrence type: nth weekday m of month k
-        details:
-          month name: may
-          weekday name: wednesday
-          n: 4
-  upcoming buffer: 16
+      weekday names:
+      - tuesday
+  upcoming buffer: 0
   required: true
   quota state:
-    done by time: '15:00'
-    max days before: 20
-    max days after: 20
+    done by time: '23:59'
+    max days before: 2
+    max days after: 2
+    quota met: 1
+    quota streak: 1
+    prev completion date: Aug 23, 2022
+renew driver's license:
+  recurrence:
+    recurrence type: once
+    details:
+      date: Sep 01, 2027
+  upcoming buffer: 30
+  required: true
+  quota state:
+    done by time: '23:59'
+    max days before: 150
+    max days after: 0
+    quota met: 0
+    quota streak: 0
+    prev completion date: null
++:
+  recurrence:
+    recurrence type: weekly
+    details:
+      weekday names:
+      - monday
+      - wednesday
+      - friday
+  upcoming buffer: 0
+  required: true
+  quota state:
+    done by time: '23:59'
+    max days before: 1
+    max days after: 1
+    quota met: 1
+    quota streak: 4
+    prev completion date: Aug 24, 2022
+floss teeth:
+  recurrence:
+    recurrence type: weekly
+    details:
+      weekday names:
+      - thursday
+      - sunday
+  upcoming buffer: 0
+  required: true
+  quota state:
+    done by time: '23:59'
+    max days before: 1
+    max days after: 1
     quota met: -1
+    quota streak: 0
+    prev completion date: Aug 18, 2022
+up by 9:
+  recurrence:
+    recurrence type: daily
+    details: {}
+  upcoming buffer: 0
+  required: true
+  quota state:
+    done by time: 09:00
+    max days before: 0
+    max days after: 0
+    quota met: -1
+    quota streak: 0
+    prev completion date: Aug 20, 2022
+father's day:
+  recurrence:
+    recurrence type: nth weekday m of month k
+    details:
+      month name: june
+      weekday name: sunday
+      n: 3
+  upcoming buffer: 10
+  required: true
+  quota state:
+    done by time: '23:59'
+    max days before: 10
+    max days after: 10
+    quota met: 0
+    quota streak: 0
+    prev completion date: null
+mother's day:
+  recurrence:
+    recurrence type: nth weekday m of month k
+    details:
+      month name: may
+      weekday name: sunday
+      n: 2
+  upcoming buffer: 10
+  required: true
+  quota state:
+    done by time: '23:59'
+    max days before: 10
+    max days after: 10
+    quota met: 0
+    quota streak: 0
+    prev completion date: null
+Isaac's birthday:
+  recurrence:
+    recurrence type: days of month k
+    details:
+      month name: april
+      days:
+      - 5
+  upcoming buffer: 7
+  required: true
+  quota state:
+    done by time: '23:59'
+    max days before: 7
+    max days after: 7
+    quota met: 0
+    quota streak: 0
+    prev completion date: null
+Sylvie's birthday:
+  recurrence:
+    recurrence type: days of month k
+    details:
+      month name: july
+      days:
+      - 22
+  upcoming buffer: 20
+  required: true
+  quota state:
+    done by time: '23:59'
+    max days before: 20
+    max days after: 7
+    quota met: 0
+    quota streak: 0
+    prev completion date: null
+pay tuition:
+  recurrence:
+    recurrence type: days of month k
+    details:
+      month name: september
+      days:
+      - 15
+  upcoming buffer: 10
+  required: true
+  quota state:
+    done by time: '23:59'
+    max days before: 30
+    max days after: 20
+    quota met: 0
+    quota streak: 0
+    prev completion date: null
+renew vehicle registration:
+  recurrence:
+    recurrence type: once
+    details:
+      date: Sep 01, 2024
+  upcoming buffer: 30
+  required: true
+  quota state:
+    done by time: '23:59'
+    max days before: 150
+    max days after: 30
+    quota met: 0
+    quota streak: 0
+    prev completion date: null
+check email:
+  recurrence:
+    recurrence type: weekly
+    details:
+      weekday names:
+      - monday
+      - wednesday
+      - friday
+  upcoming buffer: 0
+  required: true
+  quota state:
+    done by time: '23:59'
+    max days before: 2
+    max days after: 0
+    quota met: 1
+    quota streak: 1
+    prev completion date: Aug 24, 2022
+clear email:
+  recurrence:
+    recurrence type: weekly
+    details:
+      weekday names:
+      - sunday
+  upcoming buffer: 3
+  required: true
+  quota state:
+    done by time: '23:59'
+    max days before: 6
+    max days after: 0
+    quota met: 0
+    quota streak: 0
+    prev completion date: null
+dishes:
+  recurrence:
+    recurrence type: weekly
+    details:
+      weekday names:
+      - sunday
+  upcoming buffer: 3
+  required: true
+  quota state:
+    done by time: '23:59'
+    max days before: 6
+    max days after: 0
+    quota met: 0
     quota streak: 0
     prev completion date: null

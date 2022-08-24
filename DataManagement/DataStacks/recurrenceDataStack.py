@@ -28,7 +28,7 @@ class RecurrenceDataStack(DataStack):
     @classmethod
     def getRecurrence(cls, name: str) -> Recurrence:
         if name not in cls.__dataStack:
-            raise Exception("recurrence not found")
+            raise KeyError("no recurrence found with this name.")
         
         recurrenceDict = cls.__dataStack[name]
         return Recurrence.fromData(data=recurrenceDict)

@@ -1,0 +1,18 @@
+- !!python/tuple
+  - primary
+  - bold cyan
+- !!python/tuple
+  - other
+  - - !!python/tuple
+      - - !!python/tuple
+          - primary
+          - bold red
+        - !!python/tuple
+          - other
+          - - !!python/tuple
+              - bold cyan
+              - - 0
+                - 13
+      - - 2
+        - 3
+        - 4
