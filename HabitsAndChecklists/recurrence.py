@@ -145,7 +145,8 @@ class WeeklyRecurrence(Recurrence):
         text = ""
         if verbosity >= 0:
             text += super().toText(verbosity=verbosity, indent=indent)
-            text += f"\n{indentB}weekdays: {self.weekdayNames}"
+            weekdayNamesStr = ", ".join(self.weekdayNames)
+            text += f"\n{indentB}{weekdayNamesStr}"
         return text
 
 
@@ -198,13 +199,14 @@ class MonthlyRecurrence(Recurrence):
         text = ""
         if verbosity >= 0:
             text += super().toText(verbosity=verbosity, indent=indent)
-            text += f"\n{indentB}days of the month: {self.days}"
+            daysStr = ", ".join(list(map(str, self.days)))
+            text += f"\n{indentB}month days: {daysStr}"
         return text
 
     
     def toData(self):
         data = {
-            "days of the month": self.days
+            "month days": self.days
         }
         return super().toData(data)
 
@@ -212,7 +214,7 @@ class MonthlyRecurrence(Recurrence):
     @staticmethod
     def fromData(data):
         details = data["details"]
-        days = details["days of the month"]
+        days = details["month days"]
         return MonthlyRecurrence(days)
 
 
@@ -251,7 +253,8 @@ class YearlyRecurrence(Recurrence):
         text = ""
         if verbosity >= 0:
             text += super().toText(verbosity=verbosity, indent=indent)
-            text += f"\n{indentB}days of the year: {self.days}"
+            daysStr = ", ".join(list(map(str, self.days)))
+            text += f"\n{indentB}year days: {daysStr}"
         return text
 
     
@@ -326,7 +329,8 @@ class DaysOfMonthKRecurrence(Recurrence):
         if verbosity >= 0:
             text += super().toText(verbosity=verbosity, indent=indent)
             text += f"\n{indentB}month: {self.month.value.name}"
-            text += f"\n{indentB}days: {self.days}"
+            daysStr = ", ".join(list(map(str, self.days)))
+            text += f"\n{indentB}days: {daysStr}"
         return text
     
 
@@ -440,9 +444,6 @@ class OnceRecurrence(Recurrence):
 
     def __init__(self, date: dt.date):
         self.date = date
-        self.year = date.year
-        self.monthName = CalendarObjects.MONTH_NUM_TO_NAME[date.month]
-        self.day = date.day
 
 
     def nextOccurrence(self, referenceDate: dt.date=dt.date.today()) -> dt.date:
@@ -468,15 +469,13 @@ class OnceRecurrence(Recurrence):
         text = ""
         if verbosity >= 0:
             text += super().toText(verbosity=verbosity, indent=indent)
-            text += f"\n{indentB}date: {self.date.strftime(CalendarObjects.DATE_STR_TEXT_OUTPUT_FORMAT)}"
+            text += f"\n{indentB}{self.date.strftime(CalendarObjects.DATE_STR_TEXT_OUTPUT_FORMAT)}"
         return text
 
     
     def toData(self):
         data = {
-            "year": self.year,
-            "month name": self.monthName,
-            "day": self.day,
+            "date": self.date.strftime(CalendarObjects.DATE_STR_DATA_FORMAT)
         }
         return super().toData(data)
 
@@ -484,12 +483,8 @@ class OnceRecurrence(Recurrence):
     @staticmethod
     def fromData(data):
         details = data["details"]
-        year = details["year"]
-        monthName = details["month name"]
-        monthDict = CalendarObjects.MONTH_NAME_TO_NUM
-        monthNum = monthDict[monthName]
-        day = details["day"]
-        date = dt.date(year, monthNum, day)
+        dateStr = details["date"]
+        date = dt.datetime.strptime(dateStr, CalendarObjects.DATE_STR_DATA_FORMAT).date()
         return OnceRecurrence(date)
 
 

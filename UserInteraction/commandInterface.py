@@ -7,7 +7,7 @@ class CommandInterface:
     @staticmethod
     def getCommand(prompt: str, indent: int=0):
         userInput = UserInput.indentedInput(prompt, indent=indent)
-        UserOutput.indentedPrint("")
+        UserOutput.printWhitespace(2)
         unparsedCommandArgs = userInput.strip().split(UserInput.tabRegex)
         for command in CommandEnum:
             if command.value.SHORTCUT == unparsedCommandArgs[0]:

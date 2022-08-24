@@ -28,7 +28,7 @@ class HabitDataStack(DataStack):
     @classmethod
     def getHabit(cls, name: str) -> Habit:
         if name not in cls.__dataStack:
-            raise Exception("habit not found")
+            raise KeyError("no habit found with this name")
         
         habitDict = cls.__dataStack[name]
         return Habit.fromData(data={name: habitDict})

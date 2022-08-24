@@ -23,9 +23,9 @@ class QuotaState(TextEquivalent, DataEquivalent):
         prevOccurrence = recurrence.prevOccurrence(referenceDate=referenceDate)
         nextOccurrence = recurrence.nextOccurrence(referenceDate=referenceDate)
 
-        if self.dateIsInRange(prevOccurrence, referenceDate=referenceDate):
+        if prevOccurrence != None and self.dateIsInRange(prevOccurrence, referenceDate=referenceDate):
             applicableDate = prevOccurrence
-        elif self.dateIsInRange(nextOccurrence, referenceDate=referenceDate):
+        elif nextOccurrence != None and self.dateIsInRange(nextOccurrence, referenceDate=referenceDate):
             applicableDate = nextOccurrence
         else:
             applicableDate = None
@@ -48,13 +48,17 @@ class QuotaState(TextEquivalent, DataEquivalent):
 
     def numApplicableDatesBetween(self, recurrence: Recurrence, startDate: dt.date, endDate: dt.date) -> int:
         if endDate < startDate:
-            raise ValueError("start date must come before end date.")
+            raise ValueError("start date must be before end date.")
         
         applicableDateForStart = self.applicableCompletionDate(recurrence, referenceDate=startDate)
         applicableDateForEnd = self.applicableCompletionDate(recurrence, referenceDate=endDate)
 
-        if applicableDateForStart == None: applicableDateForStart = startDate
-        if applicableDateForEnd == None: applicableDateForEnd = endDate
+        if applicableDateForStart == None: 
+            applicableDateForStart = recurrence.nextOccurrence(referenceDate=startDate)
+
+
+        if applicableDateForEnd == None: 
+            applicableDateForEnd = endDate
 
         n = 0
         workingDate = applicableDateForStart

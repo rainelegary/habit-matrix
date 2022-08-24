@@ -110,13 +110,7 @@ class RecurrenceDataStackInterface:
     @staticmethod
     def onceRecurrenceSetupPrompt(indent: int=0) -> OnceRecurrence:
         UserOutput.indentedPrint(f"{RecurrencePeriod.ONCE.value} recurrence", indent=indent)
-        year = UserInput.getIntInput("which year? ", indent=indent+1)
-        monthName = UserInput.singleSelectString("which month? ", CalendarObjects.MONTH_NAMES, indent=indent+1)
-        monthNum = CalendarObjects.MONTH_NAME_TO_NUM[monthName]
-        daysInMonth = monthrange(year, monthNum)[1]
-        day = UserInput.getIntInput(f"which day of {monthName}? ", minimum=1, maximum=daysInMonth, indent=indent+1)
-        month = CalendarObjects.MONTH_NAME_TO_NUM[monthName]
-        date = dt.date(year, month, day)
+        date = UserInput.getDateInput("when? ", indent=indent+1)
         return OnceRecurrence(date)
 
     

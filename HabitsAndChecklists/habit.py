@@ -50,14 +50,27 @@ class Habit(TextEquivalent, DataEquivalent):
         indentB = UserOutput.indentPadding(indent=indent+1)
         text = ""
         if verbosity >= 0:
-            text += f"{indentA}habit: {self.title}"
+            text += f"{indentA}{self.title}"
         if verbosity >= 1:
             text += f"\n{self.recurrence.toText(verbosity=verbosity-1, indent=indent+1)}"
         if verbosity >= 2:
             text += f"\n{indentB}upcoming buffer: {self.upcomingBuffer} days"
-            text += f"\n{indentB}required: {self.required}"
+            text += f"\n{indentB}required: {str(self.required).lower()}"
             if self.quotaState != None:
                 text += f"\n{self.quotaState.toText(verbosity=verbosity-1, indent=indent+1)}"
+        if verbosity >= 3:
+            prevOccurrence = self.prevOccurrence()
+            if prevOccurrence == None:
+                prevOccurrenceStr = "none"
+            else:
+                prevOccurrenceStr = prevOccurrence.strftime(CalendarObjects.DATE_STR_TEXT_OUTPUT_FORMAT)
+            nextOccurrence = self.nextOccurrence()
+            if nextOccurrence == None:
+                nextOccurrenceStr = "none"
+            else:
+                nextOccurrenceStr = nextOccurrence.strftime(CalendarObjects.DATE_STR_TEXT_OUTPUT_FORMAT)
+            text += f"\n{indentB}previous occurrence: {prevOccurrenceStr}"
+            text += f"\n{indentB}next occurrence: {nextOccurrenceStr}"
         return text
 
     

@@ -58,6 +58,7 @@ class Command(ABC):
         desc = commandClass.DESCRIPTION
         obligateArgs = commandClass.OBLIGATE_ARG_DESCRIPTIONS
         keywordArgs = commandClass.KEYWORD_ARG_DESCRIPTIONS
+        keywordArgDefaults = commandClass.keywordArgDefaults()
 
         if verbosity >= 0:
             UserOutput.indentedPrint(f"{shortcut} ({name}) - {desc}", indent=indent)
@@ -65,10 +66,13 @@ class Command(ABC):
             UserOutput.indentedPrint("obligate arguments: ", indent=indent+1)
             for obArg in obligateArgs:
                 UserOutput.indentedPrint(f"{obArg} - {obligateArgs[obArg]}", indent=indent+2)
+            if len(obligateArgs) == 0:
+                UserOutput.indentedPrint("none", indent=indent+2)
             UserOutput.indentedPrint("keyword arguments: ", indent=indent+1)
             for kwArg in keywordArgs:
-                UserOutput.indentedPrint(f"{kwArg} - {keywordArgs[kwArg]}", indent=indent+2)
-            UserOutput.indentedPrint(" ")
+                UserOutput.indentedPrint(f"{kwArg} - {keywordArgs[kwArg]} (default value = {keywordArgDefaults[kwArg]})", indent=indent+2)
+            if len(keywordArgs) == 0:
+                UserOutput.indentedPrint("none", indent=indent+2)
         
 
 
@@ -77,10 +81,11 @@ class HelpCommand(Command):
     SHORTCUT = "help"
     DESCRIPTION = "get help for a specific command, or for all commands."
     OBLIGATE_ARG_DESCRIPTIONS = {
-        "command": "name of command to get help for. 'all' to see all commands."
+        
     }
     KEYWORD_ARG_DESCRIPTIONS = {
-        "v": "verbosity, or how much detail to show (-1 or lower being no detail, 3 or higher being high detail).",
+        "c": "name of command to get help for. 'all' to see all commands.",
+        "v": "verbosity, or how much detail to show (-1 or lower being no detail, 3 or higher being high detail)",
     }
     OBLIGATE_ARGS = list(OBLIGATE_ARG_DESCRIPTIONS)
     KEYWORD_ARGS = list(KEYWORD_ARG_DESCRIPTIONS)
@@ -88,7 +93,7 @@ class HelpCommand(Command):
 
     class HelpCommandArgs():
         def __init__(self, commandArgs: dict):
-            commandName = commandArgs["command"]
+            commandName = commandArgs["c"]
             self.command = None
             for command in CommandEnum:
                 if command.value.SHORTCUT == commandName:
@@ -104,7 +109,8 @@ class HelpCommand(Command):
     @staticmethod
     def keywordArgDefaults():
         return {
-            "v": "2"
+            "c": "all",
+            "v": "2",   
         }
 
 
@@ -115,13 +121,20 @@ class HelpCommand(Command):
         verbosity = helpCommandArgs.verbosity
 
         if command == None: # show all commands
-            UserOutput.indentedPrint("all commands: ", indent=indent)
+            UserOutput.indentedPrint("all commands:", indent=indent)
+            UserOutput.printWhitespace(verbosity)
+            i = 0
             for comd in CommandEnum:
                 Command.showCommandHelp(comd, verbosity=verbosity, indent=indent+1)
+                if i < len(CommandEnum) - 1:
+                    UserOutput.printWhitespace(verbosity)
+                i += 1
             
+            UserOutput.printWhitespace()
             UserOutput.indentedPrint("NOTE: separate all command arguments with a tab.", indent=indent)
         else:
             Command.showCommandHelp(command, verbosity=verbosity, indent=indent)
+            UserOutput.printWhitespace()
             UserOutput.indentedPrint("NOTE: separate all command arguments with a tab.", indent=indent)
             
 
@@ -129,12 +142,12 @@ class HelpCommand(Command):
 class ExitCommand(Command):
     NAME = "exit"
     SHORTCUT = "q"
-    DESCRIPTION = "exit the <///HABIT -> MATRIX///>"
+    DESCRIPTION = "exit the habit matrix"
     OBLIGATE_ARG_DESCRIPTIONS = {
         
     }
     KEYWORD_ARG_DESCRIPTIONS = {
-        "save": "whether to save changes or not."
+        "save": "whether to save changes or not"
     }
     OBLIGATE_ARGS = list(OBLIGATE_ARG_DESCRIPTIONS)
     KEYWORD_ARGS = list(KEYWORD_ARG_DESCRIPTIONS)
@@ -173,7 +186,7 @@ class SeeObjectCommand(Command):
         "object name": "name of habit or recurrence."
     }
     KEYWORD_ARG_DESCRIPTIONS = {
-        "v": "verbosity, or how much detail to show (-1 or lower being no detail, 3 or higher being high detail).",
+        "v": "verbosity, or how much detail to show (-1 or lower being no detail, 3 or higher being high detail)",
     }
     OBLIGATE_ARGS = list(OBLIGATE_ARG_DESCRIPTIONS)
     KEYWORD_ARGS = list(KEYWORD_ARG_DESCRIPTIONS)
@@ -198,7 +211,7 @@ class SeeObjectCommand(Command):
     @staticmethod
     def keywordArgDefaults():
         return {
-            "v": "2"
+            "v": "5"
         }
 
     
@@ -316,8 +329,10 @@ class DeleteObjectCommand(Command):
                 delete = UserInput.getBoolInput("delete the habit above? ", indent=indent)
                 if delete:
                     HabitDataStack.removeHabit(objectName)
+                    UserOutput.printWhitespace()
                     UserOutput.indentedPrint("habit deleted.", indent=indent)
                 else:
+                    UserOutput.printWhitespace()
                     UserOutput.indentedPrint("deletion cancelled.", indent=indent)
             elif objectType == Recurrence:
                 recurrence = RecurrenceDataStack.getRecurrence(objectName)
@@ -326,8 +341,10 @@ class DeleteObjectCommand(Command):
                 delete = UserInput.getBoolInput("delete the recurrence above? ", indent=indent)
                 if delete:
                     RecurrenceDataStack.removeRecurrence(objectName)
+                    UserOutput.printWhitespace()
                     UserOutput.indentedPrint("recurrence deleted.", indent=indent)
                 else:
+                    UserOutput.printWhitespace()
                     UserOutput.indentedPrint("deletion cancelled.", indent=indent)
             else:
                 raise InvalidCommandArgsException("unrecognized object type.", CommandEnum.DELETE)
@@ -384,7 +401,7 @@ class SeeChecklistCommand(Command):
     @staticmethod
     def rangeChecklist(indent: int=0):
         startDay = UserInput.getDateInput("start day? ", indent=indent)
-        endDay = UserInput.getDateInput("end day?", indent=indent)
+        endDay = UserInput.getDateInput("end day? ", indent=indent)
 
         checklist = DayRangeChecklist(startDay, endDay)
         checklist.display(indent=indent)
@@ -405,7 +422,9 @@ class SeeChecklistCommand(Command):
     @staticmethod
     def allChecklists(indent: int=0):
         OverdueChecklist().display(indent=indent)
+        UserOutput.indentedPrint("")
         UpcomingChecklist().display(indent=indent)
+        UserOutput.indentedPrint("")
         SingleDayChecklist(dt.date.today()).display(indent=indent)
 
 
@@ -418,7 +437,7 @@ class ListObjectsCommand(Command):
         "object type": "type of object to show a list of, i.e. 'habits' or 'recurrences'."
     }
     KEYWORD_ARG_DESCRIPTIONS = {
-        "v": "verbosity, or how much detail to show (-1 or lower being no detail, 3 or higher being high detail).",
+        "v": "verbosity, or how much detail to show (-1 or lower being no detail, 3 or higher being high detail)",
     }
     OBLIGATE_ARGS = list(OBLIGATE_ARG_DESCRIPTIONS)
     KEYWORD_ARGS = list(KEYWORD_ARG_DESCRIPTIONS)
@@ -441,7 +460,7 @@ class ListObjectsCommand(Command):
     @staticmethod
     def keywordArgDefaults():
         return {
-            "v": "2"
+            "v": "1"
         }
 
 
@@ -465,27 +484,40 @@ class ListObjectsCommand(Command):
             UserOutput.indentedPrint("no habits yet.", indent=indent)
             return
         
+        UserOutput.indentedPrint("all habits: ", indent=indent)
+        UserOutput.printWhitespace(verbosity)
+        i = 0
         for habitName in dataStack:
             habit = HabitDataStack.getHabit(habitName)
-            habitText = habit.toText(verbosity=verbosity, indent=indent)
-            UserOutput.indentedPrint(habitText)
-            UserOutput.indentedPrint("")
+            habitText = habit.toText(verbosity=verbosity, indent=indent+1)
+            if verbosity >= 0:
+                UserOutput.indentedPrint(habitText)
+            if i < len(dataStack) - 1:
+                UserOutput.printWhitespace(verbosity)
+            i += 1
 
 
     @staticmethod
     def listRecurrences(verbosity, indent: int=0):
         indentA = UserOutput.indentPadding(indent=indent)
+        indentB = UserOutput.indentPadding(indent=indent+1)
         dataStack = RecurrenceDataStack.getData()
         if dataStack in [None, {}]:
             UserOutput.indentedPrint("no recurrences yet.", indent=indent)
             return
         
+        UserOutput.indentedPrint("all recurrences: ", indent=indent)
+        UserOutput.printWhitespace(verbosity)
+        i = 0
         for recurrenceName in dataStack:
             recurrence = RecurrenceDataStack.getRecurrence(recurrenceName)
-            recurrenceText = f"{indentA}{recurrenceName}"
-            recurrenceText += f"\n{recurrence.toText(verbosity=verbosity, indent=indent+1)}"
-            UserOutput.indentedPrint(recurrenceText)
-            UserOutput.indentedPrint("")
+            recurrenceText = f"{indentB}{recurrenceName}"
+            recurrenceText += f"\n{recurrence.toText(verbosity=verbosity, indent=indent+2)}"
+            if verbosity >= 0:
+                UserOutput.indentedPrint(recurrenceText)
+            if i < len(dataStack) - 1:
+                UserOutput.printWhitespace(verbosity)
+            i += 1
 
 
 
@@ -497,7 +529,7 @@ class CompleteHabitCommand(Command):
         "habit name": "name of the habit.",
     }
     KEYWORD_ARG_DESCRIPTIONS = {
-        "t": "time when the habit was completed.",
+        "t": "time when the habit was completed",
     }
     OBLIGATE_ARGS = list(OBLIGATE_ARG_DESCRIPTIONS)
     KEYWORD_ARGS = list(KEYWORD_ARG_DESCRIPTIONS)
