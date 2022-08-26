@@ -10,13 +10,18 @@ from HabitsAndChecklists.recurrence import Recurrence
 
 
 class QuotaState(TextEquivalent, DataEquivalent):
-    def __init__(self, doneByTime: dt.time, maxDaysBefore: int, maxDaysAfter: int, quotaMet: int=0, quotaStreak: int=0, prevCompletionDate: dt.datetime=None,):
+    def __init__(self, doneByTime: dt.time, maxDaysBefore: int, maxDaysAfter: int, quotaMet: int=0,
+    quotaStreak: int=0, overdue: bool=False, prevCompletionDate: dt.datetime=None, allCompletionDates: list=None):
         self.doneByTime = doneByTime
         self.maxDaysBefore = maxDaysBefore
         self.maxDaysAfter = maxDaysAfter
         self.quotaMet = quotaMet
         self.quotaStreak = quotaStreak
+        self.overdue = overdue
         self.prevCompletionDate = prevCompletionDate
+        if allCompletionDates == None: 
+            allCompletionDates = []
+        self.allCompletionDates = allCompletionDates
 
     
     def applicableCompletionDate(self, recurrence: Recurrence, referenceDate: dt.date=dt.date.today()) -> dt.date:
@@ -82,6 +87,7 @@ class QuotaState(TextEquivalent, DataEquivalent):
 
         indentA = UserOutput.indentPadding(indent=indent)
         indentB = UserOutput.indentPadding(indent=indent+1)
+        indentC = UserOutput.indentPadding(indent=indent+2)
         text = ""
         if verbosity >= 1:
             text += f"{indentA}quota state"
@@ -91,20 +97,33 @@ class QuotaState(TextEquivalent, DataEquivalent):
             text += f"\n{indentB}done by time: {doneByTimeString}"
             text += f"\n{indentB}max days before: {self.maxDaysBefore}"
             text += f"\n{indentB}max days after: {self.maxDaysAfter}"
+            text += f"\n{indentB}overdue: {self.overdue}"
             text += f"\n{indentB}previous completion date: {prevCompletionDateString}"
+        if verbosity >= 3:
+            text += f"\n{indentB}all completion dates:"
+            if len(self.allCompletionDates) == 0:
+                text += f"\n{indentC}none"
+            for date in self.allCompletionDates:
+                dateStr = date.strftime(CalendarObjects.DATE_STR_TEXT_OUTPUT_FORMAT)
+                text += f"\n{indentC}{dateStr}"
         return text
 
     
     def toData(self) -> dict:
+        timeFormat = CalendarObjects.TIME_STR_DATA_FORMAT
+        dateFormat = CalendarObjects.DATE_STR_DATA_FORMAT
+
         if self.doneByTime == None:
             doneByTimeString = None
         else:
-            doneByTimeString = self.doneByTime.strftime(CalendarObjects.TIME_STR_TEXT_OUTPUT_FORMAT)
+            doneByTimeString = self.doneByTime.strftime(timeFormat)
 
         if self.prevCompletionDate == None:
             prevCompletionDateString = None
         else:
-            prevCompletionDateString = self.prevCompletionDate.strftime(CalendarObjects.DATE_STR_TEXT_OUTPUT_FORMAT)
+            prevCompletionDateString = self.prevCompletionDate.strftime(dateFormat)
+
+        allCompletionDatesStrList = [completionDate.strftime(dateFormat) for completionDate in self.allCompletionDates]
         
         return {
             "done by time": doneByTimeString,
@@ -112,7 +131,9 @@ class QuotaState(TextEquivalent, DataEquivalent):
             "max days after": self.maxDaysAfter,
             "quota met": self.quotaMet,
             "quota streak": self.quotaStreak,
+            "overdue": self.overdue,
             "prev completion date": prevCompletionDateString,
+            "all completion dates": allCompletionDatesStrList,
         }
 
     
@@ -126,16 +147,24 @@ class QuotaState(TextEquivalent, DataEquivalent):
         maxDaysAfter = data["max days after"]
         quotaMet = data["quota met"]
         quotaStreak = data["quota streak"]
+        overdue = data["overdue"]
         prevCompletionDateString = data["prev completion date"]
+        allCompletionDatesStrList = data["all completion dates"]
+
+        timeFormat = CalendarObjects.TIME_STR_DATA_FORMAT
+        dateFormat = CalendarObjects.DATE_STR_DATA_FORMAT
 
         if doneByTimeString == None:
             doneByTime = None
         else:
-            doneByTime = dt.datetime.strptime(doneByTimeString, CalendarObjects.TIME_STR_DATA_FORMAT).time()
+            doneByTime = dt.datetime.strptime(doneByTimeString, timeFormat).time()
 
         if prevCompletionDateString == None:
             prevCompletionDate = None
         else:
-            prevCompletionDate = dt.datetime.strptime(prevCompletionDateString, CalendarObjects.DATE_STR_DATA_FORMAT).date()
+            prevCompletionDate = dt.datetime.strptime(prevCompletionDateString, dateFormat).date()
+
+        allCompletionDates = [dt.datetime.strptime(dateStr, dateFormat).date() for dateStr in allCompletionDatesStrList]
         
-        return QuotaState(doneByTime, maxDaysBefore, maxDaysAfter, quotaMet, quotaStreak, prevCompletionDate)
+        return QuotaState(doneByTime, maxDaysBefore, maxDaysAfter, quotaMet, 
+        quotaStreak, overdue=overdue, prevCompletionDate=prevCompletionDate, allCompletionDates=allCompletionDates)

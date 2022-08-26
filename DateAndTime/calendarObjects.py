@@ -1,5 +1,7 @@
 from enum import Enum
 
+from DataManagement.DataHelpers.dataEquivalent import DataEquivalent
+
 
 
 class Weekday:
@@ -13,6 +15,23 @@ class Month:
     def __init__(self, name: str, num: int):
         self.name = name 
         self.num = num
+
+
+
+# class MonthAndYear(DataEquivalent):
+#     def __init__(self, monthName: str, year: int):
+#         self.monthName = monthName
+#         self.year = year
+    
+
+#     def toData(self) -> str:
+#         return f"{self.monthName} {self.year}"
+    
+
+#     def fromData(self, data: str):
+#         monthName, yearStr = data.split()
+#         year = int(yearStr)
+#         return MonthAndYear(monthName, year)
 
 
 
@@ -54,7 +73,6 @@ class CalendarObjects:
     TIME_STR_TEXT_INPUT_FORMAT = f"%H:%M"
     TIME_STR_TEXT_INPUT_FORMAT_EXAMPLE = f"hh:mm"
 
-    # WEEKDAY_ID_TO_OBJ: dict[WeekdayEnum, Weekday] = {weekday: weekday.value for weekday in WeekdayEnum}
     WEEKDAY_NAME_TO_ID: dict[str, WeekdayEnum] = {weekday.value.name: weekday for weekday in WeekdayEnum}
     WEEKDAY_NUM_TO_ID: dict[int, WeekdayEnum] = {weekday.value.num: weekday for weekday in WeekdayEnum}
     WEEKDAY_NAME_TO_NUM: dict[str, int] = {weekday.value.name: weekday.value.num for weekday in WeekdayEnum}
@@ -63,7 +81,6 @@ class CalendarObjects:
     WEEKDAY_NAMES: list[str] = [weekday.value.name for weekday in WeekdayEnum]
     WEEKDAY_NUMS: list[int] = [weekday.value.num for weekday in WeekdayEnum]
         
-    # MONTH_ID_TO_OBJ: dict[MonthEnum, Month] = {month: month.value for month in MonthEnum}
     MONTH_NAME_TO_ID: dict[str, MonthEnum] = {month.value.name: month for month in MonthEnum}
     MONTH_NUM_TO_ID: dict[int, MonthEnum] = {month.value.num: month for month in MonthEnum}
     MONTH_NAME_TO_NUM: dict[str, int] = {month.value.name: month.value.num for month in MonthEnum}

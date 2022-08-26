@@ -24,22 +24,18 @@ class SingleDayChecklist(Checklist):
 
 
     def display(self, indent: int=0):
-        UserOutput.printWhitespace()
         dayString = self.day.strftime(CalendarObjects.DATE_STR_TEXT_OUTPUT_FORMAT)
         UserOutput.indentedPrint(f"checklist for {dayString}", indent=indent)
-        for habit in self.getHabits():
-            UserOutput.indentedPrint(habit.title, indent=indent+1)
-        
-    
-    def getHabits(self):
-        dataStack = HabitDataStack.getData()
-        if dataStack == None:
-            return
-        
-        for habitName in dataStack:
+
+        atLeastOne = False
+        for habitName in HabitDataStack.getData():
             habit = HabitDataStack.getHabit(habitName)
-            if habit.isToday(self.day):
-                yield habit
+            if habit.isToday():
+                atLeastOne = True
+                UserOutput.indentedPrint(habit.title, indent=indent+1)
+
+        if not atLeastOne:
+            UserOutput.indentedPrint("none", indent=indent+1)
                 
 
 
@@ -56,6 +52,8 @@ class DayRangeChecklist(Checklist):
         UserOutput.indentedPrint(f"checklist for {startDayString} to {endDayString}")
         UserOutput.printWhitespace()
         dayRange = self.dayRange()
+        if len(dayRange == 0):
+            UserOutput.indentedPrint("none", indent=indent+1)
         for i in range(len(dayRange)):
             singleDayChecklist = SingleDayChecklist(dayRange[i])
             singleDayChecklist.display(indent=indent+1)
@@ -84,11 +82,16 @@ class OverdueChecklist(Checklist):
             UserOutput.indentedPrint("none", indent=indent)
             return None
         
+        atLeastOne = False
         for habitName in dataStack:
             habit = HabitDataStack.getHabit(habitName)
             quotaState = habit.quotaState
-            if quotaState is not None and quotaState.quotaMet < 0:
+            if quotaState is not None and quotaState.overdue:
+                atLeastOne = True
                 UserOutput.indentedPrint(f"{habit.title}", indent=indent+1)
+
+        if not atLeastOne:
+            UserOutput.indentedPrint("none", indent=indent+1)
 
 
 
@@ -100,13 +103,18 @@ class UpcomingChecklist(Checklist):
     def display(self, indent: int=0):
         UserOutput.indentedPrint("upcoming checklist", indent=indent)
         dataStack = HabitDataStack.getData()
-        if dataStack == None:
+        if dataStack in [None, {}]:
             UserOutput.indentedPrint("none", indent=indent)
             return None
         
+        atLeastOne = False
         for habitName in dataStack:
             habit = HabitDataStack.getHabit(habitName)
             if habit.isUpcoming():
+                atLeastOne = True
                 UserOutput.indentedPrint(f"{habit.title}", indent=indent+1)
+        
+        if not atLeastOne:
+            UserOutput.indentedPrint("none", indent=indent+1)
 
 

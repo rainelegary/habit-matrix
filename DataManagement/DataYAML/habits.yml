@@ -19,7 +19,9 @@ laundry:
     max days after: 2
     quota met: 1
     quota streak: 1
+    overdue: false
     prev completion date: Aug 23, 2022
+    all completion dates: []
 renew driver's license:
   recurrence:
     recurrence type: once
@@ -33,7 +35,9 @@ renew driver's license:
     max days after: 0
     quota met: 0
     quota streak: 0
+    overdue: false
     prev completion date: null
+    all completion dates: []
 +:
   recurrence:
     recurrence type: weekly
@@ -50,7 +54,9 @@ renew driver's license:
     max days after: 1
     quota met: 1
     quota streak: 4
+    overdue: false
     prev completion date: Aug 24, 2022
+    all completion dates: []
 floss teeth:
   recurrence:
     recurrence type: weekly
@@ -66,7 +72,9 @@ floss teeth:
     max days after: 1
     quota met: -1
     quota streak: 0
+    overdue: false
     prev completion date: Aug 18, 2022
+    all completion dates: []
 up by 9:
   recurrence:
     recurrence type: daily
@@ -79,7 +87,9 @@ up by 9:
     max days after: 0
     quota met: -1
     quota streak: 0
+    overdue: false
     prev completion date: Aug 20, 2022
+    all completion dates: []
 father's day:
   recurrence:
     recurrence type: nth weekday m of month k
@@ -95,7 +105,9 @@ father's day:
     max days after: 10
     quota met: 0
     quota streak: 0
+    overdue: false
     prev completion date: null
+    all completion dates: []
 mother's day:
   recurrence:
     recurrence type: nth weekday m of month k
@@ -111,7 +123,9 @@ mother's day:
     max days after: 10
     quota met: 0
     quota streak: 0
+    overdue: false
     prev completion date: null
+    all completion dates: []
 Isaac's birthday:
   recurrence:
     recurrence type: days of month k
@@ -127,7 +141,9 @@ Isaac's birthday:
     max days after: 7
     quota met: 0
     quota streak: 0
+    overdue: false
     prev completion date: null
+    all completion dates: []
 Sylvie's birthday:
   recurrence:
     recurrence type: days of month k
@@ -143,7 +159,9 @@ Sylvie's birthday:
     max days after: 7
     quota met: 0
     quota streak: 0
+    overdue: false
     prev completion date: null
+    all completion dates: []
 pay tuition:
   recurrence:
     recurrence type: days of month k
@@ -159,7 +177,9 @@ pay tuition:
     max days after: 20
     quota met: 0
     quota streak: 0
+    overdue: false
     prev completion date: null
+    all completion dates: []
 renew vehicle registration:
   recurrence:
     recurrence type: once
@@ -173,7 +193,9 @@ renew vehicle registration:
     max days after: 30
     quota met: 0
     quota streak: 0
+    overdue: false
     prev completion date: null
+    all completion dates: []
 check email:
   recurrence:
     recurrence type: weekly
@@ -188,9 +210,11 @@ check email:
     done by time: '23:59'
     max days before: 2
     max days after: 0
-    quota met: 1
+    quota met: 0
     quota streak: 1
+    overdue: false
     prev completion date: Aug 24, 2022
+    all completion dates: []
 clear email:
   recurrence:
     recurrence type: weekly
@@ -205,7 +229,9 @@ clear email:
     max days after: 0
     quota met: 0
     quota streak: 0
+    overdue: false
     prev completion date: null
+    all completion dates: []
 dishes:
   recurrence:
     recurrence type: weekly
@@ -218,6 +244,9 @@ dishes:
     done by time: '23:59'
     max days before: 6
     max days after: 0
-    quota met: 0
-    quota streak: 0
-    prev completion date: null
+    quota met: 1
+    quota streak: 1
+    overdue: false
+    prev completion date: Aug 28, 2022
+    all completion dates:
+    - Aug 28, 2022
