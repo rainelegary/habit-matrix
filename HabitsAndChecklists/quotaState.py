@@ -3,7 +3,7 @@ import datetime as dt
 from DataManagement.DataHelpers.dataEquivalent import DataEquivalent
 from DataManagement.DataHelpers.textEquivalent import TextEquivalent
 from DateAndTime.calendarObjects import CalendarObjects
-from UserInteraction.userOutput import UserOutput
+from VisualsAndOutput.userOutput import UserOutput
 
 from HabitsAndChecklists.recurrence import Recurrence
 
@@ -81,9 +81,11 @@ class QuotaState(TextEquivalent, DataEquivalent):
             doneByTimeString = self.doneByTime.strftime(CalendarObjects.TIME_STR_TEXT_OUTPUT_FORMAT)
 
         if self.prevCompletionDate == None:
-            prevCompletionDateString = None
+            prevCompletionDateStr = "none"
         else:
-            prevCompletionDateString = self.prevCompletionDate.strftime(CalendarObjects.DATE_STR_TEXT_OUTPUT_FORMAT)
+            prevCompletionDateStr = self.prevCompletionDate.strftime(CalendarObjects.DATE_STR_TEXT_OUTPUT_FORMAT)
+
+        overdueStr = str(self.overdue).lower()
 
         indentA = UserOutput.indentPadding(indent=indent)
         indentB = UserOutput.indentPadding(indent=indent+1)
@@ -97,8 +99,8 @@ class QuotaState(TextEquivalent, DataEquivalent):
             text += f"\n{indentB}done by time: {doneByTimeString}"
             text += f"\n{indentB}max days before: {self.maxDaysBefore}"
             text += f"\n{indentB}max days after: {self.maxDaysAfter}"
-            text += f"\n{indentB}overdue: {self.overdue}"
-            text += f"\n{indentB}previous completion date: {prevCompletionDateString}"
+            text += f"\n{indentB}overdue: {overdueStr}"
+            text += f"\n{indentB}previous completion date: {prevCompletionDateStr}"
         if verbosity >= 3:
             text += f"\n{indentB}all completion dates:"
             if len(self.allCompletionDates) == 0:

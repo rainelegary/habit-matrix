@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import textwrap
 
-from UserInteraction.userOutput import UserOutput
+from VisualsAndOutput.userOutput import UserOutput
 
 class TextEquivalent(ABC):
     @abstractmethod

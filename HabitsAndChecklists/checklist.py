@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from DataManagement.DataStacks.habitDataStack import HabitDataStack
 from DateAndTime.calendarObjects import CalendarObjects
 from UserInteraction.userInput import UserInput
-from UserInteraction.userOutput import UserOutput
+from VisualsAndOutput.userOutput import UserOutput
 from DataManagement.DataHelpers.dataStack import DataStack
 from HabitsAndChecklists.habit import Habit
 
@@ -30,7 +30,7 @@ class SingleDayChecklist(Checklist):
         atLeastOne = False
         for habitName in HabitDataStack.getData():
             habit = HabitDataStack.getHabit(habitName)
-            if habit.isToday():
+            if habit.isToday(referenceDate=self.day):
                 atLeastOne = True
                 UserOutput.indentedPrint(habit.title, indent=indent+1)
 

@@ -1,6 +1,6 @@
 from UserInteraction.commands import Command, CommandEnum, InvalidCommandArgsException
 from UserInteraction.userInput import UserInput
-from UserInteraction.userOutput import UserOutput
+from VisualsAndOutput.userOutput import UserOutput
 
 
 class CommandInterface:

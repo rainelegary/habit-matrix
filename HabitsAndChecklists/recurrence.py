@@ -6,7 +6,7 @@ from enum import Enum
 from DataManagement.DataHelpers.dataEquivalent import DataEquivalent
 from DataManagement.DataHelpers.textEquivalent import TextEquivalent
 from DateAndTime.calendarObjects import CalendarObjects, MonthEnum, WeekdayEnum
-from UserInteraction.userOutput import UserOutput
+from VisualsAndOutput.userOutput import UserOutput
 
 
 class RecurrencePeriod(Enum):

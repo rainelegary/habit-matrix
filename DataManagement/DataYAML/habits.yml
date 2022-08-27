@@ -17,7 +17,7 @@ laundry:
     done by time: '23:59'
     max days before: 2
     max days after: 2
-    quota met: 1
+    quota met: 0
     quota streak: 1
     overdue: false
     prev completion date: Aug 23, 2022
@@ -53,10 +53,11 @@ renew driver's license:
     max days before: 1
     max days after: 1
     quota met: 1
-    quota streak: 4
+    quota streak: 5
     overdue: false
-    prev completion date: Aug 24, 2022
-    all completion dates: []
+    prev completion date: Aug 26, 2022
+    all completion dates:
+    - Aug 26, 2022
 floss teeth:
   recurrence:
     recurrence type: weekly
@@ -72,7 +73,7 @@ floss teeth:
     max days after: 1
     quota met: -1
     quota streak: 0
-    overdue: false
+    overdue: true
     prev completion date: Aug 18, 2022
     all completion dates: []
 up by 9:
@@ -85,11 +86,12 @@ up by 9:
     done by time: 09:00
     max days before: 0
     max days after: 0
-    quota met: -1
-    quota streak: 0
-    overdue: false
-    prev completion date: Aug 20, 2022
-    all completion dates: []
+    quota met: 0
+    quota streak: 1
+    overdue: true
+    prev completion date: Aug 26, 2022
+    all completion dates:
+    - Aug 26, 2022
 father's day:
   recurrence:
     recurrence type: nth weekday m of month k
@@ -211,10 +213,11 @@ check email:
     max days before: 2
     max days after: 0
     quota met: 0
-    quota streak: 1
+    quota streak: 2
     overdue: false
-    prev completion date: Aug 24, 2022
-    all completion dates: []
+    prev completion date: Aug 26, 2022
+    all completion dates:
+    - Aug 26, 2022
 clear email:
   recurrence:
     recurrence type: weekly
@@ -227,11 +230,12 @@ clear email:
     done by time: '23:59'
     max days before: 6
     max days after: 0
-    quota met: 0
-    quota streak: 0
+    quota met: 1
+    quota streak: 1
     overdue: false
-    prev completion date: null
-    all completion dates: []
+    prev completion date: Aug 28, 2022
+    all completion dates:
+    - Aug 28, 2022
 dishes:
   recurrence:
     recurrence type: weekly
@@ -250,3 +254,31 @@ dishes:
     prev completion date: Aug 28, 2022
     all completion dates:
     - Aug 28, 2022
+shave:
+  recurrence:
+    recurrence type: monthly
+    details:
+      month days:
+      - 15
+      - 30
+  upcoming buffer: 7
+  required: true
+  quota state:
+    done by time: '23:59'
+    max days before: 7
+    max days after: 0
+    quota met: 1
+    quota streak: 1
+    overdue: false
+    prev completion date: Aug 30, 2022
+    all completion dates:
+    - Aug 30, 2022
+BVB young adults:
+  recurrence:
+    recurrence type: weekly
+    details:
+      weekday names:
+      - saturday
+  upcoming buffer: 0
+  required: false
+  quota state: null

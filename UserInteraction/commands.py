@@ -15,9 +15,10 @@ from HabitsAndChecklists.checklist import (Checklist, DayRangeChecklist,
                                            UpcomingChecklist)
 from HabitsAndChecklists.habit import Habit
 from HabitsAndChecklists.recurrence import Recurrence
+from VisualsAndOutput.calendar import Calendar
 from .userInput import UserInput
 
-from UserInteraction.userOutput import UserOutput
+from VisualsAndOutput.userOutput import UserOutput
 
 
 class InvalidCommandArgsException(Exception):
@@ -351,6 +352,47 @@ class DeleteObjectCommand(Command):
 
 
 
+class SeeCalendarCommand(Command):
+    NAME = "see calendar"
+    SHORTCUT = "cal"
+    OBLIGATE_ARG_DESCRIPTIONS = {
+
+    }
+    KEYWORD_ARG_DESCRIPTIONS = {
+        "date": "some representative date that lies within the time range of the desired month"
+    }
+    OBLIGATE_ARGS = list(OBLIGATE_ARG_DESCRIPTIONS)
+    KEYWORD_ARGS = list(KEYWORD_ARG_DESCRIPTIONS)
+
+
+    class SeeCalendarCommandArgs():
+        def __init__(self, commandArgs: dict):
+            dateStr = commandArgs["date"]
+            try:
+                dateFormat = CalendarObjects.DATE_STR_TEXT_INPUT_FORMAT
+                self.date = dt.datetime.strptime(dateStr, dateFormat).date()
+            except ValueError:
+                dateFormatExample = CalendarObjects.DATE_STR_TEXT_INPUT_FORMAT_EXAMPLE
+                raise InvalidCommandArgsException(f"date must be in the form {dateFormatExample}.")
+
+    
+    @staticmethod
+    def keywordArgDefaults():
+        today = dt.date.today().strftime(CalendarObjects.DATE_STR_TEXT_INPUT_FORMAT)
+
+        return {
+            "date": today
+        }
+
+
+    @staticmethod
+    def executeCommand(commandArgs: dict, indent: int=0):
+        seeCalendarCommandArgs = SeeCalendarCommand.SeeCalendarCommandArgs(commandArgs)
+        date = seeCalendarCommandArgs.date
+        Calendar.display(date)
+
+
+
 class SeeChecklistCommand(Command):
     NAME = "see checklist"
     SHORTCUT = "scl"
@@ -613,6 +655,7 @@ class CommandEnum(Enum):
     SEE = SeeObjectCommand()
     NEW = NewObjectCommand()
     DELETE = DeleteObjectCommand()
+    SEE_CALENDAR = SeeCalendarCommand()
     SEE_CHECKLIST = SeeChecklistCommand()
     LIST_OBJECTS = ListObjectsCommand()
     COMPLETE_HABIT = CompleteHabitCommand()

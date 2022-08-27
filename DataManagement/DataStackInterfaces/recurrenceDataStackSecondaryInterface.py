@@ -11,7 +11,7 @@ from HabitsAndChecklists.recurrence import (AggregateRecurrence,
                                             RecurrencePeriod, WeeklyRecurrence,
                                             YearlyRecurrence)
 from UserInteraction.userInput import UserInput
-from UserInteraction.userOutput import UserOutput
+from VisualsAndOutput.userOutput import UserOutput
 
 
 
