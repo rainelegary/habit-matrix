@@ -36,5 +36,7 @@ class YAMLFiles:
     HABITS = f"{WORKING_DIR}DataManagement/DataYAML/habits.yml"
     RECURRENCES = f"{WORKING_DIR}DataManagement/DataYAML/recurrences.yml"
     SESSION_INFO = f"{WORKING_DIR}DataManagement/DataYAML/sessionInfo.yml"
+    IMAGES = f"{WORKING_DIR}DataManagement/DataYAML/images.yml"
     EXPERIMENTAL = f"{WORKING_DIR}DataManagement/DataYAML/experimental.yml"
+
     

@@ -3,7 +3,7 @@ import datetime as dt
 from DataManagement.DataHelpers.dataEquivalent import DataEquivalent
 from DataManagement.DataHelpers.textEquivalent import TextEquivalent
 from DateAndTime.calendarObjects import CalendarObjects
-from UserInteraction.userOutput import UserOutput
+from VisualsAndOutput.userOutput import UserOutput
 
 from HabitsAndChecklists.quotaState import QuotaState
 from HabitsAndChecklists.recurrence import (AggregateRecurrence,

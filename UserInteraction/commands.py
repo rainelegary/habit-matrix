@@ -2,12 +2,10 @@ import datetime as dt
 from abc import ABC, abstractmethod
 from enum import Enum
 
-from DataManagement.DataStackInterfaces.habitDataStackInterface import \
-    HabitDataStackInterface
-from DataManagement.DataStackInterfaces.quotaStateDataStackInterface import \
-    QuotaStateDataStackInterface
-from DataManagement.DataStackInterfaces.recurrenceDataStackInterface import \
-    RecurrenceDataStackInterface
+from DataManagement.DataStackInterfaces.habitDataStackSecondaryInterface import \
+    HabitDataStackSecondaryInterface
+from DataManagement.DataStackInterfaces.recurrenceDataStackSecondaryInterface import \
+    RecurrenceDataStackSecondaryInterface
 from DataManagement.DataStacks.habitDataStack import HabitDataStack
 from DataManagement.DataStacks.recurrenceDataStack import RecurrenceDataStack
 from DateAndTime.calendarObjects import CalendarObjects
@@ -17,9 +15,10 @@ from HabitsAndChecklists.checklist import (Checklist, DayRangeChecklist,
                                            UpcomingChecklist)
 from HabitsAndChecklists.habit import Habit
 from HabitsAndChecklists.recurrence import Recurrence
+from VisualsAndOutput.calendar import Calendar
 from .userInput import UserInput
 
-from UserInteraction.userOutput import UserOutput
+from VisualsAndOutput.userOutput import UserOutput
 
 
 class InvalidCommandArgsException(Exception):
@@ -273,11 +272,11 @@ class NewObjectCommand(Command):
         objectType = newObjectCommandArgs.objectType
 
         if objectType == Habit: 
-            habit = HabitDataStackInterface.habitSetupPrompt(indent=indent)
-            HabitDataStackInterface.saveHabitPrompt(habit, indent=indent+1)
+            habit = HabitDataStackSecondaryInterface.habitSetupPrompt(indent=indent)
+            HabitDataStackSecondaryInterface.saveHabitPrompt(habit, indent=indent+1)
         elif objectType == Recurrence:
-            recurrence = RecurrenceDataStackInterface.generalRecurrenceSetupPrompt(indent=indent)
-            RecurrenceDataStackInterface.generalSaveRecurrencePrompt(recurrence, indent=indent+1)
+            recurrence = RecurrenceDataStackSecondaryInterface.generalRecurrenceSetupPrompt(indent=indent)
+            RecurrenceDataStackSecondaryInterface.generalSaveRecurrencePrompt(recurrence, indent=indent+1)
         else:
             raise InvalidCommandArgsException("unrecognized object type.", CommandEnum.NEW)
 
@@ -353,6 +352,47 @@ class DeleteObjectCommand(Command):
 
 
 
+class SeeCalendarCommand(Command):
+    NAME = "see calendar"
+    SHORTCUT = "cal"
+    OBLIGATE_ARG_DESCRIPTIONS = {
+
+    }
+    KEYWORD_ARG_DESCRIPTIONS = {
+        "date": "some representative date that lies within the time range of the desired month"
+    }
+    OBLIGATE_ARGS = list(OBLIGATE_ARG_DESCRIPTIONS)
+    KEYWORD_ARGS = list(KEYWORD_ARG_DESCRIPTIONS)
+
+
+    class SeeCalendarCommandArgs():
+        def __init__(self, commandArgs: dict):
+            dateStr = commandArgs["date"]
+            try:
+                dateFormat = CalendarObjects.DATE_STR_TEXT_INPUT_FORMAT
+                self.date = dt.datetime.strptime(dateStr, dateFormat).date()
+            except ValueError:
+                dateFormatExample = CalendarObjects.DATE_STR_TEXT_INPUT_FORMAT_EXAMPLE
+                raise InvalidCommandArgsException(f"date must be in the form {dateFormatExample}.")
+
+    
+    @staticmethod
+    def keywordArgDefaults():
+        today = dt.date.today().strftime(CalendarObjects.DATE_STR_TEXT_INPUT_FORMAT)
+
+        return {
+            "date": today
+        }
+
+
+    @staticmethod
+    def executeCommand(commandArgs: dict, indent: int=0):
+        seeCalendarCommandArgs = SeeCalendarCommand.SeeCalendarCommandArgs(commandArgs)
+        date = seeCalendarCommandArgs.date
+        Calendar.display(date)
+
+
+
 class SeeChecklistCommand(Command):
     NAME = "see checklist"
     SHORTCUT = "scl"
@@ -395,6 +435,7 @@ class SeeChecklistCommand(Command):
     def dayChecklist(indent: int=0):
         day = UserInput.getDateInput(prompt="which day? ", indent=indent)
         checklist = SingleDayChecklist(day)
+        UserOutput.printWhitespace()
         checklist.display(indent=indent)
 
 
@@ -422,9 +463,9 @@ class SeeChecklistCommand(Command):
     @staticmethod
     def allChecklists(indent: int=0):
         OverdueChecklist().display(indent=indent)
-        UserOutput.indentedPrint("")
+        UserOutput.printWhitespace()
         UpcomingChecklist().display(indent=indent)
-        UserOutput.indentedPrint("")
+        UserOutput.printWhitespace()
         SingleDayChecklist(dt.date.today()).display(indent=indent)
 
 
@@ -566,7 +607,45 @@ class CompleteHabitCommand(Command):
         completeHabitCommandArgs = CompleteHabitCommand.CompleteHabitCommandArgs(commandArgs)
         habit = completeHabitCommandArgs.habit
         completionTime = completeHabitCommandArgs.completionTime
-        HabitDataStackInterface.completeHabit(habit, completionTime=completionTime, indent=indent)
+        HabitDataStackSecondaryInterface.completeHabit(habit, completionTime=completionTime, indent=indent)
+
+    
+
+class DismissHabitCommand(Command):
+    NAME = "dismiss habit"
+    SHORTCUT = "dismiss"
+    DESCRIPTION = "dismiss a habit from the overdue checklist."
+    OBLIGATE_ARG_DESCRIPTIONS = {
+        "habit name": "name of the habit.",
+    }
+    KEYWORD_ARG_DESCRIPTIONS = {
+        
+    }
+    OBLIGATE_ARGS = list(OBLIGATE_ARG_DESCRIPTIONS)
+    KEYWORD_ARGS = list(KEYWORD_ARG_DESCRIPTIONS)
+
+
+    class DismissHabitCommandArgs():
+        def __init__(self, commandArgs):
+            habitName = commandArgs["habit name"]
+            habitData = HabitDataStack.getData()
+            if habitName not in habitData:
+                raise InvalidCommandArgsException("the 'habit' argument must be the name of an existing habit.", CommandEnum.DISMISS_HABIT)
+            self.habit = HabitDataStack.getHabit(habitName)
+    
+
+    @staticmethod
+    def keywordArgDefaults():
+        return {
+
+        }
+
+
+    @staticmethod
+    def executeCommand(commandArgs: dict, indent: int=0):
+        completeHabitCommandArgs = DismissHabitCommand.DismissHabitCommandArgs(commandArgs)
+        habit = completeHabitCommandArgs.habit
+        HabitDataStackSecondaryInterface.dismissHabit(habit, indent=indent)
 
 
 
@@ -576,7 +655,9 @@ class CommandEnum(Enum):
     SEE = SeeObjectCommand()
     NEW = NewObjectCommand()
     DELETE = DeleteObjectCommand()
+    SEE_CALENDAR = SeeCalendarCommand()
     SEE_CHECKLIST = SeeChecklistCommand()
     LIST_OBJECTS = ListObjectsCommand()
     COMPLETE_HABIT = CompleteHabitCommand()
+    DISMISS_HABIT = DismissHabitCommand()
     

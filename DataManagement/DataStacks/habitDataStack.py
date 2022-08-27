@@ -6,7 +6,7 @@ from HabitsAndChecklists.habit import Habit
 
 class HabitDataStack(DataStack):
     YAML_FILE = YAMLFiles.HABITS
-    __dataStack = YAMLInteraction.YAMLtoData(YAMLFiles.HABITS)
+    __dataStack = YAMLInteraction.YAMLtoData(YAML_FILE)
     if __dataStack == None: __dataStack = {}
     
 

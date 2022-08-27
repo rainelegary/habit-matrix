@@ -1,0 +1,54 @@
+header:
+  letters:
+    - "\u256c\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256c\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256c\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256c\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256c\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256c\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256c\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256c"
+    - "\u2551 Sunday      \u2551 Monday      \u2551 Tuesday     \u2551 Wednesday   \u2551 Thursday    \u2551 Friday      \u2551 Saturday    \u2551"
+    - "\u256c\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256c\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256c\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256c\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256c\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256c\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256c\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256c"
+  colors:
+    - "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    - "bdddddddddddddbdddddddddddddbdddddddddddddbdddddddddddddbdddddddddddddbdddddddddddddbdddddddddddddb"
+    - "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+empty box:
+  letters:
+    - "\u256c\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256c"
+    - "\u2551          DD \u2551"
+    - "\u2551             \u2551"
+    - "\u2551             \u2551"
+    - "\u2551             \u2551"
+    - "\u2551             \u2551"
+    - "\u2551             \u2551"
+    - "\u2551             \u2551"
+    - "\u256c\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256c"
+  colors:
+    - "bbbbbbbbbbbbbbb"
+    - "bbbbbbbbbbbddbb"
+    - "bbbbbbbbbbbbbbb"
+    - "bbbbbbbbbbbbbbb"
+    - "bbbbbbbbbbbbbbb"
+    - "bbbbbbbbbbbbbbb"
+    - "bbbbbbbbbbbbbbb"
+    - "bbbbbbbbbbbbbbb"
+    - "bbbbbbbbbbbbbbb"
+checked box:
+  letters:
+    - "\u256c\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256c"
+    - "\u2551          DD \u2551"
+    - "\u2551      ^      \u2551"
+    - "\u2551     (       \u2551"
+    - "\u2551    < X >    \u2551"
+    - "\u2551       )     \u2551"
+    - "\u2551      v      \u2551"
+    - "\u2551             \u2551"
+    - "\u256c\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256c"
+  colors:
+    - "bbbbbbbbbbbbbbb"
+    - "bbbbbbbbbbbddbb"
+    - "bbbbbbbgbbbbbbb"
+    - "bbbbbbgggbbbbbb"
+    - "bbbggggrggggbbb"
+    - "bbbbbbgggbbbbbb"
+    - "bbbbbbbgbbbbbbb"
+    - "bbbbbbbbbbbbbbb"
+    - "bbbbbbbbbbbbbbb"
+
+    
+    

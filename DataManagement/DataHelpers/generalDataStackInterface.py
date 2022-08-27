@@ -1,8 +1,7 @@
 from enum import Enum
 from DataManagement.DataHelpers.yamlInteraction import YAMLFiles, YAMLInteraction
-from DataManagement.DataObjects.sessionInfo import SessionInfo
-from DataManagement.DataStackInterfaces.habitDataStackInterface import HabitDataStackInterface
-from DataManagement.DataStackInterfaces.sessionInfoDataStackInterface import SessionInfoDataStackInterface
+from DataManagement.DataStackInterfaces.habitDataStackSecondaryInterface import HabitDataStackSecondaryInterface
+from DataManagement.DataStackInterfaces.sessionInfoDataStackSecondaryInterface import SessionInfoDataStackSecondaryInterface
 
 from DataManagement.DataStacks.habitDataStack import HabitDataStack
 from DataManagement.DataStacks.recurrenceDataStack import RecurrenceDataStack
@@ -27,14 +26,14 @@ class GeneralDataStackInterface:
     @staticmethod
     def sessionStartupDataUpdates():
         # must happen before updating session info
-        HabitDataStackInterface.timeElapsedUpdateAllQuotaStates()
+        HabitDataStackSecondaryInterface.timeElapsedUpdateAllQuotaStates()
         # must happen after updating quotas due to time elapsing
-        SessionInfoDataStackInterface.updateSessionInfo()
+        SessionInfoDataStackSecondaryInterface.updateSessionInfo()
 
 
     @staticmethod
     def sessionClosingDataUpdates():
         # must happen before updating session info
-        HabitDataStackInterface.timeElapsedUpdateAllQuotaStates()
+        HabitDataStackSecondaryInterface.timeElapsedUpdateAllQuotaStates()
         # must happen after updating quotas due to time elapsing
-        SessionInfoDataStackInterface.updateSessionInfo()
+        SessionInfoDataStackSecondaryInterface.updateSessionInfo()

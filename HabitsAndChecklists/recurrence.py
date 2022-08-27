@@ -6,7 +6,7 @@ from enum import Enum
 from DataManagement.DataHelpers.dataEquivalent import DataEquivalent
 from DataManagement.DataHelpers.textEquivalent import TextEquivalent
 from DateAndTime.calendarObjects import CalendarObjects, MonthEnum, WeekdayEnum
-from UserInteraction.userOutput import UserOutput
+from VisualsAndOutput.userOutput import UserOutput
 
 
 class RecurrencePeriod(Enum):
@@ -358,6 +358,8 @@ class NthWeekdayMOfMonthKRecurrence(Recurrence):
 
     def __init__(self, month: MonthEnum, weekday: WeekdayEnum, n: int):
         self.month = month
+        self.monthName = month.value.name
+        self.monthNum = month.value.num
         self.weekday = weekday
         self.n = n
 
@@ -368,16 +370,16 @@ class NthWeekdayMOfMonthKRecurrence(Recurrence):
         day = referenceDate.day
 
         if month > self.month.value.num: 
-            firstDayOfMonth = dt.date(year + 1, month, 1)
+            firstDayOfMonth = dt.date(year + 1, self.monthNum, 1)
         else: 
-            firstDayOfMonth = dt.date(year, month, 1)
+            firstDayOfMonth = dt.date(year, self.monthNum, 1)
 
         weekdayOfFirst = firstDayOfMonth.weekday()
         weekdayNum = self.weekday.value.num
         daysFromFirstToNthWeekdayM = ((weekdayNum - weekdayOfFirst) % 7) + (7 * (self.n - 1))
 
         if month == self.month.value.num and day > 1 + daysFromFirstToNthWeekdayM:
-            firstDayOfMonth = dt.date(year + 1, month, 1)
+            firstDayOfMonth = dt.date(year + 1, self.monthNum, 1)
             weekdayOfFirst = firstDayOfMonth.weekday()
             daysFromFirstToNthWeekdayM = ((weekdayNum - weekdayOfFirst) % 7) + (7 * (self.n - 1))
 
@@ -390,16 +392,16 @@ class NthWeekdayMOfMonthKRecurrence(Recurrence):
         day = referenceDate.day
 
         if month < self.month.value.num:
-            firstDayOfMonth = dt.date(year - 1, month, 1)
+            firstDayOfMonth = dt.date(year - 1, self.monthNum, 1)
         else:
-            firstDayOfMonth = dt.date(year, month, 1)
+            firstDayOfMonth = dt.date(year, self.monthNum, 1)
 
         weekdayOfFirst = firstDayOfMonth.weekday()
         weekdayNum = self.weekday.value.num
         daysFromFirstToNthWeekdayM = ((weekdayNum - weekdayOfFirst) % 7) + (7 * (self.n - 1))
 
         if month == self.month.value.num and day < 1 + daysFromFirstToNthWeekdayM:
-            firstDayOfMonth = dt.date(year - 1, month, 1)
+            firstDayOfMonth = dt.date(year - 1, self.monthNum, 1)
             weekdayOfFirst = firstDayOfMonth.weekday()
             daysFromFirstToNthWeekdayM = ((weekdayNum - weekdayOfFirst) % 7) + (7 * (self.n - 1))
         

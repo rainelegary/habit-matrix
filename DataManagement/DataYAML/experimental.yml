@@ -1,18 +1,47 @@
-- !!python/tuple
-  - primary
-  - bold cyan
-- !!python/tuple
-  - other
-  - - !!python/tuple
-      - - !!python/tuple
-          - primary
-          - bold red
-        - !!python/tuple
-          - other
-          - - !!python/tuple
-              - bold cyan
-              - - 0
-                - 13
-      - - 2
-        - 3
-        - 4
+header:
+  characters:
+    - "_____________________________________________________________________________________"
+    - "| Sunday    | Monday    | Tuesday   | Wednesday | Thursday  | Friday    | Saturday  |"
+    - "|___________|___________|___________|___________|___________|___________|___________|"
+  colors:
+    - ""
+    - ""
+    - ""
+empty box:
+  characters:
+    - "O _________ O"
+    - "]        DD ]"
+    - "[           ["
+    - "]           ]"
+    - "[           ["
+    - "]           ]"
+    - "O _________ O"
+  colors:
+    - "bbbbbbbbbbbbb"
+    - "bbbbbbbbbwwbb"
+    - "bbbbbbbbbbbbb"
+    - "bbbbbbbbbbbbb"
+    - "bbbbbbbbbbbbb"
+    - "bbbbbbbbbbbbb"
+    - "bbbbbbbbbbbbb"
+checked box:
+  characters:
+    - "O _________ O"
+    - "]        DD ]"
+    - "[    .|'    ["
+    - "]   < X >   ]"
+    - "[    .|'    ["
+    - "]           ]"
+    - "O _________ O"
+    colors:
+    - "bbbbbbbbbbbbb"
+    - "bbbbbbbbbwwbb"
+    - "bbbbbrrrbbbbb"
+    - "bbbbrrrrrbbbb"
+    - "bbbbbrrrbbbbb"
+    - "bbbbbbbbbbbbb"
+    - "bbbbbbbbbbbbb"
+    - "\u2551             \u2551             \u2551             \u2551             \u2551             \u2551             \u2551             \u2551"
+    - "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+
+    
