@@ -9,13 +9,14 @@ from DataManagement.DataStackInterfaces.recurrenceDataStackSecondaryInterface im
 from DataManagement.DataStacks.habitDataStack import HabitDataStack
 from DataManagement.DataStacks.recurrenceDataStack import RecurrenceDataStack
 from DateAndTime.calendarObjects import CalendarObjects
-from HabitsAndChecklists.checklist import (Checklist, DayRangeChecklist,
+from HabitsAndChecklists.checklist import (Checklist, DayRangeChecklist, LastMinuteChecklist,
                                            OverdueChecklist,
                                            SingleDayChecklist,
                                            UpcomingChecklist)
 from HabitsAndChecklists.habit import Habit
 from HabitsAndChecklists.recurrence import Recurrence
 from VisualsAndOutput.calendar import Calendar
+from VisualsAndOutput.color import ColorEnum
 from .userInput import UserInput
 
 from VisualsAndOutput.userOutput import UserOutput
@@ -60,14 +61,16 @@ class Command(ABC):
         keywordArgDefaults = commandClass.keywordArgDefaults()
 
         if verbosity >= 0:
-            UserOutput.indentedPrint(f"{shortcut} ({name}) - {desc}", indent=indent)
+            greenCode = ColorEnum.GREEN.value.code
+            blueCode = ColorEnum.BLUE.value.code
+            UserOutput.indentedPrint(f"{greenCode}{shortcut} ({name}) {blueCode}- {desc}", indent=indent)
         if verbosity >= 1:
-            UserOutput.indentedPrint("obligate arguments: ", indent=indent+1)
+            UserOutput.indentedPrint(f"obligate arguments: ", indent=indent+1)
             for obArg in obligateArgs:
                 UserOutput.indentedPrint(f"{obArg} - {obligateArgs[obArg]}", indent=indent+2)
             if len(obligateArgs) == 0:
                 UserOutput.indentedPrint("none", indent=indent+2)
-            UserOutput.indentedPrint("keyword arguments: ", indent=indent+1)
+            UserOutput.indentedPrint(f"keyword arguments: ", indent=indent+1)
             for kwArg in keywordArgs:
                 UserOutput.indentedPrint(f"{kwArg} - {keywordArgs[kwArg]} (default value = {keywordArgDefaults[kwArg]})", indent=indent+2)
             if len(keywordArgs) == 0:
@@ -84,7 +87,7 @@ class HelpCommand(Command):
     }
     KEYWORD_ARG_DESCRIPTIONS = {
         "c": "name of command to get help for. 'all' to see all commands.",
-        "v": "verbosity, or how much detail to show (-1 or lower being no detail, 3 or higher being high detail)",
+        "v": "verbosity, or how much detail to show (-1 or lower being no detail, 3 or higher being high detail).",
     }
     OBLIGATE_ARGS = list(OBLIGATE_ARG_DESCRIPTIONS)
     KEYWORD_ARGS = list(KEYWORD_ARG_DESCRIPTIONS)
@@ -141,12 +144,12 @@ class HelpCommand(Command):
 class ExitCommand(Command):
     NAME = "exit"
     SHORTCUT = "q"
-    DESCRIPTION = "exit the habit matrix"
+    DESCRIPTION = "exit the habit matrix."
     OBLIGATE_ARG_DESCRIPTIONS = {
         
     }
     KEYWORD_ARG_DESCRIPTIONS = {
-        "save": "whether to save changes or not"
+        "save": "whether to save changes or not."
     }
     OBLIGATE_ARGS = list(OBLIGATE_ARG_DESCRIPTIONS)
     KEYWORD_ARGS = list(KEYWORD_ARG_DESCRIPTIONS)
@@ -185,7 +188,7 @@ class SeeObjectCommand(Command):
         "object name": "name of habit or recurrence."
     }
     KEYWORD_ARG_DESCRIPTIONS = {
-        "v": "verbosity, or how much detail to show (-1 or lower being no detail, 3 or higher being high detail)",
+        "v": "verbosity, or how much detail to show (-1 or lower being no detail, 3 or higher being high detail).",
     }
     OBLIGATE_ARGS = list(OBLIGATE_ARG_DESCRIPTIONS)
     KEYWORD_ARGS = list(KEYWORD_ARG_DESCRIPTIONS)
@@ -355,11 +358,12 @@ class DeleteObjectCommand(Command):
 class SeeCalendarCommand(Command):
     NAME = "see calendar"
     SHORTCUT = "cal"
+    DESCRIPTION = "view a calendar displaying which days all habits have been completed in the applicable month."
     OBLIGATE_ARG_DESCRIPTIONS = {
 
     }
     KEYWORD_ARG_DESCRIPTIONS = {
-        "date": "some representative date that lies within the time range of the desired month"
+        "date": "some representative date that lies within the time range of the desired month."
     }
     OBLIGATE_ARGS = list(OBLIGATE_ARG_DESCRIPTIONS)
     KEYWORD_ARGS = list(KEYWORD_ARG_DESCRIPTIONS)
@@ -398,7 +402,7 @@ class SeeChecklistCommand(Command):
     SHORTCUT = "scl"
     DESCRIPTION = "view a checklist of habits."
     OBLIGATE_ARG_DESCRIPTIONS = {
-        "checklist type": "type of checklist i.e. 'day', 'range', 'overdue', 'upcoming', or 'all'."
+        "checklist type": "type of checklist i.e. 'day', 'range', 'overdue', 'last minute', 'upcoming', or 'all'."
     }
     KEYWORD_ARG_DESCRIPTIONS = {
 
@@ -417,18 +421,19 @@ class SeeChecklistCommand(Command):
     @staticmethod
     def executeCommand(commandArgs: dict, indent: int=0):
         checklistType = commandArgs["checklist type"]
-        if checklistType == "day":
-            SeeChecklistCommand.dayChecklist(indent=indent)
-        elif checklistType == "range":
-            SeeChecklistCommand.rangeChecklist(indent=indent)
-        elif checklistType == "overdue":
-            SeeChecklistCommand.overdueChecklist(indent=indent)
-        elif checklistType == "upcoming":
-            SeeChecklistCommand.upcomingChecklist(indent=indent)
-        elif checklistType == "all":
-            SeeChecklistCommand.allChecklists(indent=indent)
-        else:
+        methodDict = {
+            "day": SeeChecklistCommand.dayChecklist,
+            "range": SeeChecklistCommand.rangeChecklist,
+            "overdue": SeeChecklistCommand.overdueChecklist,
+            "last minute": SeeChecklistCommand.lastMinuteChecklist,
+            "upcoming": SeeChecklistCommand.upcomingChecklist,
+            "all": SeeChecklistCommand.allChecklists,
+        }
+
+        if checklistType not in methodDict:
             raise InvalidCommandArgsException("not a recognized checklist type.", CommandEnum.SEE_CHECKLIST)
+
+        methodDict[checklistType](indent=indent)
 
         
     @staticmethod
@@ -455,6 +460,12 @@ class SeeChecklistCommand(Command):
 
     
     @staticmethod
+    def lastMinuteChecklist(indent: int=0):
+        checklist = LastMinuteChecklist()
+        checklist.display(indent=indent)
+
+    
+    @staticmethod
     def upcomingChecklist(indent: int=0):
         checklist = UpcomingChecklist()
         checklist.display(indent=indent)
@@ -465,6 +476,8 @@ class SeeChecklistCommand(Command):
         OverdueChecklist().display(indent=indent)
         UserOutput.printWhitespace()
         UpcomingChecklist().display(indent=indent)
+        UserOutput.printWhitespace()
+        LastMinuteChecklist().display(indent=indent)
         UserOutput.printWhitespace()
         SingleDayChecklist(dt.date.today()).display(indent=indent)
 
@@ -478,7 +491,7 @@ class ListObjectsCommand(Command):
         "object type": "type of object to show a list of, i.e. 'habits' or 'recurrences'."
     }
     KEYWORD_ARG_DESCRIPTIONS = {
-        "v": "verbosity, or how much detail to show (-1 or lower being no detail, 3 or higher being high detail)",
+        "v": "verbosity, or how much detail to show (-1 or lower being no detail, 3 or higher being high detail).",
     }
     OBLIGATE_ARGS = list(OBLIGATE_ARG_DESCRIPTIONS)
     KEYWORD_ARGS = list(KEYWORD_ARG_DESCRIPTIONS)
@@ -570,7 +583,7 @@ class CompleteHabitCommand(Command):
         "habit name": "name of the habit.",
     }
     KEYWORD_ARG_DESCRIPTIONS = {
-        "t": "time when the habit was completed",
+        "t": "time when the habit was completed.",
     }
     OBLIGATE_ARGS = list(OBLIGATE_ARG_DESCRIPTIONS)
     KEYWORD_ARGS = list(KEYWORD_ARG_DESCRIPTIONS)

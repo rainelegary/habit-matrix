@@ -3,6 +3,7 @@ import datetime as dt
 from DataManagement.DataHelpers.dataEquivalent import DataEquivalent
 from DataManagement.DataHelpers.textEquivalent import TextEquivalent
 from DateAndTime.calendarObjects import CalendarObjects
+from VisualsAndOutput.color import ColorEnum
 from VisualsAndOutput.userOutput import UserOutput
 
 from HabitsAndChecklists.quotaState import QuotaState
@@ -49,8 +50,12 @@ class Habit(TextEquivalent, DataEquivalent):
         indentA = UserOutput.indentPadding(indent=indent)
         indentB = UserOutput.indentPadding(indent=indent+1)
         text = ""
+
+        greenCode = ColorEnum.GREEN.value.code
+        defaultCode = ColorEnum.DEFAULT.value.code
+
         if verbosity >= 0:
-            text += f"{indentA}{self.title}"
+            text += f"{indentA}{greenCode}{self.title}{defaultCode}"
         if verbosity >= 1:
             text += f"\n{self.recurrence.toText(verbosity=verbosity-1, indent=indent+1)}"
         if verbosity >= 2:

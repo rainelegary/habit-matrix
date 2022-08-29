@@ -1,4 +1,5 @@
 import textwrap
+import os
 
 from VisualsAndOutput.color import ANSIEscapeSequenceEnum, ColorEnum
 
@@ -26,7 +27,7 @@ class UserOutput:
     
     @classmethod
     def indentedPrint(cls, output: str, indent: int=0, textColor: ColorEnum=None, 
-    indentColor: ColorEnum=None, bold: bool=None):
+    indentColor: ColorEnum=None):
         textColorCode = cls.currentTextColor.value.code
         indentColorCode = cls.currentIndentColor.value.code
 
@@ -34,16 +35,12 @@ class UserOutput:
             textColorCode = textColor.value.code
         if indentColor != None:
             indentColorCode = indentColor.value.code
-
-        if bold == None:
-            bold = cls.currentBoldText
         
-        boldCode = ANSIEscapeSequenceEnum.BOLD.value.code * bold
         resetCode = ANSIEscapeSequenceEnum.RESET.value.code
 
         ind = UserOutput.indentPadding(indent)
 
-        print(f"{boldCode}{indentColorCode}{ind}{textColorCode}{output}{resetCode}")
+        print(f"{indentColorCode}{ind}{textColorCode}{output}{resetCode}")
 
 
     @staticmethod

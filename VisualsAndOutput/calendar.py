@@ -1,3 +1,4 @@
+import copy
 import datetime as dt
 import calendar as cal
 from DataManagement.DataStacks.imageDataStack import ImageDataStack
@@ -31,8 +32,9 @@ class Calendar:
         voidBoxImage = Image("void box", l, emptyBoxImage.colors)
 
         for i in range(7):
-            x = i * (emptyBoxImage.width - 1)
-            calendarDisplay.addImage(voidBoxImage, x, headerImage.height - 1)
+            xPos = i * (emptyBoxImage.width - 1)
+            modifiedBoxImage = Calendar.overwriteBoxCorners(voidBoxImage, i, 0)
+            calendarDisplay.addImage(modifiedBoxImage, xPos, headerImage.height - 1)
 
 
     @staticmethod
@@ -65,20 +67,63 @@ class Calendar:
             l = [i.replace("DD", dayStr) for i in l]
 
             modifiedBoxImage = Image("modifed box image", l, boxImage.colors)
+            modifiedBoxImage = Calendar.overwriteBoxCorners(modifiedBoxImage, column, row, day, daysInMonth)
 
             calendarDisplay.addImage(modifiedBoxImage, x, y)
-        
+    
 
-        
+    @staticmethod
+    def overwriteBoxCorners(boxImage: Image, col, row, day=None, daysInMonth=None):
+        charDict = {
+            "": "\u256c",
+            "tl": "\u2554",
+            "t": "\u2566",
+            "tr": "\u2557",
+            "r": "\u2563",
+            "br": "\u255d",
+            "b": "\u2569",
+            "bl": "\u255a",
+            "l": "\u255f",
+        }
 
+        # z--y
+        # |  |
+        # x--w
+
+        zt = (row == 0)
+        zl = (col == 0)
+
+        yt = (row == 0)
+        yr = (col == 6)
         
+        if (day == None or daysInMonth == None):
+            xb = False
+            xl = (col == 0)
+
+            wb = False
+            wr = (col == 6)
+        else:
+            DAYS_PER_WEEK = 7
+            colOfLast = (col + daysInMonth - day) % DAYS_PER_WEEK
+            rowOfLast = row + (col + daysInMonth - day) // DAYS_PER_WEEK
+
+            xb = (col > colOfLast + 1 and row == rowOfLast - 1) or (row == rowOfLast)
+            xl = (col == 0)
             
+            wb = (col > colOfLast and row == rowOfLast - 1) or (row == rowOfLast)
+            wr = (col == 6) or (row == rowOfLast and col == colOfLast)
 
-        
+        z = charDict["t" * zt + "l" * zl]
+        y = charDict["t" * yt + "r" * yr]
+        x = charDict["b" * xb + "l" * xl]
+        w = charDict["b" * wb + "r" * wr]
 
+        l = copy.deepcopy(boxImage.letters)
+        width = len(l[0])
+        height = len(l)
+        l[0] = z + l[0][1:width - 1] + y
+        l[height - 1] = x + l[height - 1][1:width -1 ] + w
 
+        modifiedBoxImage = Image("modifed box image", l, boxImage.colors)
 
-
-
-
-
+        return modifiedBoxImage

@@ -3,6 +3,7 @@ import datetime as dt
 from DataManagement.DataHelpers.dataEquivalent import DataEquivalent
 from DataManagement.DataHelpers.textEquivalent import TextEquivalent
 from DateAndTime.calendarObjects import CalendarObjects
+from VisualsAndOutput.color import ColorEnum
 from VisualsAndOutput.userOutput import UserOutput
 
 from HabitsAndChecklists.recurrence import Recurrence
@@ -90,6 +91,7 @@ class QuotaState(TextEquivalent, DataEquivalent):
         indentA = UserOutput.indentPadding(indent=indent)
         indentB = UserOutput.indentPadding(indent=indent+1)
         indentC = UserOutput.indentPadding(indent=indent+2)
+
         text = ""
         if verbosity >= 1:
             text += f"{indentA}quota state"
