@@ -1,1 +1,93 @@
-{}
+walk dog:
+  recurrence:
+    recurrence type: daily
+    details: {}
+  upcoming buffer: 0
+  required: false
+  quota state: null
+floss teeth:
+  recurrence:
+    recurrence type: weekly
+    details:
+      weekday names:
+      - thursday
+      - sunday
+  upcoming buffer: 2
+  required: true
+  quota state:
+    done by time: '23:59'
+    max days before: 5
+    max days after: 0
+    quota met: 0
+    quota streak: 0
+    overdue: false
+    prev completion date: null
+    all completion dates: []
+renew driver's licence:
+  recurrence:
+    recurrence type: once
+    details:
+      date: Sep 01, 2027
+  upcoming buffer: 30
+  required: true
+  quota state:
+    done by time: '23:59'
+    max days before: 300
+    max days after: 30
+    quota met: 0
+    quota streak: 0
+    overdue: false
+    prev completion date: null
+    all completion dates: []
+up by 8:
+  recurrence:
+    recurrence type: daily
+    details: {}
+  upcoming buffer: 0
+  required: true
+  quota state:
+    done by time: 08:00
+    max days before: 0
+    max days after: 0
+    quota met: 1
+    quota streak: 1
+    overdue: false
+    prev completion date: Aug 28, 2022
+    all completion dates:
+    - Aug 28, 2022
+father's day:
+  recurrence:
+    recurrence type: nth weekday m of month k
+    details:
+      month name: june
+      weekday name: sunday
+      n: 3
+  upcoming buffer: 7
+  required: true
+  quota state:
+    done by time: '23:59'
+    max days before: 0
+    max days after: 3
+    quota met: 0
+    quota streak: 0
+    overdue: false
+    prev completion date: null
+    all completion dates: []
+mother's day:
+  recurrence:
+    recurrence type: nth weekday m of month k
+    details:
+      month name: may
+      weekday name: sunday
+      n: 2
+  upcoming buffer: 7
+  required: true
+  quota state:
+    done by time: '23:59'
+    max days before: 0
+    max days after: 3
+    quota met: 0
+    quota streak: 0
+    overdue: false
+    prev completion date: null
+    all completion dates: []

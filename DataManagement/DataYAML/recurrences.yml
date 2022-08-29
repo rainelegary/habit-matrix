@@ -1,1 +1,16 @@
-{}
+morb:
+  recurrence type: aggregate
+  details:
+    recurrences:
+    - recurrence type: once
+      details:
+        date: Oct 18, 3023
+    - recurrence type: weekly
+      details:
+        weekday names:
+        - friday
+        - saturday
+    - recurrence type: yearly
+      details:
+        days of the year:
+        - 59
