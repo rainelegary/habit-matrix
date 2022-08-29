@@ -37,7 +37,10 @@ class Launcher:
         try:
             while True:
                 try:
-                    CommandInterface.getCommand(prompt="< habit </> matrix > ")
+                    skyCode = ColorEnum.SKY.value.code
+                    defaultCode = ColorEnum.DEFAULT.value.code
+
+                    CommandInterface.getCommand(prompt=f"{skyCode} < habit </> matrix > {defaultCode}")
                     UserOutput.printWhitespace(2)
                 except InvalidCommandArgsException as icae:
                     UserOutput.indentedPrint(output="invalid command arguments;")
@@ -81,12 +84,8 @@ class Launcher:
 
     @staticmethod
     def runExperimental():
-        # image = ImageDataStack.getImage("checked box")
-        # display = VisualDisplay(15, 15)
-        # display.addImage(image, 0, 0)
-        # display.display()
+        pass
 
-        Calendar.display()
 
 
 def main():

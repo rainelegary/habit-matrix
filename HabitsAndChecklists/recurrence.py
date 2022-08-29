@@ -6,6 +6,7 @@ from enum import Enum
 from DataManagement.DataHelpers.dataEquivalent import DataEquivalent
 from DataManagement.DataHelpers.textEquivalent import TextEquivalent
 from DateAndTime.calendarObjects import CalendarObjects, MonthEnum, WeekdayEnum
+from VisualsAndOutput.color import ColorEnum
 from VisualsAndOutput.userOutput import UserOutput
 
 
@@ -44,8 +45,9 @@ class Recurrence(TextEquivalent, DataEquivalent, ABC):
         return nextOcc == referenceDate
 
 
-    def toText(self, verbosity: int=0, indent=0) -> str:
+    def toText(self, verbosity: int=0, indent: int=0) -> str:
         indentA = UserOutput.indentPadding(indent=indent)
+
         text = ""
         if verbosity >= 0:
             text += f"{indentA}recurrence: {self.recurrencePeriod.value}"
@@ -530,7 +532,7 @@ class AggregateRecurrence(Recurrence):
             text += super().toText(indent=indent)
         if verbosity >= 1:
             for recurrence in self.recurrences:
-                text += f"\n{recurrence.toText(indent=indent+1)}"
+                text += f"\n{recurrence.toText(verbosity=verbosity-1, indent=indent+1)}"
         return text
 
     

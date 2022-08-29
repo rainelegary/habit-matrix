@@ -29,14 +29,14 @@ class YAMLInteraction:
 class YAMLFiles:
     args = sys.argv
     if len(args) >= 3:
-        WORKING_DIR = sys.argv[2]
+        YAML_DIR = sys.argv[2]
     else:
-        WORKING_DIR = ""
+        YAML_DIR = ""
     
-    HABITS = f"{WORKING_DIR}DataManagement/DataYAML/habits.yml"
-    RECURRENCES = f"{WORKING_DIR}DataManagement/DataYAML/recurrences.yml"
-    SESSION_INFO = f"{WORKING_DIR}DataManagement/DataYAML/sessionInfo.yml"
-    IMAGES = f"{WORKING_DIR}DataManagement/DataYAML/images.yml"
-    EXPERIMENTAL = f"{WORKING_DIR}DataManagement/DataYAML/experimental.yml"
+    HABITS = f"{YAML_DIR}habits.yml"
+    RECURRENCES = f"{YAML_DIR}recurrences.yml"
+    SESSION_INFO = f"{YAML_DIR}sessionInfo.yml"
+    IMAGES = f"{YAML_DIR}images.yml"
+    EXPERIMENTAL = f"{YAML_DIR}experimental.yml"
 
     

@@ -2,6 +2,7 @@ import string
 import re
 import datetime as dt
 from DateAndTime.calendarObjects import CalendarObjects
+from VisualsAndOutput.color import ColorEnum
 from VisualsAndOutput.userOutput import UserOutput
 
 
@@ -21,6 +22,10 @@ class UserInput:
 
     @staticmethod
     def indentedInput(prompt: str, indent: int=0):
+
+        defaultCode = ColorEnum.DEFAULT.value.code
+        blueCode = ColorEnum.BLUE.value.code
+
         userIn = input(f"{UserOutput.indentPadding(indent)}{prompt}")
         if userIn == "cancel":
             raise CancelInputException("input cancelled")
