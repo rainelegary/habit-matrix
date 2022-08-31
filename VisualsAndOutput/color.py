@@ -20,15 +20,15 @@ class ANSIEscapeSequence:
 
 
 class ColorEnum(Enum):
-    DEFAULT = Color("default", "d", (204, 204, 204))
+    DEFAULT = Color("default", "d", (210, 210, 210))
     RED = Color("red", "r", (230, 20, 60))
-    GREEN = Color("green", "g", (30, 200, 120))
+    GREEN = Color("green", "g", (0, 210, 90))
     BLUE = Color("blue", "b", (10, 110, 220))
     SKY = Color("cyan", "c", (120, 168, 240))
     YELLOW = Color("yellow", "y", (220, 220, 80))
     PURPLE = Color("purple", "p", (160, 30, 240))
-    # 30, 120, 220
-    # 220, 15, 20
+    # green 30, 200, 120
+    # default 204, 204, 204
 
 
 

@@ -18,9 +18,9 @@ floss teeth:
     done by time: '23:59'
     max days before: 5
     max days after: 0
-    quota met: 0
+    quota met: -1
     quota streak: 0
-    overdue: false
+    overdue: true
     prev completion date: null
     all completion dates: []
 renew driver's licence:
@@ -49,9 +49,9 @@ up by 8:
     done by time: 08:00
     max days before: 0
     max days after: 0
-    quota met: 1
-    quota streak: 1
-    overdue: false
+    quota met: -1
+    quota streak: 0
+    overdue: true
     prev completion date: Aug 28, 2022
     all completion dates:
     - Aug 28, 2022
