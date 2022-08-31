@@ -42,7 +42,7 @@ class SessionInfoDataStack(DataStack):
         completedDates = cls.__dataStack["completed dates"]
         if monthAndYearStr in completedDates:
             completedDates[monthAndYearStr].append(day)
-            completedDates.sort()
+            completedDates[monthAndYearStr].sort()
         else:
             completedDates[monthAndYearStr] = [day]
         cls.__dataStack["completed dates"] = completedDates

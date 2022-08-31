@@ -41,7 +41,7 @@ class Habit(TextEquivalent, DataEquivalent):
 
 
     def isUpcoming(self, referenceDate: dt.date=dt.date.today()) -> bool:
-        nextOcc = self.nextOccurrence(referenceDate=referenceDate)
+        nextOcc = self.nextOccurrence(referenceDate=referenceDate + dt.timedelta(days=1))
         if nextOcc == None: return False
         return referenceDate + dt.timedelta(days=self.upcomingBuffer) >= nextOcc
 
@@ -51,11 +51,11 @@ class Habit(TextEquivalent, DataEquivalent):
         indentB = UserOutput.indentPadding(indent=indent+1)
         text = ""
 
-        greenCode = ColorEnum.GREEN.value.code
+        blueCode = ColorEnum.BLUE.value.code
         defaultCode = ColorEnum.DEFAULT.value.code
 
         if verbosity >= 0:
-            text += f"{indentA}{greenCode}{self.title}{defaultCode}"
+            text += f"{indentA}{blueCode}{self.title}{defaultCode}"
         if verbosity >= 1:
             text += f"\n{self.recurrence.toText(verbosity=verbosity-1, indent=indent+1)}"
         if verbosity >= 2:

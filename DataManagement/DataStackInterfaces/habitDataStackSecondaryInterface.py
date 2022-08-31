@@ -97,6 +97,7 @@ class HabitDataStackSecondaryInterface:
             return
         
         habit.quotaState.overdue = False
+        HabitDataStack.updateHabit(habit)
         UserOutput.indentedPrint("habit dismissed.", indent=indent)
 
 
@@ -119,7 +120,7 @@ class HabitDataStackSecondaryInterface:
         allHabitsCompleted = True
         for habitName in HabitDataStack.getData():
             habit = HabitDataStack.getHabit(habitName)
-            complete = habit.required and date in habit.quotaState.allCompletionDates
+            complete = (not habit.required) or (date in habit.quotaState.allCompletionDates)
             if habit.isToday(referenceDate=date) and not complete:
                 allHabitsCompleted = False
         
@@ -168,8 +169,10 @@ class HabitDataStackSecondaryInterface:
             currentApplicableDate = today
 
         numDatesBetween = quotaState.numApplicableDatesBetween(recurrence, prevApplicableDate, currentApplicableDate)
-        
-        if numDatesBetween > 0 and habit.prevOccurrence(referenceDate=today - dt.timedelta(days=1)) != quotaState.prevCompletionDate:
+        prevOcc = habit.prevOccurrence(referenceDate=today - dt.timedelta(days=1))
+        prevComp = quotaState.prevCompletionDate
+
+        if numDatesBetween > 0 and (prevComp == None or prevOcc > prevComp):
             quotaState.overdue = True
 
         quotaState.quotaMet -= numDatesBetween

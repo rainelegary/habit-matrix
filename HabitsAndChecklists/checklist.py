@@ -14,7 +14,8 @@ from HabitsAndChecklists.habit import Habit
 
 
 class Checklist(ABC):
-    def display(self, header: str, headerColor: ColorEnum, isInChecklistDeciderFunction, passiveDoneTodo: bool, indent: int=0):
+    def display(self, header: str, headerColor: ColorEnum, isInChecklistDeciderFunction, 
+    passiveDoneTodo: bool, referenceDate=dt.date.today(), indent: int=0):
         UserOutput.indentedPrint(header, indent=indent, textColor=headerColor)
 
         if passiveDoneTodo:
@@ -28,13 +29,13 @@ class Checklist(ABC):
             habit = HabitDataStack.getHabit(habitName)
             if isInChecklistDeciderFunction(habit):
                 if habit.required:
-                    applicableCompletionDate = habit.quotaState.applicableCompletionDate(habit.recurrence)
-                    prevCompletionDate = habit.quotaState.prevCompletionDate
+                    applicableCompletionDate = habit.quotaState.applicableCompletionDate(habit.recurrence, referenceDate=referenceDate)
+                    allCompletionDates = habit.quotaState.allCompletionDates
                 if not passiveDoneTodo:
                     general.append(habit)
                 elif not habit.required:
                     passive.append(habit)
-                elif prevCompletionDate == applicableCompletionDate:
+                elif applicableCompletionDate in allCompletionDates:
                     done.append(habit)
                 else:
                     todo.append(habit)
@@ -55,7 +56,7 @@ class Checklist(ABC):
             UserOutput.indentedPrint("todo", indent=indent+1)
             printSection(todo, indent=indent+2)
         else:
-            printSection(general, indent=indent+2)
+            printSection(general, indent=indent+1)
             
         
 
@@ -70,7 +71,8 @@ class SingleDayChecklist(Checklist):
         def isInChecklistDeciderFunction(habit: Habit) -> bool:
             return habit.isToday(referenceDate=self.day)
 
-        super().display(f"checklist for {dayString}", ColorEnum.GREEN, isInChecklistDeciderFunction, True, indent=indent)
+        super().display(f"checklist for {dayString}", ColorEnum.BLUE, isInChecklistDeciderFunction, 
+        True, referenceDate=self.day, indent=indent)
                 
 
 

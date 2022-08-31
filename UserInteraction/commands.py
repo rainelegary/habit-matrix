@@ -656,8 +656,8 @@ class DismissHabitCommand(Command):
 
     @staticmethod
     def executeCommand(commandArgs: dict, indent: int=0):
-        completeHabitCommandArgs = DismissHabitCommand.DismissHabitCommandArgs(commandArgs)
-        habit = completeHabitCommandArgs.habit
+        dismissHabitCommandArgs = DismissHabitCommand.DismissHabitCommandArgs(commandArgs)
+        habit = dismissHabitCommandArgs.habit
         HabitDataStackSecondaryInterface.dismissHabit(habit, indent=indent)
 
 
