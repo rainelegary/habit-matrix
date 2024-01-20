@@ -10,12 +10,6 @@
 
 With automatically generated checklists, the habit matrix is the perfect tool for developing habits and reminding the user about something on their todo-list, all in one centralized place. It also turns habit building into a game, in that it marks a day on the calendar with a cool design every time the user completes all their habits for that day. The habit matrix comes in the form of a command line-based text interface, in which there is a variety of commands that the user can enter in order to manage and view their habits efficiently and enjoyably.
 
-## what inspired is to develop it?
+## what inspired me to develop it?
 
-We are very organized people who loves to write down all of our daily todo's and make sure we never forget to do anything on time. Our goal was to create an application that helps me form and maintain habits, as well us remind me when something important is coming up. It was also a great opportunity to hone our software development skills, and we learned many new skills that we'll be sure to put to use in future projects.
-
-## Related video content
-
-[demo video link here]
-
-[repo growth visualization link here]
+I am a very organized person who loves to write down all of my daily todo's and make sure I never forget to do anything on time. My goal was to create an application that helps me form and maintain habits, as well us remind me when something important is coming up. It was also a great opportunity to hone my software development skills, and I learned many new skills that we'll be sure to put to use in future projects.
